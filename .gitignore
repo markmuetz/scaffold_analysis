@@ -1,0 +1,7 @@
+*.pyc
+.*.swp
+build/
+dist/
+docs/_build/
+omnium.egg-info/
+.idea/
