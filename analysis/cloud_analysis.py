@@ -1,4 +1,5 @@
 import os
+from logging import getLogger
 
 import matplotlib
 matplotlib.use('Agg')
@@ -9,6 +10,8 @@ import iris
 from omnium.analyzer import Analyzer
 from omnium.utils import get_cube
 from omnium.consts import Re, L, cp, g
+
+logger = getLogger('omnium')
 
 
 class CloudAnalyzer(Analyzer):
@@ -34,13 +37,43 @@ class CloudAnalyzer(Analyzer):
         for height_level in self.height_levels:
             rho_heights.extend([height_level, height_level + 1])
 
-        w_slice = w[:, self.height_levels].copy()
-	self.results['w_slice'] = w_slice
-	self.results['qcl_slice'] = qcl[:, self.height_levels].copy()
-	self.results['rho_slice'] = rho[:, rho_heights].copy()
+        # ONLY use these to get coords.
+        w_slice = w[:, self.height_levels]
+        rho_slice = w[:, rho_heights]
+        slice_coords = [(w.coord('time'), 0),
+                        (w_slice.coord('model_level_number'), 1),
+                        (w.coord('grid_latitude'), 2),
+                        (w.coord('grid_longitude'), 3)]
 
-        w_thresh_coord = iris.coords.DimCoord(self.w_threshs, long_name='w_thres')
-        qcl_thresh_coord = iris.coords.DimCoord(self.qcl_threshs, long_name='qcl_thres')
+        rho_coords = [(w.coord('time'), 0),
+                      (rho_slice.coord('model_level_number'), 1),
+                      (w.coord('grid_latitude'), 2),
+                      (w.coord('grid_longitude'), 3)]
+
+        # WARNING, you have to do it like this or it's VERY SLOW.
+        # N.B. data deref'd *before* slice.
+        logger.debug('slicing data')
+        self.results['w_slice'] = iris.cube.Cube(w.data[:, self.height_levels],
+                                                 long_name='w_slice',
+                                                 units='m s-1',
+                                                 dim_coords_and_dims=slice_coords)
+                                                 
+        self.results['qcl_slice'] = iris.cube.Cube(qcl.data[:, self.height_levels],
+                                                   long_name='qcl_slice',
+                                                   units='kg kg-1',
+                                                   dim_coords_and_dims=slice_coords)
+                                                 
+        self.results['rho_slice'] = iris.cube.Cube(rho.data[:, rho_heights],
+                                                   long_name='rho_slice',
+                                                   units='kg m-3',
+                                                   dim_coords_and_dims=rho_coords)
+
+        # VERY SLOW if data you are reading are compressed.
+        # w_slice = w[:, self.height_levels]
+	# self.results['w_slice'] = w_slice
+	# self.results['w_slice'] = w_slice
+	# self.results['qcl_slice'] = qcl[:, self.height_levels].copy()
+	# self.results['rho_slice'] = rho[:, rho_heights].copy()
 
         cloud_mask_data = np.zeros((w.shape[0], 
                                     len(self.height_levels),
@@ -52,11 +85,14 @@ class CloudAnalyzer(Analyzer):
 	for h_index, height_level in enumerate(self.height_levels):
 	    for w_index, w_thresh in enumerate(self.w_threshs):
                 for qcl_index, qcl_thresh in enumerate(self.qcl_threshs):
+                    logger.debug('h, w, qcl index: ({}, {}, {})'.format(h_index, w_index, qcl_index))
                     w_mask = w[:, height_level].data > w_thresh
                     qcl_mask = qcl[:, height_level].data > qcl_thresh
 
                     cloud_mask_data[:, h_index, w_index, qcl_index] = (w_mask & qcl_mask).astype(int)
 
+        w_thresh_coord = iris.coords.DimCoord(self.w_threshs, long_name='w_thres', units='m s-1')
+        qcl_thresh_coord = iris.coords.DimCoord(self.qcl_threshs, long_name='qcl_thres', units='kg kg-1')
         cloud_mask_cube = iris.cube.Cube(cloud_mask_data, 
                                          long_name='cloud_mask',
                                          dim_coords_and_dims=[(w.coord('time'), 0),
