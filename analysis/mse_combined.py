@@ -4,6 +4,7 @@ from omnium.utils import get_cube_from_attr
 
 class MseCombinedAnalysis(Analyzer):
     analysis_name = 'mse_combined'
+    multi_file = True
 
     def run_analysis(self):
         cubes = self.cubes
