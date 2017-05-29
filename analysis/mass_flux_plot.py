@@ -14,7 +14,6 @@ class MassFlugPlotter(Analyzer):
     multi_expt = True
 
     def run_analysis(self):
-        pass
 	self.expt_mses = OrderedDict()
 	for expt in self.expts:
 	    cubes = self.expt_cubes[expt]
