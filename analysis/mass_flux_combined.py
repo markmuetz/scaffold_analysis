@@ -24,26 +24,27 @@ class MassFluxCombinedAnalysis(Analyzer):
         for filename in self.filenames:
             basename = os.path.basename(filename)
             runid = int(basename.split('.')[1])
-            if runid >= self.start_runid:
+            if runid >= self.start_runid or True:
                 cubes = iris.load(filename)
                 for cube in cubes:
                     if cube.name()[:9] == 'mass_flux':
-                        self.mass_fluxes[cube.name()].extend(cube.data)
+                        (height_level_index, thresh_index) = cube.attributes['mass_flux_key']
+                        self.mass_fluxes[(height_level_index, thresh_index)].extend(cube.data)
 
         self.append_log('Override loaded')
 
     def run_analysis(self):
-	for model_level_number in self.model_level_numbers:
-            for thresh_index in range(len(self.w_threshs)):
-                w_thresh = self.w_threshs[thresh_index]
-                qcl_thresh = self.qcl_threshs[thresh_index]
-                mf_cube_id = 'mass_flux_z{}_w{}_qcl{}'.format(model_level_number, w_thresh, qcl_thresh)
-                print(mf_cube_id)
+        for key, mass_flux in self.mass_fluxes.items():
+            (model_level_number, thresh_index) = key
 
-                mass_fluxes = self.mass_fluxes[mf_cube_id]
-                values = iris.coords.DimCoord(range(len(mass_fluxes)), long_name='values')
-                mass_flux_cube = iris.cube.Cube(mass_fluxes, 
-                                                long_name=mf_cube_id, 
-                                                dim_coords_and_dims=[(values, 0)], 
-                                                units='kg s-1')
-                self.results[mf_cube_id] = mass_flux_cube
+            w_thresh = self.w_threshs[thresh_index]
+            qcl_thresh = self.qcl_threshs[thresh_index]
+            mf_cube_id = 'mass_flux_z{}_w{}_qcl{}'.format(model_level_number, w_thresh, qcl_thresh)
+
+            values = iris.coords.DimCoord(range(len(mass_flux)), long_name='values')
+            mass_flux_cube = iris.cube.Cube(mass_flux, 
+                                            long_name=mf_cube_id, 
+                                            dim_coords_and_dims=[(values, 0)], 
+                                            units='kg s-1')
+            mass_flux_cube.attributes['mass_flux_key'] = key
+            self.results[mf_cube_id] = mass_flux_cube

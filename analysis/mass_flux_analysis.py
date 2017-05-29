@@ -71,4 +71,5 @@ class MassFluxAnalyzer(Analyzer):
 						dim_coords_and_dims=[(values, 0)], 
 						units='kg s-1')
 
+                mass_flux_cube.attributes['mass_flux_key'] = (height_level_index, thresh_index)
 		self.results[mf_cube_id] = mass_flux_cube
