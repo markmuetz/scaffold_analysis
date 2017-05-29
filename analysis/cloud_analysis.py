@@ -10,6 +10,7 @@ import iris
 from omnium.analyzer import Analyzer
 from omnium.utils import get_cube
 from omnium.consts import Re, L, cp, g
+from omnium.omnium_errors import OmniumError
 
 logger = getLogger('omnium')
 
@@ -22,6 +23,8 @@ class CloudAnalyzer(Analyzer):
 	self.height_levels = [int(l) for l in config['height_levels'].split(',')]
 	self.w_threshs = [float(t) for t in config['w_threshs'].split(',')]
 	self.qcl_threshs = [float(t) for t in config['qcl_threshs'].split(',')]
+        if len(self.w_threshs) != len(self.qcl_threshs):
+            raise OmniumError('w_threshs and qcl_threshs must be same length')
 	    
     def run_analysis(self):
         cubes = self.cubes
