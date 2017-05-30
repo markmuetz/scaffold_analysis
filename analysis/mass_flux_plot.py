@@ -15,11 +15,26 @@ class MassFluxPlotter(Analyzer):
     analysis_name = 'mass_flux_plot'
     multi_expt = True
 
+    def set_config(self, config):
+	super(MassFluxPlotter, self).set_config(config)
+        if 'xlim' in config:
+            self.xlim = [float(v) for v in config['xlim'].split(',')]
+        else:
+            self.xlim = None
+
+        if 'ylim' in config:
+            self.ylim = [float(v) for v in config['ylim'].split(',')]
+        else:
+            self.ylim = None
+        self.nbins = config.getint('nbins', None)
+
     def run_analysis(self):
         pass
 
     def _plot_mass_flux_hist(self):
-	self.append_log('plotting MSEs')
+	self.append_log('plotting mass_flux')
+
+        groups = []
 
 	for expt in self.expts:
 	    cubes = self.expt_cubes[expt]
@@ -36,6 +51,8 @@ class MassFluxPlotter(Analyzer):
 
             # Group on first element of tuple, i.e. on 1 for ((1, 3), cube)
             for group, cubes in groupby(sorted_cubes, lambda x: x[0][0]):
+                if group not in groups:
+                    groups.append(group)
                 hist_data = []
                 dmax = 0
                 for i, item in enumerate(cubes):
@@ -46,20 +63,55 @@ class MassFluxPlotter(Analyzer):
                 assert len(hist_data) == 3
                 name = '{}.{}.z{}.mass_flux_hist'.format(self.output_filename, expt, group)
                 plt.figure(name)
+                plt.clf()
+                plt.title(name)
 
-                # TODO: User configurable.
-                y_min, bin_edges = np.histogram(hist_data[2].data, bins=50, range=(0, dmax))
-                y, bin_edges = np.histogram(hist_data[1].data, bins=50, range=(0, dmax))
-                y_max, bin_edges = np.histogram(hist_data[0].data, bins=50, range=(0, dmax))
+                hist_kwargs = {}
+                if self.xlim:
+                    hist_kwargs['range'] = self.xlim
+                else:
+                    hist_kwargs['range'] = (0, dmax)
 
+                if self.nbins:
+                    hist_kwargs['bins'] = self.nbins
+                #y_min, bin_edges = np.histogram(hist_data[2].data, bins=50, range=(0, dmax))
+                #y_max, bin_edges = np.histogram(hist_data[0].data, bins=50, range=(0, dmax))
+                y, bin_edges = np.histogram(hist_data[1].data, **hist_kwargs)
                 bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
 
                 plot_filename = os.path.join(self.results_dir, name + '.png')
                 # yerr is a rel, not abs, value.
-                plt.bar(bin_centers, y, yerr=[y - y_min, y_max - y])
+                # N.B. full width bins.
+                width = bin_edges[1:] - bin_edges[:-1]
+                plt.bar(bin_centers, y, width=width)
+                #plt.bar(bin_centers, y, width=width, yerr=[y - y_min, y_max - y])
+
+                if self.xlim:
+                    plt.xlim(self.xlim)
+                plt.yscale('log')
+                if self.ylim:
+                    plt.ylim(ymax=self.ylim[1])
+                log_plot_filename = os.path.join(self.results_dir, name + '_log.png')
+                plt.savefig(log_plot_filename)
+                self.append_log('Saved to {}'.format(log_plot_filename))
+
+                plt.yscale('linear')
+                if self.ylim:
+                    plt.ylim(self.ylim)
                 plt.savefig(plot_filename)
                 self.append_log('Saved to {}'.format(plot_filename))
 
+                plt.figure('combined_expt_z{}'.format(group))
+                plt.plot(bin_centers, y, label=expt)
+
+        for group in groups:
+            plt.figure('combined_expt_z{}'.format(group))
+            plt.title('combined_expt_z{}'.format(group))
+            plt.legend()
+            plt.yscale('log')
+            combined_filename = os.path.join(self.results_dir, self.output_filename + '_z{}_combined.png'.format(group))
+            plt.savefig(combined_filename)
+            self.append_log('Saved to {}'.format(combined_filename))
 
     def save_analysis(self):
         self._plot_mass_flux_hist()
