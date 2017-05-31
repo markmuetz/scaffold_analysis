@@ -12,7 +12,7 @@ from omnium.utils import get_cube
 from omnium.consts import Re, L, cp, g
 from omnium.omnium_errors import OmniumError
 
-logger = getLogger('omnium.ca')
+logger = getLogger('om.ca')
 
 
 class CloudAnalyzer(Analyzer):

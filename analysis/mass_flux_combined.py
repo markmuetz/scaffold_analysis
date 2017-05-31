@@ -7,7 +7,7 @@ import iris
 from omnium.analyzer import Analyzer
 from omnium.utils import get_cube_from_attr
 
-logger = getLogger('omnium.mfc')
+logger = getLogger('om.mfc')
 
 class MassFluxCombinedAnalysis(Analyzer):
     analysis_name = 'mass_flux_combined'
