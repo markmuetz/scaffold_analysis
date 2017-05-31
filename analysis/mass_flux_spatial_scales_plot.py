@@ -15,17 +15,11 @@ class MassFluxSpatialScalesPlotter(Analyzer):
     analysis_name = 'mass_flux_spatial_scales_plot'
     multi_expt = True
 
+    def read_lim(self, lim):
+        return [float(v) for v in lim.split(',')]
+
     def set_config(self, config):
 	super(MassFluxSpatialScalesPlotter, self).set_config(config)
-        if 'xlim' in config:
-            self.xlim = [float(v) for v in config['xlim'].split(',')]
-        else:
-            self.xlim = None
-
-        if 'ylim' in config:
-            self.ylim = [float(v) for v in config['ylim'].split(',')]
-        else:
-            self.ylim = None
         self.nbins = config.getint('nbins', None)
 
     def run_analysis(self):
@@ -70,16 +64,25 @@ class MassFluxSpatialScalesPlotter(Analyzer):
                     (height_index, thresh_index, n) = mf_key
                     if n not in ns:
                         ns.append(n)
-                    name = '{}.{}.z{}.n{}.mass_flux_spatial_hist'.format(self.output_filename, expt, height_index, n)
+                    name = '{}.{}.z{}.n{}.mass_flux_spatial_hist'.format(self.output_filename, 
+			                                                 expt, height_index, n)
                     plt.figure(name)
                     plt.clf()
-                    plt.title(name)
+                    plt.title('{} z{} n{} mass_flux_spatial_hist'.format(expt, height_index, n))
 
                     hist_kwargs = {}
-                    if self.xlim:
-                        hist_kwargs['range'] = self.xlim
+		    xlim_key = 'z{}_n{}_xlim'.format(height_index, n)
+		    ylim_key = 'z{}_n{}_ylim'.format(height_index, n)
+		    xlim = None
+		    ylim = None
+		    if xlim_key in self._config:
+			xlim = self.read_lim(self._config[xlim_key])
+                        hist_kwargs['range'] = xlim
                     else:
                         hist_kwargs['range'] = (0, dmax)
+
+		    if ylim_key in self._config:
+			ylim = self.read_lim(self._config[ylim_key])
 
                     if self.nbins:
                         hist_kwargs['bins'] = self.nbins
@@ -91,32 +94,25 @@ class MassFluxSpatialScalesPlotter(Analyzer):
                     width = bin_edges[1:] - bin_edges[:-1]
                     plt.bar(bin_centers, y, width=width)
 
-                    if self.xlim:
-                        plt.xlim(self.xlim)
-                    plt.yscale('log')
-                    if self.ylim:
-                        plt.ylim(ymax=self.ylim[1])
-                    log_plot_filename = os.path.join(self.results_dir, name + '_log.png')
-                    plt.savefig(log_plot_filename)
-                    self.append_log('Saved to {}'.format(log_plot_filename))
-
-                    plt.yscale('linear')
-                    if self.ylim:
-                        plt.ylim(self.ylim)
+                    if xlim:
+                        plt.xlim(xlim)
+                    if ylim:
+                        plt.ylim(ylim)
                     plt.savefig(plot_filename)
                     self.append_log('Saved to {}'.format(plot_filename))
 
-                    plt.figure('combined_expt_z{}'.format(height_index))
+                    plt.figure('combined_expt_z{}_n{}'.format(height_index, n))
                     plt.plot(bin_centers, y, label=expt)
 
         for height_index in heights:
-            plt.figure('combined_expt_z{}'.format(height_index))
-            plt.title('combined_expt_z{}'.format(height_index))
-            plt.legend()
-            plt.yscale('log')
-            combined_filename = os.path.join(self.results_dir, self.output_filename + '_z{}_combined.png'.format(height_index))
-            plt.savefig(combined_filename)
-            self.append_log('Saved to {}'.format(combined_filename))
+	    for n in ns:
+		plt.figure('combined_expt_z{}_n{}'.format(height_index, n))
+		plt.title('combined_expt_z{}_n{}'.format(height_index, n))
+		plt.legend()
+		combined_filename = os.path.join(self.results_dir, self.output_filename +
+			                         '_z{}_n{}_combined.png'.format(height_index, n))
+		plt.savefig(combined_filename)
+		self.append_log('Saved to {}'.format(combined_filename))
 
     def save_analysis(self):
         self._plot_mass_flux_spatial()
