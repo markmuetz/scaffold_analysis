@@ -7,7 +7,7 @@ import iris
 from omnium.analyzer import Analyzer
 from omnium.utils import get_cube_from_attr, is_power_of_two
 
-logger = getLogger('omnium.mfssc')
+logger = getLogger('om.mfssc')
 
 class MassFluxSpatialScalesCombined(Analyzer):
     analysis_name = 'mass_flux_spatial_scales_combined'
