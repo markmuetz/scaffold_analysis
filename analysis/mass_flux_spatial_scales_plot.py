@@ -60,7 +60,7 @@ class MassFluxSpatialScalesPlotter(Analyzer):
                         dmax = max(cube.data.max(), dmax)
 
                 # assert len(hist_data) == 3
-                for mf_key, hist_datam in hist_data:
+                for mf_key, hist_datum in hist_data:
                     (height_index, thresh_index, n) = mf_key
                     if n not in ns:
                         ns.append(n)
@@ -79,14 +79,16 @@ class MassFluxSpatialScalesPlotter(Analyzer):
 			xlim = self.read_lim(self._config[xlim_key])
                         hist_kwargs['range'] = xlim
                     else:
-                        hist_kwargs['range'] = (0, dmax)
+                        #hist_kwargs['range'] = (0, 0.1)
+			pass
 
 		    if ylim_key in self._config:
 			ylim = self.read_lim(self._config[ylim_key])
 
                     if self.nbins:
                         hist_kwargs['bins'] = self.nbins
-                    y, bin_edges = np.histogram(hist_datam.data, **hist_kwargs)
+		    filtered_data = hist_datum.data[hist_datum.data > 0.01]
+                    y, bin_edges = np.histogram(filtered_data, **hist_kwargs)
                     bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
 
                     plot_filename = os.path.join(self.results_dir, name + '.png')
@@ -94,6 +96,7 @@ class MassFluxSpatialScalesPlotter(Analyzer):
                     width = bin_edges[1:] - bin_edges[:-1]
                     plt.bar(bin_centers, y, width=width)
 
+		    plt.xlim((0, 0.1))
                     if xlim:
                         plt.xlim(xlim)
                     if ylim:
@@ -109,6 +112,7 @@ class MassFluxSpatialScalesPlotter(Analyzer):
 		plt.figure('combined_expt_z{}_n{}'.format(height_index, n))
 		plt.title('combined_expt_z{}_n{}'.format(height_index, n))
 		plt.legend()
+		plt.xlim((0, 0.1))
 		combined_filename = os.path.join(self.results_dir, self.output_filename +
 			                         '_z{}_n{}_combined.png'.format(height_index, n))
 		plt.savefig(combined_filename)
