@@ -7,7 +7,7 @@ import pylab as plt
 import iris
 
 from omnium.analyzer import Analyzer
-from omnium.utils import get_cube
+from omnium.utils import get_cube, count_blobs_mask
 from omnium.consts import Re, L, cp, g
 
 
@@ -89,6 +89,7 @@ class ProfileAnalyzer(Analyzer):
         plt.plot(mf_cloud_profile.data, height, label='cloud mask')
         plt.plot(mf_w_profile.data, height, label='w mask')
         plt.plot(mf_qcl_profile.data, height, label='qcl mask')
+	plt.ylim((0, 20000))
 	if self.mf_profile_xlim:
 	    plt.xlim(self.mf_profile_xlim)
         plt.legend()
@@ -157,9 +158,26 @@ class ProfileAnalyzer(Analyzer):
         mf = w_rho_grid * rho.data
         # Calc. profiles.
         # N.B. mf[:, i][cloud_mask[:, i]].sum() is the conv. mass-flux at level i.
-        mf_cloud_profile_data = np.array([mf[:, i][cloud_mask[:, i]].sum() for i in range(mf.shape[1])])
-        mf_w_profile_data = np.array([mf[:, i][w_mask[:, i]].sum() for i in range(mf.shape[1])])
-        mf_qcl_profile_data = np.array([mf[:, i][qcl_mask[:, i]].sum() for i in range(mf.shape[1])])
+        #mf_cloud_profile_data = np.array([mf[:, i][cloud_mask[:, i]].sum() for i in range(mf.shape[1])])
+        #mf_w_profile_data = np.array([mf[:, i][w_mask[:, i]].sum() for i in range(mf.shape[1])])
+        #mf_qcl_profile_data = np.array([mf[:, i][qcl_mask[:, i]].sum() for i in range(mf.shape[1])])
+        mf_cloud_profile_data = []
+        mf_w_profile_data = []
+        mf_qcl_profile_data = []
+
+        for mask, profile_data in [(cloud_mask, mf_cloud_profile_data),
+                                   (w_mask, mf_w_profile_data), 
+                                   (qcl_mask, mf_qcl_profile_data)]:
+            for i in range(mf.shape[1]):
+                mf_conv = mf[:, i][mask[:, i]].sum()
+                num_clouds = 0
+                for itime in range(mf.shape[0]):
+                    num_clouds += count_blobs_mask(mask[itime, i], diagonal=True)[0]
+                profile_data.append(mf_conv/num_clouds * 4e6)
+
+        mf_cloud_profile_data = np.array(mf_cloud_profile_data)
+        mf_w_profile_data = np.array(mf_w_profile_data)
+        mf_qcl_profile_data = np.array(mf_qcl_profile_data)
 
         mf_cloud_profile_data[np.isnan(mf_cloud_profile_data)] = 0
         mf_w_profile_data[np.isnan(mf_w_profile_data)] = 0
