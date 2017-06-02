@@ -78,8 +78,8 @@ class MassFluxPlotter(Analyzer):
                 #y_max, bin_edges = np.histogram(hist_data[0].data, bins=50, range=(0, dmax))
                 y, bin_edges = np.histogram(hist_data[1].data, **hist_kwargs)
                 bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
+		y2 = bin_centers * y
 
-                plot_filename = os.path.join(self.results_dir, name + '.png')
                 # yerr is a rel, not abs, value.
                 # N.B. full width bins.
                 width = bin_edges[1:] - bin_edges[:-1]
@@ -91,28 +91,34 @@ class MassFluxPlotter(Analyzer):
                 plt.yscale('log')
                 if self.ylim:
                     plt.ylim(ymax=self.ylim[1])
-                log_plot_filename = os.path.join(self.results_dir, name + '_log.png')
-                plt.savefig(log_plot_filename)
-                self.append_log('Saved to {}'.format(log_plot_filename))
 
                 plt.yscale('linear')
                 if self.ylim:
                     plt.ylim(self.ylim)
-                plt.savefig(plot_filename)
-                self.append_log('Saved to {}'.format(plot_filename))
+                plt.savefig(self.figpath(name + '.png'))
+
+		plt.figure(name + 'mf_wieghted_plot_filename')
+		plt.clf()
+		plt.plot(bin_centers, y2)
+                plt.savefig(self.figpath('_mf_weighted.png'))
 
                 plt.figure('combined_expt_z{}'.format(group))
                 plt.plot(bin_centers, y, label=expt)
+
+                plt.figure('combined_expt_mf_weighted_z{}'.format(group))
+		plt.plot(bin_centers, y2, label=expt)
 
         for group in groups:
             plt.figure('combined_expt_z{}'.format(group))
             plt.title('combined_expt_z{}'.format(group))
             plt.legend()
             plt.yscale('log')
-            combined_filename = os.path.join(self.results_dir, self.output_filename + '_z{}_combined.png'.format(group))
-            plt.savefig(combined_filename)
-            self.append_log('Saved to {}'.format(combined_filename))
+            plt.savefig(self.figpath('_z{}_combined.png'.format(group)))
 
-    def save_analysis(self):
+	    plt.figure('combined_expt_mf_weighted_z{}'.format(group))
+            plt.legend()
+            plt.savefig(self.figpath('_z{}_mf_weighted_comb.png'.format(group)))
+
+    def display_results(self):
         self._plot_mass_flux_hist()
         plt.close('all')

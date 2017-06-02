@@ -91,7 +91,6 @@ class MassFluxSpatialScalesPlotter(Analyzer):
                     y, bin_edges = np.histogram(filtered_data, **hist_kwargs)
                     bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
 
-                    plot_filename = os.path.join(self.results_dir, name + '.png')
                     # N.B. full width bins.
                     width = bin_edges[1:] - bin_edges[:-1]
                     plt.bar(bin_centers, y, width=width)
@@ -101,8 +100,7 @@ class MassFluxSpatialScalesPlotter(Analyzer):
                         plt.xlim(xlim)
                     if ylim:
                         plt.ylim(ylim)
-                    plt.savefig(plot_filename)
-                    self.append_log('Saved to {}'.format(plot_filename))
+                    plt.savefig(self.figpath('.png'))
 
                     plt.figure('combined_expt_z{}_n{}'.format(height_index, n))
                     plt.plot(bin_centers, y, label=expt)
@@ -113,11 +111,8 @@ class MassFluxSpatialScalesPlotter(Analyzer):
 		plt.title('combined_expt_z{}_n{}'.format(height_index, n))
 		plt.legend()
 		plt.xlim((0, 0.1))
-		combined_filename = os.path.join(self.results_dir, self.output_filename +
-			                         '_z{}_n{}_combined.png'.format(height_index, n))
-		plt.savefig(combined_filename)
-		self.append_log('Saved to {}'.format(combined_filename))
+		plt.savefig(self.figpath('_z{}_n{}_combined.png'.format(height_index, n)))
 
-    def save_analysis(self):
+    def display_results(self):
         self._plot_mass_flux_spatial()
         plt.close('all')

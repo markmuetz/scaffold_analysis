@@ -37,10 +37,8 @@ class MsePlotter(Analyzer):
 	    plt.title(self.output_filename + '_mse_timeseries')
 	    plt.plot(mses, label=expt)
 	plt.legend()
-	plot_filename = os.path.join(self.results_dir, self.output_filename + '_mse_timeseries.png')
-        plt.savefig(plot_filename)
-	self.append_log('Saved to {}'.format(plot_filename))
+        plt.savefig(self.figpath('_mse_timeseries.png'))
 
-    def save_analysis(self):
+    def display_results(self):
         self._plot_mses()
         plt.close('all')
