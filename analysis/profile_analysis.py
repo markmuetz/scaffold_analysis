@@ -26,13 +26,13 @@ class ProfileAnalyzer(Analyzer):
     def _plot_uv(self):
         u_profile = self.results['u_profile']
         v_profile = self.results['v_profile']
-        u_heights = self.u_heights
+        height = u_profile.coord('level_height').points
         plt.figure(self.output_filename + '_uv_profile')
         plt.clf()
         plt.title(self.output_filename + '_uv_profile')
 
-        plt.plot(u_profile.data, u_heights, 'g-', label='u')
-        plt.plot(v_profile.data, u_heights, 'b--', label='v')
+        plt.plot(u_profile.data, height, 'g-', label='u')
+        plt.plot(v_profile.data, height, 'b--', label='v')
 
         plt.ylabel('height (m)')
         plt.xlabel('(m s$^{-1}$)')
@@ -63,8 +63,8 @@ class ProfileAnalyzer(Analyzer):
         plt.savefig(self.figpath('_qcl_profile.png'))
 
     def _plot_momentum_flux(self):
-        u_mom_flux_ts = self.u_mom_flux_ts
-        v_mom_flux_ts = self.v_mom_flux_ts
+        u_mom_flux_ts = self.results['u_mom_flux_ts']
+        v_mom_flux_ts = self.results['v_mom_flux_ts']
         z = u_mom_flux_ts.coord('level_height').points
 
         plt.figure(self.output_filename + '_momentum_flux_profile')
@@ -127,14 +127,14 @@ class ProfileAnalyzer(Analyzer):
 
         dz_ts = dz.repeat(u_inc_ts.shape[0]).reshape(*u_inc_ts.shape)
         delta_t = 30 # 30s.
-        self.u_mom_flux_ts = rho_ts * u_inc_ts * dz_ts / delta_t
-        self.v_mom_flux_ts = rho_ts * v_inc_ts * dz_ts / delta_t
+        u_mom_flux_ts = rho_ts * u_inc_ts * dz_ts / delta_t
+        v_mom_flux_ts = rho_ts * v_inc_ts * dz_ts / delta_t
 
         start_time = u_inc_ts.coord('time').points[0]
         self.times = u_inc_ts.coord('time').points - start_time
 
-        self.results['u_mom_flux_ts'] = self.u_mom_flux_ts
-        self.results['v_mom_flux_ts'] = self.v_mom_flux_ts
+        self.results['u_mom_flux_ts'] = u_mom_flux_ts
+        self.results['v_mom_flux_ts'] = v_mom_flux_ts
 
         # mass flux profile.
         w = get_cube(cubes, 0, 150)

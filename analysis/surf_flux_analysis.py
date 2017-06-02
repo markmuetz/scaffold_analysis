@@ -16,10 +16,12 @@ class SurfFluxAnalyzer(Analyzer):
     analysis_name = 'surf_flux_analysis'
 
     def _plot(self):
-        precip_ts = self.precip_ts
-        lhf_ts = self.lhf_ts
-        shf_ts = self.shf_ts
-        times = self.times
+        precip_ts = self.results['precip_ts']
+        lhf_ts = self.results['lhf_ts']
+        shf_ts = self.results['shf_ts']
+
+        start_time = precip_ts.coord('time').points[0]
+        times = precip_ts.coord('time').points - start_time
 
         plt.figure(self.output_filename + '_energy_fluxes')
         plt.clf()
@@ -59,9 +61,6 @@ class SurfFluxAnalyzer(Analyzer):
         self.precip_ts = precip.collapsed(['grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
         self.lhf_ts = lhf.collapsed(['grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
         self.shf_ts = shf.collapsed(['grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
-
-        start_time = precip.coord('time').points[0]
-        self.times = precip.coord('time').points - start_time
 
         self.results['precip_ts'] = self.precip_ts
         self.results['lhf_ts'] = self.lhf_ts
