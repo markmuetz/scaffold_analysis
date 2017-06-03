@@ -18,10 +18,18 @@ class ProfileAnalyzer(Analyzer):
 	super(ProfileAnalyzer, self).set_config(config)
 	self.w_thresh = config.getfloat('w_thresh', 1)
 	self.qcl_thresh = config.getfloat('qcl_thresh', 0.0001)
-        if 'mf_profile_xlim' in config:
-            self.mf_profile_xlim = [float(v) for v in config['mf_profile_xlim'].split(',')]
+        if 'mfpercloud_profile_xlim' in config:
+            self.mfpercloud_profile_xlim = [float(v) for v in config['mfpercloud_profile_xlim'].split(',')]
         else:
-            self.mf_profile_xlim = None
+            self.mfpercloud_profile_xlim = None
+        if 'mftotal_profile_xlim' in config:
+            self.mftotal_profile_xlim = [float(v) for v in config['mftotal_profile_xlim'].split(',')]
+        else:
+            self.mftotal_profile_xlim = None
+        if 'cloud_profile_xlim' in config:
+            self.cloud_profile_xlim = [float(v) for v in config['cloud_profile_xlim'].split(',')]
+        else:
+            self.cloud_profile_xlim = None
 	    
     def _plot_uv(self):
         u_profile = self.results['u_profile']
@@ -84,16 +92,42 @@ class ProfileAnalyzer(Analyzer):
         mf_qcl_profile = self.results['mf_qcl_profile']
         height = mf_cloud_profile.coord('level_height').points
 
+        clouds_cloud_profile = self.results['clouds_cloud_profile']
+        clouds_w_profile = self.results['clouds_w_profile']
+        clouds_qcl_profile = self.results['clouds_qcl_profile']
+
         plt.clf()
-	plt.title(self.expt)
+        plt.title(self.expt + ': mf/cloud')
         plt.plot(mf_cloud_profile.data, height, label='cloud mask')
         plt.plot(mf_w_profile.data, height, label='w mask')
         plt.plot(mf_qcl_profile.data, height, label='qcl mask')
 	plt.ylim((0, 20000))
-	if self.mf_profile_xlim:
-	    plt.xlim(self.mf_profile_xlim)
+	if self.mfpercloud_profile_xlim:
+	    plt.xlim(self.mfpercloud_profile_xlim)
         plt.legend()
-        plt.savefig(self.figpath('_mass_flux_profile.png'))
+        plt.savefig(self.figpath('_mfpercloud_profile.png'))
+
+        plt.clf()
+        plt.title(self.expt + ': #clouds')
+        plt.plot(clouds_cloud_profile.data, height, label='cloud mask')
+        plt.plot(clouds_w_profile.data, height, label='w mask')
+        plt.plot(clouds_qcl_profile.data, height, label='qcl mask')
+	plt.ylim((0, 20000))
+	if self.cloud_profile_xlim:
+	    plt.xlim(self.cloud_profile_xlim)
+        plt.legend()
+        plt.savefig(self.figpath('_numclouds_profile.png'))
+
+        plt.clf()
+        plt.title(self.expt + ': total mf')
+        plt.plot(clouds_cloud_profile.data * mf_cloud_profile.data, height, label='cloud mask')
+        plt.plot(clouds_w_profile.data * mf_w_profile.data, height, label='w mask')
+        plt.plot(clouds_qcl_profile.data * mf_qcl_profile.data, height, label='qcl mask')
+	plt.ylim((0, 20000))
+	if self.mftotal_profile_xlim:
+	    plt.xlim(self.mftotal_profile_xlim)
+        plt.legend()
+        plt.savefig(self.figpath('_totalmf_profile.png'))
 
     def run_analysis(self):
         cubes = self.cubes
@@ -161,38 +195,33 @@ class ProfileAnalyzer(Analyzer):
         #mf_cloud_profile_data = np.array([mf[:, i][cloud_mask[:, i]].sum() for i in range(mf.shape[1])])
         #mf_w_profile_data = np.array([mf[:, i][w_mask[:, i]].sum() for i in range(mf.shape[1])])
         #mf_qcl_profile_data = np.array([mf[:, i][qcl_mask[:, i]].sum() for i in range(mf.shape[1])])
-        mf_cloud_profile_data = []
-        mf_w_profile_data = []
-        mf_qcl_profile_data = []
 
-        for mask, profile_data in [(cloud_mask, mf_cloud_profile_data),
-                                   (w_mask, mf_w_profile_data), 
-                                   (qcl_mask, mf_qcl_profile_data)]:
+	height_coord = iris.coords.DimCoord(height, long_name='level_height', units='m')
+        for name, mask in [('cloud_profile', cloud_mask),
+                           ('w_profile', w_mask), 
+                           ('qcl_profile', qcl_mask)]:
+            profile_data = []
+            cloud_data = []
+
             for i in range(mf.shape[1]):
                 mf_conv = mf[:, i][mask[:, i]].sum()
                 num_clouds = 0
                 for itime in range(mf.shape[0]):
                     num_clouds += count_blobs_mask(mask[itime, i], diagonal=True)[0]
                 profile_data.append(mf_conv/num_clouds * 4e6)
+                cloud_data.append(num_clouds)
 
-        mf_cloud_profile_data = np.array(mf_cloud_profile_data)
-        mf_w_profile_data = np.array(mf_w_profile_data)
-        mf_qcl_profile_data = np.array(mf_qcl_profile_data)
-
-        mf_cloud_profile_data[np.isnan(mf_cloud_profile_data)] = 0
-        mf_w_profile_data[np.isnan(mf_w_profile_data)] = 0
-        mf_qcl_profile_data[np.isnan(mf_qcl_profile_data)] = 0
-
-	height_coord = iris.coords.DimCoord(height, long_name='level_height', units='m')
-        self.results['mf_cloud_profile'] = iris.cube.Cube(mf_cloud_profile_data, 
-                                                          long_name='mass_flux_profile_cloud_mask',
-                                                          dim_coords_and_dims=[(height_coord, 0)])
-        self.results['mf_w_profile'] = iris.cube.Cube(mf_w_profile_data, 
-                                                      long_name='mass_flux_profile_w_mask',
+            profile_data = np.array(profile_data)
+            profile_data[np.isnan(profile_data)] = 0
+            mf_name = 'mf_' + name
+            cloud_name = 'clouds_' + name
+            self.results[mf_name] = iris.cube.Cube(profile_data, 
+                                                   long_name=mf_name,
+                                                   dim_coords_and_dims=[(height_coord, 0)])
+            self.results[cloud_name] = iris.cube.Cube(cloud_data, 
+                                                      long_name=cloud_name,
                                                       dim_coords_and_dims=[(height_coord, 0)])
-        self.results['mf_qcl_profile'] = iris.cube.Cube(mf_qcl_profile_data, 
-                                                        long_name='mass_flux_profile_qcl_mask',
-                                                        dim_coords_and_dims=[(height_coord, 0)])
+
 
     def display_results(self):
         self._plot_uv()
