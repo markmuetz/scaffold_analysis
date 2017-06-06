@@ -100,7 +100,7 @@ class MassFluxSpatialScalesPlotter(Analyzer):
                         plt.xlim(xlim)
                     if ylim:
                         plt.ylim(ylim)
-                    plt.savefig(self.figpath('.png'))
+                    plt.savefig(self.figpath(name + '.png'))
 
                     plt.figure('combined_expt_z{}_n{}'.format(height_index, n))
                     plt.plot(bin_centers, y, label=expt)
