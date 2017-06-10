@@ -95,7 +95,7 @@ class MassFluxSpatialScalesPlotter(Analyzer):
 
                     # N.B. full width bins.
                     width = bin_edges[1:] - bin_edges[:-1]
-                    plt.bar(bin_centers, y, width=width)
+                    plt.bar(bin_centers, y / n**2, width=width)
 
                     if self.xlim:
                         plt.xlim(self.xlim)
@@ -103,10 +103,21 @@ class MassFluxSpatialScalesPlotter(Analyzer):
                         plt.ylim(self.ylim)
                     plt.savefig(self.figpath(name + '.png'))
 
+                    name = '{}.z{}.all_n.hist'.format(expt, height_index)
+                    plt.figure(name)
+                    plt.plot(bin_centers, y / n**2, label=expt)
+
                     plt.figure('combined_expt_z{}_n{}'.format(height_index, n))
-                    plt.plot(bin_centers, y, label=expt)
+                    plt.plot(bin_centers, y / n**2, label=expt)
 
         for height_index in heights:
+	    for expt in self.expts:
+		name = '{}.z{}.all_n.hist'.format(expt, height_index)
+		plt.figure(name)
+		plt.title(name)
+		plt.legend()
+		plt.savefig(self.figpath(name + '.png'))
+
 	    for n in ns:
 		plt.figure('combined_expt_z{}_n{}'.format(height_index, n))
 		plt.title('combined_expt_z{}_n{}'.format(height_index, n))
