@@ -21,6 +21,17 @@ class MassFluxSpatialScalesPlotter(Analyzer):
     def set_config(self, config):
 	super(MassFluxSpatialScalesPlotter, self).set_config(config)
         self.nbins = config.getint('nbins', None)
+	self.x_cutoff = config.getfloat('x_cutoff', 0)
+
+        if 'xlim' in config:
+            self.xlim = [float(v) for v in config['xlim'].split(',')]
+        else:
+            self.xlim = None
+
+        if 'ylim' in config:
+            self.ylim = [float(v) for v in config['ylim'].split(',')]
+        else:
+            self.ylim = None
 
     def run_analysis(self):
         pass
@@ -64,30 +75,21 @@ class MassFluxSpatialScalesPlotter(Analyzer):
                     (height_index, thresh_index, n) = mf_key
                     if n not in ns:
                         ns.append(n)
-                    name = '{}.{}.z{}.n{}.mass_flux_spatial_hist'.format(self.output_filename, 
-			                                                 expt, height_index, n)
+                    name = '{}.z{}.n{}.hist'.format(expt, height_index, n)
                     plt.figure(name)
                     plt.clf()
                     plt.title('{} z{} n{} mass_flux_spatial_hist'.format(expt, height_index, n))
 
                     hist_kwargs = {}
-		    xlim_key = 'z{}_n{}_xlim'.format(height_index, n)
-		    ylim_key = 'z{}_n{}_ylim'.format(height_index, n)
-		    xlim = None
-		    ylim = None
-		    if xlim_key in self._config:
-			xlim = self.read_lim(self._config[xlim_key])
-                        hist_kwargs['range'] = xlim
+		    if self.xlim:
+                        hist_kwargs['range'] = self.xlim
                     else:
                         #hist_kwargs['range'] = (0, 0.1)
 			pass
 
-		    if ylim_key in self._config:
-			ylim = self.read_lim(self._config[ylim_key])
-
                     if self.nbins:
                         hist_kwargs['bins'] = self.nbins
-		    filtered_data = hist_datum.data[hist_datum.data > 0.01]
+		    filtered_data = hist_datum.data[hist_datum.data >= self.x_cutoff]
                     y, bin_edges = np.histogram(filtered_data, **hist_kwargs)
                     bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
 
@@ -95,11 +97,10 @@ class MassFluxSpatialScalesPlotter(Analyzer):
                     width = bin_edges[1:] - bin_edges[:-1]
                     plt.bar(bin_centers, y, width=width)
 
-		    plt.xlim((0, 0.1))
-                    if xlim:
-                        plt.xlim(xlim)
-                    if ylim:
-                        plt.ylim(ylim)
+                    if self.xlim:
+                        plt.xlim(self.xlim)
+                    if self.ylim:
+                        plt.ylim(self.ylim)
                     plt.savefig(self.figpath(name + '.png'))
 
                     plt.figure('combined_expt_z{}_n{}'.format(height_index, n))
@@ -110,8 +111,9 @@ class MassFluxSpatialScalesPlotter(Analyzer):
 		plt.figure('combined_expt_z{}_n{}'.format(height_index, n))
 		plt.title('combined_expt_z{}_n{}'.format(height_index, n))
 		plt.legend()
-		plt.xlim((0, 0.1))
-		plt.savefig(self.figpath('_z{}_n{}_combined.png'.format(height_index, n)))
+		if self.xlim:
+		    plt.xlim(self.xlim)
+		plt.savefig(self.figpath('z{}_n{}_combined.png'.format(height_index, n)))
 
     def display_results(self):
         self._plot_mass_flux_spatial()
