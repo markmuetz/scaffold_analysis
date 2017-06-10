@@ -28,12 +28,13 @@ class ProfilePlotter(Analyzer):
             shear_factor = int(expt[1]) # i.e. 0-5.
             shear_u_profile = self.base_u_profile.copy()
             shear_u_profile[:, 1] *= shear_factor
-            plot = plt.plot(shear_u_profile[:, 1], shear_u_profile[:, 0], label=expt)
+	    # N.B. convert m->km.
+            plot = plt.plot(shear_u_profile[:, 1], shear_u_profile[:, 0] / 1e3, label=expt)
             colour = plot[0].get_color()
-            plt.plot(u_profile.data, height, color=colour, linestyle='--')
+            plt.plot(u_profile.data, height / 1e3, color=colour, linestyle='--')
         plt.xlim((-15, 15))
-        plt.ylim((0, 20e3))
-        plt.ylabel('height (m)')
+        plt.ylim((0, 20))
+        plt.ylabel('height (km)')
         plt.xlabel('u profile (m s$^{-1}$)')
         plt.legend()
         plt.savefig(self.figpath('uv_profile.png'))
