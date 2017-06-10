@@ -46,7 +46,7 @@ class ProfileAnalyzer(Analyzer):
         plt.xlabel('(m s$^{-1}$)')
 
         plt.legend()
-        plt.savefig(self.figpath('_uv_profile.png'))
+        plt.savefig(self.figpath('uv_profile.png'))
 
     def _plot_theta_qcl(self):
 	plt.figure('theta')
@@ -58,7 +58,7 @@ class ProfileAnalyzer(Analyzer):
 	plt.ylim((0, 20000))
         plt.xlabel('theta (K)')
         plt.ylabel('height (m)')
-        plt.savefig(self.figpath('_theta_profile.png'))
+        plt.savefig(self.figpath('theta_profile.png'))
 
 	plt.figure('qcl')
         qcl_profile = self.results['qcl_profile']
@@ -68,7 +68,7 @@ class ProfileAnalyzer(Analyzer):
 	plt.ylim((0, 20000))
         plt.xlabel('qcl (g kg$^{-1}$)')
         plt.ylabel('height (m)')
-        plt.savefig(self.figpath('_qcl_profile.png'))
+        plt.savefig(self.figpath('qcl_profile.png'))
 
     def _plot_momentum_flux(self):
         u_mom_flux_ts = self.results['u_mom_flux_ts']
@@ -84,7 +84,7 @@ class ProfileAnalyzer(Analyzer):
         plt.ylabel('height (m)')
         plt.xlabel('mom flux (kg m$^{-1}$ s$^{-2}$)')
         plt.legend()
-        plt.savefig(self.figpath('_momentum_flux_profile.png'))
+        plt.savefig(self.figpath('momentum_flux_profile.png'))
 
     def _plot_mass_flux(self):
         mf_cloud_profile = self.results['mf_cloud_profile']
@@ -105,7 +105,7 @@ class ProfileAnalyzer(Analyzer):
 	if self.mfpercloud_profile_xlim:
 	    plt.xlim(self.mfpercloud_profile_xlim)
         plt.legend()
-        plt.savefig(self.figpath('_mfpercloud_profile.png'))
+        plt.savefig(self.figpath('mfpercloud_profile.png'))
 
         plt.clf()
         plt.title(self.expt + ': #clouds')
@@ -116,7 +116,7 @@ class ProfileAnalyzer(Analyzer):
 	if self.cloud_profile_xlim:
 	    plt.xlim(self.cloud_profile_xlim)
         plt.legend()
-        plt.savefig(self.figpath('_numclouds_profile.png'))
+        plt.savefig(self.figpath('numclouds_profile.png'))
 
         plt.clf()
         plt.title(self.expt + ': total mf')
@@ -127,7 +127,7 @@ class ProfileAnalyzer(Analyzer):
 	if self.mftotal_profile_xlim:
 	    plt.xlim(self.mftotal_profile_xlim)
         plt.legend()
-        plt.savefig(self.figpath('_totalmf_profile.png'))
+        plt.savefig(self.figpath('totalmf_profile.png'))
 
     def run_analysis(self):
         cubes = self.cubes
