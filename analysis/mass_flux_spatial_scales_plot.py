@@ -105,7 +105,7 @@ class MassFluxSpatialScalesPlotter(Analyzer):
 
                     name = '{}.z{}.all_n.hist'.format(expt, height_index)
                     plt.figure(name)
-                    plt.plot(bin_centers, y / n**2, label=expt)
+                    plt.plot(bin_centers, y / n**2, label=n)
 
                     plt.figure('combined_expt_z{}_n{}'.format(height_index, n))
                     plt.plot(bin_centers, y / n**2, label=expt)
