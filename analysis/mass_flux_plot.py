@@ -61,7 +61,7 @@ class MassFluxPlotter(Analyzer):
                     dmax = max(cube.data.max(), dmax)
 
                 assert len(hist_data) == 3
-                name = '{}.{}.z{}.mass_flux_hist'.format(self.output_filename, expt, group)
+                name = '{}.z{}.mass_flux_hist'.format(expt, group)
                 plt.figure(name)
                 plt.clf()
                 plt.title(name)
@@ -100,7 +100,7 @@ class MassFluxPlotter(Analyzer):
 		plt.figure(name + 'mf_wieghted_plot_filename')
 		plt.clf()
 		plt.plot(bin_centers, y2)
-                plt.savefig(self.figpath('_mf_weighted.png'))
+                plt.savefig(self.figpath(name + '.mf_weighted.png'))
 
                 plt.figure('combined_expt_z{}'.format(group))
                 plt.plot(bin_centers, y, label=expt)
@@ -113,11 +113,11 @@ class MassFluxPlotter(Analyzer):
             plt.title('combined_expt_z{}'.format(group))
             plt.legend()
             plt.yscale('log')
-            plt.savefig(self.figpath('_z{}_combined.png'.format(group)))
+            plt.savefig(self.figpath('z{}_combined.png'.format(group)))
 
 	    plt.figure('combined_expt_mf_weighted_z{}'.format(group))
             plt.legend()
-            plt.savefig(self.figpath('_z{}_mf_weighted_comb.png'.format(group)))
+            plt.savefig(self.figpath('z{}_mf_weighted_comb.png'.format(group)))
 
     def display_results(self):
         self._plot_mass_flux_hist()

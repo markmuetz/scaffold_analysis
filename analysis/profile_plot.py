@@ -31,6 +31,7 @@ class ProfilePlotter(Analyzer):
             plot = plt.plot(shear_u_profile[:, 1], shear_u_profile[:, 0], label=expt)
             colour = plot[0].get_color()
             plt.plot(u_profile.data, height, color=colour, linestyle='--')
+        plt.xlim((-15, 15))
         plt.ylim((0, 20e3))
         plt.ylabel('height (m)')
         plt.xlabel('u profile (m s$^{-1}$)')
