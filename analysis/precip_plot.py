@@ -1,0 +1,65 @@
+import os
+
+import matplotlib
+matplotlib.use('Agg')
+import numpy as np
+import pylab as plt
+import iris
+
+from omnium.analyzer import Analyzer
+from omnium.utils import get_cube
+from omnium.consts import L
+
+
+class PrecipPlot(Analyzer):
+    """Pick out precip timesteps and plot."""
+    analysis_name = 'precip_plot'
+    multi_expt = True
+
+    def _plot(self):
+        precips = {}
+	for expt in self.expts:
+	    cubes = self.expt_cubes[expt]
+            precip = get_cube(cubes, 4, 203)
+            precips[expt] = precip
+
+        for i in range(precip.shape[0] - 100, precip.shape[0]):
+            fig, axes = plt.subplots(1, len(self.expts))
+
+            precip_max = 0
+            for expt in self.expts:
+                precip = precips[expt]
+                precip_max = max(precip[i].data.max(), precip_max)
+
+            for ax, expt in zip(axes, self.expts):
+                if expt == self.expts[0]:
+                    ax.set_ylabel('(km)')
+                else:
+                    ax.get_yaxis().set_visible(False)
+                ax.set_xlabel('(km)')
+
+                precip = precips[expt]
+                # precip in kg m-2 s-1, want mm hr-1:
+                # /rho_water: m s-1
+                # *1000: mm s-1
+                # *3600: mm hr-1
+                # N.B. rho_water = 1000 kg m-3.
+                im = ax.imshow(precip[i].data * 3600, origin='lower', 
+                               interpolation='nearest', extent=[0, 256, 0, 256],
+                               vmin=0, vmax=precip_max * 3600)
+
+            fig.subplots_adjust(right=0.85)
+            cbar_ax = fig.add_axes([0.87, 0.25, 0.02, 0.50])
+            cbar = fig.colorbar(im, cax=cbar_ax)
+            cbar.set_label('precip. (mm hr$^{-1}$)', rotation=270, labelpad=20)
+
+            plt.savefig(self.figpath('time_index{}.png'.format(i)))
+            plt.close('all')
+
+    def run_analysis(self):
+        pass
+
+    def display_results(self):
+        """Save all results for surf flux analysis."""
+        self._plot()
+
