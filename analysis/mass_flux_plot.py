@@ -64,7 +64,7 @@ class MassFluxPlotter(Analyzer):
                 name = '{}.z{}.mass_flux_hist'.format(expt, group)
                 plt.figure(name)
                 plt.clf()
-                plt.title(name)
+                #plt.title(name)
 
                 hist_kwargs = {}
                 if self.xlim:
@@ -108,9 +108,26 @@ class MassFluxPlotter(Analyzer):
                 plt.figure('combined_expt_mf_weighted_z{}'.format(group))
 		plt.plot(bin_centers, y2, label=expt)
 
+                if plt.fignum_exists('both_z{}'.format(group)):
+                    f = plt.figure('both_z{}'.format(group))
+                    ax1, ax2 = f.axes
+                else:
+                    f, (ax1, ax2) = plt.subplots(2, 1, sharex=True, num='both_z{}'.format(group))
+                    if self.xlim:
+                        ax1.set_xlim(self.xlim)
+                    if self.ylim:
+                        ax1.set_ylim(self.ylim)
+                    ax1.set_yscale('log')
+                    ax1.set_ylabel('Number of clouds')
+                    ax2.set_ylabel('Mass flux contrib. (kg s$^{-1}$ m$^{-2}$)')
+                    ax2.set_xlabel('Mass flux (kg s$^{-1}$ m$^{-2}$)')
+
+                ax1.plot(bin_centers, y, label=expt)
+                ax2.plot(bin_centers, y2, label=expt)
+
         for group in groups:
             plt.figure('combined_expt_z{}'.format(group))
-            plt.title('combined_expt_z{}'.format(group))
+            #plt.title('combined_expt_z{}'.format(group))
             plt.legend()
             plt.yscale('log')
             plt.savefig(self.figpath('z{}_combined.png'.format(group)))
@@ -118,6 +135,10 @@ class MassFluxPlotter(Analyzer):
 	    plt.figure('combined_expt_mf_weighted_z{}'.format(group))
             plt.legend()
             plt.savefig(self.figpath('z{}_mf_weighted_comb.png'.format(group)))
+
+            plt.figure('both_z{}'.format(group))
+            plt.legend()
+            plt.savefig(self.figpath('z{}_both.png'.format(group)))
 
     def display_results(self):
         self._plot_mass_flux_hist()

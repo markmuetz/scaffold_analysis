@@ -110,7 +110,33 @@ class MassFluxSpatialScalesPlotter(Analyzer):
                     plt.figure('combined_expt_z{}_n{}'.format(height_index, n))
                     plt.plot(bin_centers, y / n**2, label=expt)
 
+                    both_name = 'both_z{}'.format(height_index)
+                    if plt.fignum_exists(both_name):
+                        f = plt.figure(both_name)
+                        ax1, ax2 = f.axes
+                    else:
+                        f, (ax1, ax2) = plt.subplots(2, 1, sharex=True, num=both_name)
+                        ax1.set_ylabel('Frequency (rescaled')
+                        ax2.set_ylabel('Frequency (rescaled')
+                        ax2.set_xlabel('Mass flux (kg s$^{-1}$ m$^{-2}$)')
+                        if self.xlim:
+                            ax1.set_xlim(self.xlim)
+
+                    styles = {1: 'b-',
+                              2: 'b--',
+                              4: 'b-.'}
+                    if expt == 'S0' and n <= 4:
+                        style = styles[n]
+                        ax1.plot(bin_centers, y / n**2, style, label=n)
+                    if n == 1:
+                        ax2.plot(bin_centers, y / n**2, label=expt)
+
         for height_index in heights:
+            f = plt.figure('both_z{}'.format(height_index))
+            ax1, ax2 = f.axes
+            ax1.legend(loc='upper right')
+            ax2.legend(loc='upper right')
+            plt.savefig(self.figpath('both_z{}.png'.format(height_index)))
 	    for expt in self.expts:
 		name = '{}.z{}.all_n.hist'.format(expt, height_index)
 		plt.figure(name)
