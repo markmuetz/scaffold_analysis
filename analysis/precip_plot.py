@@ -5,6 +5,7 @@ matplotlib.use('Agg')
 import numpy as np
 import pylab as plt
 import iris
+from matplotlib.colors import LogNorm
 
 from omnium.analyzer import Analyzer
 from omnium.utils import get_cube
@@ -44,12 +45,19 @@ class PrecipPlot(Analyzer):
                 # *1000: mm s-1
                 # *3600: mm hr-1
                 # N.B. rho_water = 1000 kg m-3.
-                im = ax.imshow(precip[i].data * 3600, origin='lower', 
+                #import ipdb; ipdb.set_trace()
+                precip_data = precip[i].data * 3600
+                precip_min = 1e-4
+                precip_data[precip_data < precip_min] = 0
+                im = ax.imshow(precip_data, origin='lower', 
                                interpolation='nearest', extent=[0, 256, 0, 256],
-                               vmin=0, vmax=precip_max * 3600)
+                               #vmin=0, vmax=precip_max * 3600)
+                               norm=LogNorm(vmin=precip_min, vmax=precip_max * 3600))
+
+
 
             fig.subplots_adjust(right=0.85)
-            cbar_ax = fig.add_axes([0.87, 0.25, 0.02, 0.50])
+            cbar_ax = fig.add_axes([0.89, 0.27, 0.02, 0.46])
             cbar = fig.colorbar(im, cax=cbar_ax)
             cbar.set_label('precip. (mm hr$^{-1}$)', rotation=270, labelpad=20)
 
