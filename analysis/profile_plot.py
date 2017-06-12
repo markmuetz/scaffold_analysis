@@ -1,6 +1,7 @@
 import os
 from collections import OrderedDict
 from itertools import groupby
+from logging import getLogger
 
 import numpy as np
 import matplotlib
@@ -9,6 +10,8 @@ import pylab as plt
 
 from omnium.analyzer import Analyzer
 from omnium.utils import get_cube_from_attr
+
+logger = getLogger('om.prof_plot')
 
 
 class ProfilePlotter(Analyzer):
@@ -122,8 +125,34 @@ class ProfilePlotter(Analyzer):
 	plt.legend(loc='upper right')
         plt.savefig(self.figpath('mf_profile.png'))
 
+    def _plot_dz_profile(self):
+        try:
+            import f90nml
+        except:
+            logger.warn('f90nml not installed')
+            return
+
+        plt.figure('dz_profile')
+        vertlevs_filename = os.path.join(self.suite.suite_dir, 'app/um/file/rce_vertlevs.nml')
+
+        verlevs = f90nml.open(vertlevs_filename)['vertlevs']
+        eta_theta = np.array(vertlevs['eta_theta'])
+        eta_rho = np.array(vertlevs['eta_rho'])
+        z_top = vertlevs['z_top_of_model']
+        assert len(eta_theta) == len(eta_rho) + 1
+
+        z_theta = eta_theta * z_top
+        z_rho = eta_rho * z_top
+        dz_theta = z_theta[1:] - z_theta[:-1]
+
+        plt.plot(dz_theta, z_rho)
+        plt.xlabel('$\\Delta z$ theta (m)')
+        plt.ylabel('height (m)')
+        plt.savefig(self.figpath('dz_profile.png'))
+
     def display_results(self):
         self._plot_uv_profile()
         self._plot_thermodynamic_profile()
         self._plot_mf_profile()
+        self._plot_dz_profile()
         plt.close('all')
