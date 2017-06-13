@@ -33,6 +33,7 @@ class PrecipPlot(Analyzer):
                 precip_max = max(precip[i].data.max(), precip_max)
 
             for ax, expt in zip(axes, self.expts):
+                ax.set_title(expt)
                 if expt == self.expts[0]:
                     ax.set_ylabel('y (km)')
                 else:
