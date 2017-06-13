@@ -40,7 +40,7 @@ class ProfilePlotter(Analyzer):
         plt.ylim((0, 20))
         plt.ylabel('height (km)')
         plt.xlabel('u profile (m s$^{-1}$)')
-        plt.legend()
+	plt.legend(loc='upper left')
         plt.savefig(self.figpath('uv_profile.png'))
 
     def _plot_thermodynamic_profile(self):
@@ -89,7 +89,7 @@ class ProfilePlotter(Analyzer):
             #         color=colour, marker='o')
             #ax2.plot(theta_not_cloud_profile.data, height, color=colour, marker='+')
 
-        ax2.set_xlabel('cloud liquid water (g kg$^{-1}$')
+        ax2.set_xlabel('cloud liquid water (g kg$^{-1}$)')
 	plt.legend(loc='upper right')
         plt.savefig(self.figpath('thermodynamic_profile.png'))
 

@@ -34,10 +34,10 @@ class PrecipPlot(Analyzer):
 
             for ax, expt in zip(axes, self.expts):
                 if expt == self.expts[0]:
-                    ax.set_ylabel('(km)')
+                    ax.set_ylabel('y (km)')
                 else:
                     ax.get_yaxis().set_visible(False)
-                ax.set_xlabel('(km)')
+                ax.set_xlabel('x (km)')
 
                 precip = precips[expt]
                 # precip in kg m-2 s-1, want mm hr-1:

@@ -116,8 +116,8 @@ class MassFluxSpatialScalesPlotter(Analyzer):
                         ax1, ax2 = f.axes
                     else:
                         f, (ax1, ax2) = plt.subplots(2, 1, sharex=True, num=both_name)
-                        ax1.set_ylabel('Frequency (rescaled')
-                        ax2.set_ylabel('Frequency (rescaled')
+                        ax1.set_ylabel('Frequency (rescaled)')
+                        ax2.set_ylabel('Frequency (rescaled)')
                         ax2.set_xlabel('Mass flux (kg s$^{-1}$ m$^{-2}$)')
                         if self.xlim:
                             ax1.set_xlim(self.xlim)
