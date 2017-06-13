@@ -14,11 +14,13 @@ from omnium.utils import get_cube_from_attr
 class MassFluxPlotter(Analyzer):
     analysis_name = 'mass_flux_plot'
     multi_expt = True
+    # TODO: Should not be here.
+    dx = 2e3
 
     def set_config(self, config):
 	super(MassFluxPlotter, self).set_config(config)
         if 'xlim' in config:
-            self.xlim = [float(v) for v in config['xlim'].split(',')]
+            self.xlim = [self.dx**2 * float(v) / 1e8 for v in config['xlim'].split(',')]
         else:
             self.xlim = None
 
@@ -58,7 +60,7 @@ class MassFluxPlotter(Analyzer):
                 for i, item in enumerate(cubes):
                     cube = item[1]
                     hist_data.append(cube)
-                    dmax = max(cube.data.max(), dmax)
+                    dmax = max(cube.data.max() * self.dx**2 / 1e8, dmax)
 
                 assert len(hist_data) == 3
                 name = '{}.z{}.mass_flux_hist'.format(expt, group)
@@ -76,7 +78,7 @@ class MassFluxPlotter(Analyzer):
                     hist_kwargs['bins'] = self.nbins
                 #y_min, bin_edges = np.histogram(hist_data[2].data, bins=50, range=(0, dmax))
                 #y_max, bin_edges = np.histogram(hist_data[0].data, bins=50, range=(0, dmax))
-                y, bin_edges = np.histogram(hist_data[1].data, **hist_kwargs)
+                y, bin_edges = np.histogram(hist_data[1].data * self.dx**2 / 1e8, **hist_kwargs)
                 bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
 		y2 = bin_centers * y
 
@@ -119,8 +121,9 @@ class MassFluxPlotter(Analyzer):
                         ax1.set_ylim(self.ylim)
                     ax1.set_yscale('log')
                     ax1.set_ylabel('Number of clouds')
-                    ax2.set_ylabel('Mass flux contrib. (kg s$^{-1}$ m$^{-2}$)')
-                    ax2.set_xlabel('Mass flux (kg s$^{-1}$ m$^{-2}$)')
+                    ax2.set_ylabel('Mass flux contrib. ($\\times 10^8$ kg s$^{-1}$)')
+                    #ax1.set_xlabel('MF per cloud ($\\times 10^7$ kg s$^{-1}$)')
+                    ax2.set_xlabel('Mass flux per cloud ($\\times 10^8$ kg s$^{-1}$)')
 
                 ax1.plot(bin_centers, y, label=expt)
                 ax2.plot(bin_centers, y2, label=expt)
