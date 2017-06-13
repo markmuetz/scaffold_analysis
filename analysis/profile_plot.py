@@ -67,7 +67,7 @@ class ProfilePlotter(Analyzer):
 
         ax1.set_xlim((290, 360))
         ax1.set_ylim((0, 18))
-        ax1.set_xlabel('theta (K)')
+        ax1.set_xlabel('$\theta$ (K)')
         ax1.set_ylabel('height (km)')
 
 	for expt in self.expts:
