@@ -135,7 +135,7 @@ class ProfilePlotter(Analyzer):
         plt.figure('dz_profile')
         vertlevs_filename = os.path.join(self.suite.suite_dir, 'app/um/file/rce_vertlevs.nml')
 
-        verlevs = f90nml.open(vertlevs_filename)['vertlevs']
+        vertlevs = f90nml.read(vertlevs_filename)['vertlevs']
         eta_theta = np.array(vertlevs['eta_theta'])
         eta_rho = np.array(vertlevs['eta_rho'])
         z_top = vertlevs['z_top_of_model']
