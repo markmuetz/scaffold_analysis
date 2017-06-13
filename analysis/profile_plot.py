@@ -6,6 +6,8 @@ from logging import getLogger
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
+from matplotlib import rcParams
+rcParams.update({'figure.autolayout': True})
 import pylab as plt
 
 from omnium.analyzer import Analyzer
@@ -23,7 +25,7 @@ class ProfilePlotter(Analyzer):
         pass
 
     def _plot_uv_profile(self):
-        plt.figure('uv_profile')
+        fig = plt.figure('uv_profile', figsize=(3.5, 4.5), dpi=1200)
 	for expt in self.expts:
 	    cubes = self.expt_cubes[expt]
             u_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'u_profile')
@@ -41,6 +43,7 @@ class ProfilePlotter(Analyzer):
         plt.ylabel('height (km)')
         plt.xlabel('u profile (m s$^{-1}$)')
 	plt.legend(loc='upper left')
+        plt.tight_layout()
         plt.savefig(self.figpath('uv_profile.png'))
 
     def _plot_thermodynamic_profile(self):
