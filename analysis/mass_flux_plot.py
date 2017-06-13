@@ -14,13 +14,15 @@ from omnium.utils import get_cube_from_attr
 class MassFluxPlotter(Analyzer):
     analysis_name = 'mass_flux_plot'
     multi_expt = True
+    # Input values are in kg m-2 s-1, i.e. MF/cloud is an average over the cloud's area.
+    # I want total MF/cloud though: multiply by the area of a grid cell or dx**2
     # TODO: Should not be here.
     dx = 2e3
 
     def set_config(self, config):
 	super(MassFluxPlotter, self).set_config(config)
         if 'xlim' in config:
-            self.xlim = [self.dx**2 * float(v) / 1e8 for v in config['xlim'].split(',')]
+            self.xlim = [float(v) for v in config['xlim'].split(',')]
         else:
             self.xlim = None
 
