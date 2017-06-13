@@ -108,7 +108,7 @@ class ProfilePlotter(Analyzer):
             clouds_w_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'clouds_w_profile')
             clouds_qcl_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'clouds_qcl_profile')
 
-            plot = ax1.plot(mf_cloud_profile.data / 1e7, height)
+            plot = ax1.plot(mf_cloud_profile.data / 1e8, height)
             colour = plot[0].get_color()
             ax2.plot(clouds_cloud_profile.data, height, color=colour)
             ax3.plot(clouds_cloud_profile.data * mf_cloud_profile.data / 1e8, height, 
@@ -117,7 +117,7 @@ class ProfilePlotter(Analyzer):
         ax1.set_ylim((0, 18))
         ax1.set_ylabel('height (km)')
 
-        ax1.set_xlabel('MF per cloud ($\\times 10^7$ kg s$^{-1}$)')
+        ax1.set_xlabel('MF per cloud ($\\times 10^8$ kg s$^{-1}$)')
         ax2.set_xlabel('Number of clouds')
         ax3.set_xlabel('Total MF ($\\times 10^8$ kg s$^{-1}$)')
         ax3.set_xlim((0, 100))
