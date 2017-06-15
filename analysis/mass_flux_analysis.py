@@ -44,6 +44,8 @@ class MassFluxAnalyzer(Analyzer):
 		    w_ss = w_slice[time_index, height_level_index].data
                     rho_ss_lower = rho_slice[time_index, height_level_index].data
                     rho_ss_upper = rho_slice[time_index, height_level_index + 1].data
+                    # TODO: This interp is not quite right: should be a linear scaling of
+                    # rho (this would be exactly right if I were interp'ing theta levels).
                     rho_ss_interp = (rho_ss_lower + rho_ss_upper) / 2
 		    cloud_mask_ss = cloud_mask_cube[time_index,
                                                     height_level_index,
