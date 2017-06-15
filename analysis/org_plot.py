@@ -10,13 +10,16 @@ import pylab as plt
 from omnium.analyzer import Analyzer
 from omnium.utils import get_cube_from_attr
 
+LX = 256000
+LY = 256000
+
 
 class OrgPlotter(Analyzer):
     analysis_name = 'org_plot'
     multi_expt = True
 
     def set_config(self, config):
-	super(MassFluxPlotter, self).set_config(config)
+	super(OrgPlotter, self).set_config(config)
         if 'xlim' in config:
             self.xlim = [float(v) for v in config['xlim'].split(',')]
         else:
@@ -76,10 +79,10 @@ class OrgPlotter(Analyzer):
                     hist_kwargs['bins'] = self.nbins
                 #y, bin_edges = np.histogram(hist_data[1].data, **hist_kwargs)
 
-                dist_cube_id = 'dist_z{}_w{}_qcl{}'.format(18, 1, 1)
-                dists = self.results[dist_cube_id].data
-
-                n, bins = np.histogram(hist_data[1].data, **hist_kwargs)
+                #n, bins = np.histogram(hist_data[1].data, **hist_kwargs)
+                plt.figure('Not_used')
+                n, bins, patch = plt.hist(hist_data[1].data, 700)
+                plt.figure('combined_expt_z{}'.format(group))
 
                 areas = np.pi * (bins[1:]**2 - bins[:-1]**2)
                 cloud_densities = n / areas
@@ -92,6 +95,7 @@ class OrgPlotter(Analyzer):
 
                 # Correct way to normalize:
                 # Divide the total number in a circle by the circle's area.
+                plt.figure('combined_expt_z{}'.format(group))
                 imax = np.argmax(bins[1:] > (LX / 2))
                 mean_density = n[:imax].sum() / (np.pi * bins[imax]**2)
                 xpoints = (bins[:-1] + bins[1:]) / 2
@@ -105,23 +109,13 @@ class OrgPlotter(Analyzer):
 
                 plt.xlim((0, 120))
                 plt.ylim((0, 20))
-                plt.savefig(self.figpath('dists_hist.png'))
-
+                #plt.savefig(self.figpath(name + '.png'))
 
         for group in groups:
             plt.figure('combined_expt_z{}'.format(group))
             #plt.title('combined_expt_z{}'.format(group))
             plt.legend()
-            plt.yscale('log')
             plt.savefig(self.figpath('z{}_combined.png'.format(group)))
-
-	    plt.figure('combined_expt_mf_weighted_z{}'.format(group))
-            plt.legend()
-            plt.savefig(self.figpath('z{}_mf_weighted_comb.png'.format(group)))
-
-            plt.figure('both_z{}'.format(group))
-            plt.legend()
-            plt.savefig(self.figpath('z{}_both.png'.format(group)))
 
     def display_results(self):
         self._plot_org_hist()

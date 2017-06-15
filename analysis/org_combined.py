@@ -14,7 +14,7 @@ class OrgCombined(Analyzer):
     multi_file = True
 
     def set_config(self, config):
-	super(MassFluxCombinedAnalysis, self).set_config(config)
+	super(OrgCombined, self).set_config(config)
         self.start_runid = config.getint('start_runid')
 	    
     def load(self):
@@ -28,7 +28,7 @@ class OrgCombined(Analyzer):
                 cubes = iris.load(filename)
                 for cube in cubes:
                     if cube.name()[:4] == 'dist':
-                        (height_level_index, thresh_index) = cube.attributes['dist']
+                        (height_level_index, thresh_index) = cube.attributes['dist_key']
                         self.dists[(height_level_index, thresh_index)].extend(cube.data)
             else:
                 logger.debug('skipping runid: {}'.format(runid))
@@ -46,5 +46,5 @@ class OrgCombined(Analyzer):
                                        long_name=dist_cube_id, 
                                        dim_coords_and_dims=[(values, 0)], 
                                        units='m')
-            dist_cube.attributes['dist_flux_key'] = key
+            dist_cube.attributes['dist_key'] = key
             self.results[dist_cube_id] = dist_cube
