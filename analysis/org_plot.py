@@ -95,27 +95,40 @@ class OrgPlotter(Analyzer):
 
                 # Correct way to normalize:
                 # Divide the total number in a circle by the circle's area.
-                plt.figure('combined_expt_z{}'.format(group))
                 imax = np.argmax(bins[1:] > (LX / 2))
                 mean_density = n[:imax].sum() / (np.pi * bins[imax]**2)
                 xpoints = (bins[:-1] + bins[1:]) / 2
-                plt.plot(xpoints / 1000, cloud_densities / mean_density)
+
+                plt.figure('combined_expt_z{}'.format(group))
+                plt.plot(xpoints / 1000, cloud_densities / mean_density, label=expt)
                 plt.xlabel('Distance (km)')
-                plt.ylabel('Normalized cloud number density')
+                plt.ylabel('Normalized cloud number density (#cloud m$^{-2}$)')
                 plt.axhline(y=1, ls='--')
                 #print(bins[:21] / 1000)
                 #print(n[:20])
                 #print(cloud_densities[:20])
-
                 plt.xlim((0, 120))
                 plt.ylim((0, 20))
-                #plt.savefig(self.figpath(name + '.png'))
+
+                plt.figure('combined_expt_z{}_log'.format(group))
+                plt.plot(xpoints / 1000, cloud_densities / mean_density, label=expt)
+                plt.yscale('log')
+                plt.xlabel('Distance (km)')
+                plt.ylabel('Normalized cloud number density (log #cloud m$^{-2}$)')
+                plt.axhline(y=1, ls='--')
+
+                plt.xlim((0, 256))
+                plt.ylim((1e-1, 2e1))
 
         for group in groups:
             plt.figure('combined_expt_z{}'.format(group))
             #plt.title('combined_expt_z{}'.format(group))
-            plt.legend()
+            plt.legend(loc='upper right')
             plt.savefig(self.figpath('z{}_combined.png'.format(group)))
+
+            plt.figure('combined_expt_z{}_log'.format(group))
+            plt.legend(loc='upper right')
+            plt.savefig(self.figpath('z{}_combined_log.png'.format(group)))
 
     def display_results(self):
         self._plot_org_hist()
