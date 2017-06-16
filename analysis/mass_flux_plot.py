@@ -6,6 +6,8 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import pylab as plt
+from scipy.stats import linregress
+from scipy.optimize import curve_fit
 
 from omnium.analyzer import Analyzer
 from omnium.utils import get_cube_from_attr
@@ -107,7 +109,20 @@ class MassFluxPlotter(Analyzer):
                 plt.savefig(self.figpath(name + '.mf_weighted.png'))
 
                 plt.figure('combined_expt_z{}'.format(group))
-                plt.plot(bin_centers, y, label=expt)
+                plot = plt.plot(bin_centers, y, label=expt)
+                colour = plot[0].get_color()
+                # Rem. y = m * x + c
+                #def fn(x, A, B):
+                #    return A * np.exp(B * x)
+
+                #popt, pcov = curve_fit(fn, bin_centers, y)
+
+                log_y = np.log(y[y > 10])
+                x = bin_centers[:len(log_y)]
+                m, c, rval, pval, stderr = linregress(x[1:], log_y[1:])
+                #import ipdb; ipdb.set_trace()
+                #plt.plot(bin_centers, fn(bin_centers, *popt), color=colour, linestyle='--')
+                plt.plot(x, np.exp(m * x + c), color=colour, linestyle='--')
 
                 plt.figure('combined_expt_mf_weighted_z{}'.format(group))
 		plt.plot(bin_centers, y2, label=expt)
@@ -127,7 +142,9 @@ class MassFluxPlotter(Analyzer):
                     #ax1.set_xlabel('MF per cloud ($\\times 10^7$ kg s$^{-1}$)')
                     ax2.set_xlabel('Mass flux per cloud ($\\times 10^8$ kg s$^{-1}$)')
 
-                ax1.plot(bin_centers, y, label=expt)
+                plot = ax1.plot(bin_centers, y, label=expt)
+                colour = plot[0].get_color()
+                ax1.plot(x, np.exp(m * x + c), color=colour, linestyle='--')
                 ax2.plot(bin_centers, y2, label=expt)
 
         for group in groups:
