@@ -82,6 +82,7 @@ class ProfilePlotter(Analyzer):
 	    # N.B. convert m->km.
             plot = ax3.plot(shear_u_profile[:, 1], shear_u_profile[:, 0] / 1e3, label=expt)
             colour = plot[0].get_color()
+            #import ipdb; ipdb.set_trace()
             ax3.plot(u_profile.data, height / 1e3, color=colour, linestyle='--')
 
         ax3.set_xlim((-15, 15))
@@ -181,17 +182,17 @@ class ProfilePlotter(Analyzer):
             clouds_w_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'clouds_w_profile')
             clouds_qcl_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'clouds_qcl_profile')
 
-            plot = ax1.plot(mf_cloud_profile.data / 1e8, height)
+            plot = ax1.plot(clouds_cloud_profile.data, height)
             colour = plot[0].get_color()
-            ax2.plot(clouds_cloud_profile.data, height, color=colour)
+            ax2.plot(mf_cloud_profile.data / 1e8, height, color=colour)
             ax3.plot(clouds_cloud_profile.data * mf_cloud_profile.data / 1e8, height, 
                      color=colour, label=expt)
 
         ax1.set_ylim((0, 18))
         ax1.set_ylabel('height (km)')
 
-        ax1.set_xlabel('MF per cloud ($\\times 10^8$ kg s$^{-1}$)')
-        ax2.set_xlabel('Number of clouds')
+        ax1.set_xlabel('Number of clouds')
+        ax2.set_xlabel('MF per cloud ($\\times 10^8$ kg s$^{-1}$)')
         ax3.set_xlabel('Total MF ($\\times 10^8$ kg s$^{-1}$)')
         ax3.set_xlim((0, 100))
 
