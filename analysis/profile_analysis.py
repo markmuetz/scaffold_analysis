@@ -166,6 +166,7 @@ class ProfileAnalyzer(Analyzer):
 
         w = get_cube(cubes, 0, 150)
         rho = get_cube(cubes, 0, 253)
+        pressure = get_cube(cubes, 0, 408)
 
         w_mask = w.data > self.w_thresh
         qcl_mask = qcl.data > self.qcl_thresh
@@ -173,6 +174,7 @@ class ProfileAnalyzer(Analyzer):
 
         self.results['theta_profile'] = theta.collapsed(['time', 'grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
         self.results['qcl_profile'] = qcl.collapsed(['time', 'grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
+        self.results['pressure_profile'] = pressure.collapsed(['time', 'grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
 
 	# Make masked arrays to grab subsets of data I want.
 	# N.B. masked where data will be ignored - hence ~cloud_mask.

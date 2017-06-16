@@ -24,6 +24,75 @@ class ProfilePlotter(Analyzer):
     def run_analysis(self):
         pass
 
+    def _plot_input_profiles(self):
+        f, (ax1, ax2, ax3) = plt.subplots(1, 3, sharey=True)
+
+        try:
+            import f90nml
+        except:
+            logger.warn('f90nml not installed')
+            return
+
+        vertlevs_filename = os.path.join(self.suite.suite_dir, 'app/um/file/rce_vertlevs.nml')
+
+        vertlevs = f90nml.read(vertlevs_filename)['vertlevs']
+        eta_theta = np.array(vertlevs['eta_theta'])
+        eta_rho = np.array(vertlevs['eta_rho'])
+        z_top = vertlevs['z_top_of_model']
+        assert len(eta_theta) == len(eta_rho) + 1
+
+        z_theta = eta_theta * z_top
+        z_rho = eta_rho * z_top
+        dz_theta = z_theta[1:] - z_theta[:-1]
+
+        ax1.plot(dz_theta, z_rho / 1e3)
+        ax1.set_xlabel('$\\Delta z$ (m)')
+        ax1.set_ylabel('height (km)')
+        ax1.set_ylim((0, 25))
+
+        # Cooling profile is very similar in height coords for different expts.
+        # Just use first.
+	expt = self.expts[0]
+        cubes = self.expt_cubes[expt]
+        # in Pa.
+        pressure_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'pressure_profile')
+        z = pressure_profile.coord('level_height').points
+        pressure_data = pressure_profile.data / 100  # Convert to hPa.
+
+        cooling = np.zeros_like(pressure_profile.data)
+
+        cooling[pressure_data > 200] = -2
+        lin_region = (pressure_data < 200) & (pressure_data > 100)
+        cooling[lin_region] = -(1 - (200 - pressure_data[lin_region])/(200 - 100)) * 2
+
+        ax2.plot(cooling, z / 1e3, 'b-')
+        ax2.set_xlim((-3, 3))
+        #plt.ylabel('height (km)')
+        ax2.set_xlabel('prescribed heating (K day$^{-1}$)')
+        ax2.axvline(x=0, color='k', linestyle='--')
+
+	for expt in self.expts:
+	    cubes = self.expt_cubes[expt]
+            u_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'u_profile')
+            # v_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'v_profile')
+            height = u_profile.coord('level_height').points
+            shear_factor = int(expt[1]) # i.e. 0-5.
+            shear_u_profile = self.base_u_profile.copy()
+            shear_u_profile[:, 1] *= shear_factor
+	    # N.B. convert m->km.
+            plot = ax3.plot(shear_u_profile[:, 1], shear_u_profile[:, 0] / 1e3, label=expt)
+            colour = plot[0].get_color()
+            ax3.plot(u_profile.data, height / 1e3, color=colour, linestyle='--')
+
+        ax3.set_xlim((-15, 15))
+        #ax3.set_ylim((0, 20))
+        ax3.set_xlabel('u profile (m s$^{-1}$)')
+        ax3.legend(loc='upper left')
+
+        #plt.tight_layout()
+        #plt.subplots_adjust(wspace=0)
+        plt.savefig(self.figpath('input_profiles.png'))
+
     def _plot_uv_profile(self):
         fig = plt.figure('uv_profile', figsize=(3.5, 4.5), dpi=1200)
 	for expt in self.expts:
@@ -38,6 +107,7 @@ class ProfilePlotter(Analyzer):
             plot = plt.plot(shear_u_profile[:, 1], shear_u_profile[:, 0] / 1e3, label=expt)
             colour = plot[0].get_color()
             plt.plot(u_profile.data, height / 1e3, color=colour, linestyle='--')
+
         plt.xlim((-15, 15))
         plt.ylim((0, 20))
         plt.ylabel('height (km)')
@@ -153,9 +223,53 @@ class ProfilePlotter(Analyzer):
         plt.ylabel('height (m)')
         plt.savefig(self.figpath('dz_profile.png'))
 
+    def _plot_momentum_flux(self):
+        fig = plt.figure('momf_profile', figsize=(3.5, 4.5), dpi=1200)
+	for expt in self.expts:
+	    cubes = self.expt_cubes[expt]
+            u_mom_flux_ts = get_cube_from_attr(cubes, 'omnium_cube_id', 'u_mom_flux_ts')
+            v_mom_flux_ts = get_cube_from_attr(cubes, 'omnium_cube_id', 'v_mom_flux_ts')
+            z = u_mom_flux_ts.coord('level_height').points
+
+            plt.plot(u_mom_flux_ts.data.mean(axis=0) * 1e3, z / 1e3, label=expt)
+            #plt.plot(v_mom_flux_ts.data.mean(axis=0), z, 'b--', label='v')
+            plt.ylabel('height (km)')
+            plt.xlabel('mom flux ($\\times 10^{-3}$ kg m$^{-1}$ s$^{-2}$)')
+
+        plt.ylim((0, 20))
+        plt.legend(loc='upper left')
+        plt.savefig(self.figpath('momentum_flux_profile.png'))
+
+    def _plot_cooling(self):
+	for expt in self.expts:
+	    cubes = self.expt_cubes[expt]
+            # in Pa.
+            pressure_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'pressure_profile')
+            z = pressure_profile.coord('level_height').points
+            pressure_data = pressure_profile.data / 100  # Convert to hPa.
+
+            plt.figure(self.output_filename + '_pressure_profile')
+            plt.clf()
+
+            cooling = np.zeros_like(pressure_profile.data)
+
+            cooling[pressure_data > 200] = -2
+            lin_region = (pressure_data < 200) & (pressure_data > 100)
+            cooling[lin_region] = -(1 - (200 - pressure_data[lin_region])/(200 - 100)) * 2
+
+            plt.plot(cooling, z / 1e3, 'b-')
+            plt.xlim((-3, 3))
+            plt.ylabel('height (km)')
+            plt.xlabel('prescribed heating (K day$^{-1}$)')
+
+            plt.savefig(self.figpath('{}.pressure_profile.png'.format(expt)))
+
     def display_results(self):
+        self._plot_input_profiles()
         self._plot_uv_profile()
         self._plot_thermodynamic_profile()
         self._plot_mf_profile()
         self._plot_dz_profile()
+        self._plot_momentum_flux()
+        self._plot_cooling()
         plt.close('all')
