@@ -37,7 +37,7 @@ class SurfFluxAnalyzer(Analyzer):
         plt.legend()
         plt.ylabel('flux (W m$^{-2}$)')
         plt.xlabel('time (hrs)')
-        plt.savefig(self.figpath('_energy_fluxes.png'))
+        plt.savefig(self.figpath('energy_fluxes.png'))
 
         plt.figure(self.output_filename + '_water_fluxes')
         plt.clf()
@@ -49,7 +49,7 @@ class SurfFluxAnalyzer(Analyzer):
         plt.legend()
         plt.ylabel('water flux (mm hr$^{-1}$)')
         plt.xlabel('time (hrs)')
-        plt.savefig(self.figpath('_water_fluxes.png'))
+        plt.savefig(self.figpath('water_fluxes.png'))
 
     def run_analysis(self):
         cubes = self.cubes
