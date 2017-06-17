@@ -13,6 +13,8 @@ import pylab as plt
 from omnium.analyzer import Analyzer
 from omnium.utils import get_cube_from_attr
 
+from analysis.vertlev import VertLev
+
 logger = getLogger('om.prof_plot')
 
 
@@ -26,26 +28,8 @@ class ProfilePlotter(Analyzer):
 
     def _plot_input_profiles(self):
         f, (ax1, ax2, ax3) = plt.subplots(1, 3, sharey=True)
-
-        try:
-            import f90nml
-        except:
-            logger.warn('f90nml not installed')
-            return
-
-        vertlevs_filename = os.path.join(self.suite.suite_dir, 'app/um/file/rce_vertlevs.nml')
-
-        vertlevs = f90nml.read(vertlevs_filename)['vertlevs']
-        eta_theta = np.array(vertlevs['eta_theta'])
-        eta_rho = np.array(vertlevs['eta_rho'])
-        z_top = vertlevs['z_top_of_model']
-        assert len(eta_theta) == len(eta_rho) + 1
-
-        z_theta = eta_theta * z_top
-        z_rho = eta_rho * z_top
-        dz_theta = z_theta[1:] - z_theta[:-1]
-
-        ax1.plot(dz_theta, z_rho / 1e3)
+        vertlev = VertLev(self.suite.suite_dir)
+        ax1.plot(vertlev.dz_theta, vertlev.z_rho / 1e3)
         ax1.set_xlabel('$\\Delta z$ (m)')
         ax1.set_ylabel('height (km)')
         ax1.set_ylim((0, 25))

@@ -11,7 +11,7 @@ from omnium.analyzer import Analyzer
 from omnium.utils import get_cube
 from omnium.consts import L
 
-from colour import EXPT_COLOUR
+from analysis.colour import EXPT_COLOUR
 
 
 class SurfFluxPlot(Analyzer):

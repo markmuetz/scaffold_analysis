@@ -10,6 +10,8 @@ from omnium.analyzer import Analyzer
 from omnium.utils import get_cube, get_cube_from_attr, count_blobs_mask
 from omnium.consts import Re, L, cp, g
 
+from analysis.vertlev import VertLev
+
 
 class MassFluxAnalyzer(Analyzer):
     analysis_name = 'mass_flux_analysis'
@@ -27,9 +29,28 @@ class MassFluxAnalyzer(Analyzer):
         qcl_thresh_coord = cloud_mask_cube.coord('qcl_thres')
         level_number_coord = cloud_mask_cube.coord('model_level_number')
 
+        vertlevs = VertLev(self.suite.suite_dir)
 	# height_level refers to orig cube.
 	# height_level_index refers to w as it has already picked out the height levels.
 	for height_level_index, height_level in enumerate(level_number_coord.points):
+            # Need to get these to do proper interp of rho onto theta.
+            # Work out in 2 ways and check equal because paranoid.
+            w_height = w_slice.attributes['heights'][height_level_index]
+            w_height2 = vertlevs.z_theta[height_level]
+
+            rho_height_lower = rho_slice.attributes['heights'][height_level_index]
+            rho_height_lower2 = vertlevs.z_rho[height_level - 1]
+
+            rho_height_upper = rho_slice.attributes['heights'][height_level_index + 1]
+            rho_height_upper2 = vertlevs.z_rho[height_level]
+
+            alpha = (w_height - rho_height_lower)/(rho_height_upper - rho_height_lower)
+            # Paranoia.
+            assert w_height == w_height2
+            assert rho_height_lower == rho_height_lower2
+            assert rho_height_upper == rho_height_upper2
+            assert 0 <= alpha <= 1
+
             for thresh_index in range(w_thresh_coord.shape[0]):
                 # N.B. I just take the diagonal indices.
                 w_thresh = w_thresh_coord.points[thresh_index]
@@ -44,9 +65,10 @@ class MassFluxAnalyzer(Analyzer):
 		    w_ss = w_slice[time_index, height_level_index].data
                     rho_ss_lower = rho_slice[time_index, height_level_index].data
                     rho_ss_upper = rho_slice[time_index, height_level_index + 1].data
-                    # TODO: This interp is not quite right: should be a linear scaling of
-                    # rho (this would be exactly right if I were interp'ing theta levels).
-                    rho_ss_interp = (rho_ss_lower + rho_ss_upper) / 2
+
+                    # rho_ss_interp_old = (rho_ss_lower + rho_ss_upper) / 2
+                    rho_ss_interp = (1 - alpha) * rho_ss_lower + alpha* rho_ss_upper
+                    #rho_ss_interp = (rho_ss_lower + rho_ss_upper) / 2
 		    cloud_mask_ss = cloud_mask_cube[time_index,
                                                     height_level_index,
                                                     thresh_index,

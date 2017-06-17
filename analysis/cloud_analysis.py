@@ -36,13 +36,13 @@ class CloudAnalyzer(Analyzer):
         rho.data = rho.data / Re**2
         rho.units = 'kg m-3'
 
-        rho_heights = []
+        rho_height_levels = []
         for height_level in self.height_levels:
-            rho_heights.extend([height_level, height_level + 1])
+            rho_height_levels.extend([height_level - 1, height_level])
 
         # ONLY use these to get coords.
         w_slice = w[:, self.height_levels]
-        rho_slice = w[:, rho_heights]
+        rho_slice = w[:, rho_height_levels]
         slice_coords = [(w.coord('time'), 0),
                         (w_slice.coord('model_level_number'), 1),
                         (w.coord('grid_latitude'), 2),
@@ -60,23 +60,28 @@ class CloudAnalyzer(Analyzer):
                                                  long_name='w_slice',
                                                  units='m s-1',
                                                  dim_coords_and_dims=slice_coords)
+        theta_heights = w.coord('level_height').points[self.height_levels]
+        rho_heights = rho.coord('level_height').points[rho_height_levels]
+        self.results['w_slice'].attributes['heights'] = theta_heights
                                                  
         self.results['qcl_slice'] = iris.cube.Cube(qcl.data[:, self.height_levels],
                                                    long_name='qcl_slice',
                                                    units='kg kg-1',
                                                    dim_coords_and_dims=slice_coords)
+        self.results['qcl_slice'].attributes['heights'] = theta_heights
                                                  
-        self.results['rho_slice'] = iris.cube.Cube(rho.data[:, rho_heights],
+        self.results['rho_slice'] = iris.cube.Cube(rho.data[:, rho_height_levels],
                                                    long_name='rho_slice',
                                                    units='kg m-3',
                                                    dim_coords_and_dims=rho_coords)
+        self.results['rho_slice'].attributes['heights'] = rho_heights
 
         # VERY SLOW if data you are reading are compressed.
         # w_slice = w[:, self.height_levels]
 	# self.results['w_slice'] = w_slice
 	# self.results['w_slice'] = w_slice
 	# self.results['qcl_slice'] = qcl[:, self.height_levels].copy()
-	# self.results['rho_slice'] = rho[:, rho_heights].copy()
+	# self.results['rho_slice'] = rho[:, rho_height_levels].copy()
 
         cloud_mask_data = np.zeros((w.shape[0], 
                                     len(self.height_levels),
