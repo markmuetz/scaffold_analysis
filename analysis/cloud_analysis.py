@@ -38,7 +38,8 @@ class CloudAnalyzer(Analyzer):
 
         rho_height_levels = []
         for height_level in self.height_levels:
-            rho_height_levels.extend([height_level - 1, height_level])
+            # N.B. this is right *if you are running using pp1*.
+            rho_height_levels.extend([height_level, height_level + 1])
 
         # ONLY use these to get coords.
         w_slice = w[:, self.height_levels]

@@ -38,14 +38,16 @@ class MassFluxAnalyzer(Analyzer):
             w_height = w_slice.attributes['heights'][height_level_index]
             w_height2 = vertlevs.z_theta[height_level]
 
-            rho_height_lower = rho_slice.attributes['heights'][height_level_index]
+            # N.B. for every 1 w_height, there are 2 rho_heights. Index appropriately.
+            rho_height_lower = rho_slice.attributes['heights'][2 * height_level_index]
             rho_height_lower2 = vertlevs.z_rho[height_level - 1]
 
-            rho_height_upper = rho_slice.attributes['heights'][height_level_index + 1]
+            rho_height_upper = rho_slice.attributes['heights'][2 * height_level_index + 1]
             rho_height_upper2 = vertlevs.z_rho[height_level]
 
+            # Calc scaling for linear interp.
             alpha = (w_height - rho_height_lower)/(rho_height_upper - rho_height_lower)
-            # Paranoia.
+            # Paranoia. Well justified it turns out. Saved me from doing wrong analysis.
             assert w_height == w_height2
             assert rho_height_lower == rho_height_lower2
             assert rho_height_upper == rho_height_upper2
