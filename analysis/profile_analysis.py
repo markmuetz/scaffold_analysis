@@ -80,6 +80,27 @@ class ProfileAnalyzer(Analyzer):
 	plt.legend()
         plt.savefig(self.figpath('qcl_profile.png'))
 
+	#plt.figure('qgr')
+        qgr_profile = self.results['qgr_profile']
+	plt.title(self.expt)
+        plt.plot(qgr_profile.data * 1000, height, 'r-', label='qgr')
+	plt.ylim((0, 20000))
+        plt.xlabel('qgr (g kg$^{-1}$)')
+        plt.ylabel('height (m)')
+	plt.legend()
+        #plt.savefig(self.figpath('qgr_profile.png'))
+
+	#plt.figure('qcf')
+        qcf_profile = self.results['qcf_profile']
+	plt.title(self.expt)
+        plt.plot(qcf_profile.data * 1000, height, 'b-', label='qcf')
+        plt.xlim((0, 0.1))
+	plt.ylim((0, 20000))
+        plt.xlabel('qcf (g kg$^{-1}$)')
+        plt.ylabel('height (m)')
+	plt.legend()
+        plt.savefig(self.figpath('hydrom_profile.png'))
+
     def _plot_momentum_flux(self):
         u_mom_flux_ts = self.results['u_mom_flux_ts']
         v_mom_flux_ts = self.results['v_mom_flux_ts']
@@ -163,6 +184,8 @@ class ProfileAnalyzer(Analyzer):
 
         theta = get_cube(cubes, 0, 4)
         qcl = get_cube(cubes, 0, 254)
+        qgr = get_cube(cubes, 0, 273)
+        qcf = get_cube(cubes, 0, 12)
 
         w = get_cube(cubes, 0, 150)
         rho = get_cube(cubes, 0, 253)
@@ -174,6 +197,8 @@ class ProfileAnalyzer(Analyzer):
 
         self.results['theta_profile'] = theta.collapsed(['time', 'grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
         self.results['qcl_profile'] = qcl.collapsed(['time', 'grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
+        self.results['qgr_profile'] = qgr.collapsed(['time', 'grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
+        self.results['qcf_profile'] = qcf.collapsed(['time', 'grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
         self.results['pressure_profile'] = pressure.collapsed(['time', 'grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
 
 	# Make masked arrays to grab subsets of data I want.
