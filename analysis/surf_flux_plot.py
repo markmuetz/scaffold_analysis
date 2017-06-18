@@ -49,7 +49,7 @@ class SurfFluxPlot(Analyzer):
 
         plt.ylabel('flux (W m$^{-2}$)')
         plt.xlabel('time (day)')
-        plt.axvline(x=7, linestyle='--', color='k')
+        plt.axvline(x=20, linestyle='--', color='k')
         plt.savefig(self.figpath('energy_fluxes.png'))
 
 
