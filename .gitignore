@@ -5,3 +5,4 @@ dist/
 docs/_build/
 omnium.egg-info/
 .idea/
+f90nml*
