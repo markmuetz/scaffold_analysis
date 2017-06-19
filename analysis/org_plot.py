@@ -102,7 +102,7 @@ class OrgPlotter(Analyzer):
                 plt.figure('combined_expt_z{}'.format(group))
                 plt.plot(xpoints / 1000, cloud_densities / mean_density, label=expt)
                 plt.xlabel('Distance (km)')
-                plt.ylabel('Normalized cloud number density (#cloud m$^{-2}$)')
+                plt.ylabel('Normalized cloud number density')
                 plt.axhline(y=1, ls='--')
                 #print(bins[:21] / 1000)
                 #print(n[:20])
@@ -114,7 +114,7 @@ class OrgPlotter(Analyzer):
                 plt.plot(xpoints / 1000, cloud_densities / mean_density, label=expt)
                 plt.yscale('log')
                 plt.xlabel('Distance (km)')
-                plt.ylabel('Normalized cloud number density (log #cloud m$^{-2}$)')
+                plt.ylabel('Normalized cloud number density')
                 plt.axhline(y=1, ls='--')
 
                 plt.xlim((0, 256))

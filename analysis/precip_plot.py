@@ -24,7 +24,7 @@ class PrecipPlot(Analyzer):
             precip = get_cube(cubes, 4, 203)
             precips[expt] = precip
 
-        for i in range(precip.shape[0] - 10, precip.shape[0]):
+        for i in range(precip.shape[0] - 100, precip.shape[0]):
             fig, axes = plt.subplots(1, len(self.expts))
 
             precip_max = 0
@@ -58,7 +58,7 @@ class PrecipPlot(Analyzer):
             fig.subplots_adjust(right=0.85)
             cbar_ax = fig.add_axes([0.89, 0.27, 0.02, 0.46])
             cbar = fig.colorbar(im, cax=cbar_ax)
-            cbar.set_label('precip. (mm hr$^{-1}$)', rotation=270, labelpad=20)
+            cbar.set_label('rainfall (mm hr$^{-1}$)', rotation=270, labelpad=20)
 
             plt.savefig(self.figpath('time_index{}.png'.format(i)))
             plt.close('all')
