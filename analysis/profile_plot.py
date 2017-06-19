@@ -116,6 +116,10 @@ class ProfilePlotter(Analyzer):
             colour = plot[0].get_color()
             ax1.plot(theta_cloud_profile.data[cloud_profile_mask], height[cloud_profile_mask], 
                      color=colour, linestyle='--')
+            # Plot a marker at each end of the cloud profile.
+            ax1.plot(theta_cloud_profile.data[cloud_profile_mask][0],
+                     height[cloud_profile_mask][0], 
+                     color=colour, marker='+')
             ax1.plot(theta_cloud_profile.data[cloud_profile_mask][-1],
                      height[cloud_profile_mask][-1], 
                      color=colour, marker='o')
@@ -127,19 +131,28 @@ class ProfilePlotter(Analyzer):
         ax1.set_ylim((0, 18))
         ax1.set_xlabel('$\\theta$ (K)')
         ax1.set_ylabel('height (km)')
+	ax1.legend(loc='upper left')
 
 	for expt in self.expts:
 	    cubes = self.expt_cubes[expt]
+
             qcl_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'qcl_profile')
-            qcl_cloud_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'qcl_cloud_profile')
-            qcl_not_cloud_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'qcl_not_cloud_profile')
+            qgr_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'qgr_profile')
+            qcf_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'qcf_profile')
+
+            # qcl_cloud_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'qcl_cloud_profile')
+            # qcl_not_cloud_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'qcl_not_cloud_profile')
 
             height = qcl_profile.coord('level_height').points / 1e3  # Convert m->km.
 
-            cloud_profile_mask = qcl_cloud_profile.data > 0.0000001
+            # cloud_profile_mask = qcl_cloud_profile.data > 0.0000001
             # kg kg-1 -> g kg-1
             plot = ax2.plot(qcl_profile.data * 1e3, height, label=expt)
             colour = plot[0].get_color()
+            ax2.plot(qgr_profile.data * 1e3, height, color=colour, linestyle=':')
+            ax2.plot(qcf_profile.data * 1e3, height, color=colour, linestyle='-.')
+            ax2.set_xlim((1e-3, 1e-1))
+            ax2.set_xscale('log')
             #ax2.plot(qcl_cloud_profile.data[cloud_profile_mask] * 1e3, height[cloud_profile_mask], 
             #         color=colour, linestyle='--')
             #ax2.plot(qcl_cloud_profile.data[cloud_profile_mask][-1],
@@ -147,8 +160,7 @@ class ProfilePlotter(Analyzer):
             #         color=colour, marker='o')
             #ax2.plot(theta_not_cloud_profile.data, height, color=colour, marker='+')
 
-        ax2.set_xlabel('cloud liquid water (g kg$^{-1}$)')
-	plt.legend(loc='upper right')
+        ax2.set_xlabel('hydrometeors (g kg$^{-1}$)')
         plt.savefig(self.figpath('thermodynamic_profile.png'))
 
     def _plot_mf_profile(self):

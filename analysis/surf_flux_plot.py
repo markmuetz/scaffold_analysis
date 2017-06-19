@@ -44,7 +44,7 @@ class SurfFluxPlot(Analyzer):
             plt.plot(times[96:-96], precip_ts_smoothed[96:-96] * L, color=colour, linestyle='--')
 
         plt.ylim((0, 350))
-        plt.xlim((0, 20))
+        plt.xlim((0, 40))
         plt.legend()
 
         plt.ylabel('flux (W m$^{-2}$)')

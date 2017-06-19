@@ -72,8 +72,8 @@ class ProfileAnalyzer(Analyzer):
         height = qcl_profile.coord('level_height').points
 	plt.title(self.expt)
         plt.plot(qcl_profile.data * 1000, height, 'g-', label='qcl')
-        plt.plot(qcl_cloud_profile.data, height, 'g--', label='qcl cloud')
-        plt.plot(qcl_not_cloud_profile.data, height, 'g.', label='qcl not_cloud')
+        plt.plot(qcl_cloud_profile.data * 1000, height, 'g--', label='qcl cloud')
+        plt.plot(qcl_not_cloud_profile.data * 1000, height, 'g.', label='qcl not_cloud')
 	plt.ylim((0, 20000))
         plt.xlabel('qcl (g kg$^{-1}$)')
         plt.ylabel('height (m)')

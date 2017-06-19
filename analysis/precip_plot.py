@@ -24,7 +24,7 @@ class PrecipPlot(Analyzer):
             precip = get_cube(cubes, 4, 203)
             precips[expt] = precip
 
-        for i in range(precip.shape[0] - 100, precip.shape[0]):
+        for i in range(precip.shape[0] - 10, precip.shape[0]):
             fig, axes = plt.subplots(1, len(self.expts))
 
             precip_max = 0
@@ -54,8 +54,6 @@ class PrecipPlot(Analyzer):
                                interpolation='nearest', extent=[0, 256, 0, 256],
                                #vmin=0, vmax=precip_max * 3600)
                                norm=LogNorm(vmin=precip_min, vmax=precip_max * 3600))
-
-
 
             fig.subplots_adjust(right=0.85)
             cbar_ax = fig.add_axes([0.89, 0.27, 0.02, 0.46])
