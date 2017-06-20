@@ -1,4 +1,5 @@
 import os
+from logging import getLogger
 
 import numpy as np
 import matplotlib
@@ -9,6 +10,8 @@ import iris
 from omnium.analyzer import Analyzer
 from omnium.utils import get_cube, count_blobs_mask
 from omnium.consts import Re, L, cp, g
+
+logger = getLogger('om.prof_an')
 
 
 class ProfileAnalyzer(Analyzer):
@@ -160,6 +163,33 @@ class ProfileAnalyzer(Analyzer):
         plt.legend()
         plt.savefig(self.figpath('totalmf_profile.png'))
 
+    def calc_energy_loss_rate(self):
+        # Integ(-cp / g * C(z), p_0, p_TOA, dp)
+        # 1e2: convert hPa to Pa.
+        p_profile = self.results['pressure_profile']  # Pa
+        pdata = p_profile.data
+
+        p0 = pdata[0]
+        # N.B. these are all -ve.
+        dp = (pdata[2:] - pdata[:-2]) / 2
+
+        # Calc analytically (C(z) const)
+        # loss, therefore want +ve.
+        C_max = 2. / 86400  # [K/s]
+        E_loss_up_to_200hPa = cp / g * C_max * (p0 - 200 * 1e2)
+
+        # N.B slice means pdata[1:-1] has same length as dp.
+        # lin_region can be used on pdata[1:-1] or dp.
+        lin_region = (pdata[1:-1] < 200 * 1e2) & (pdata[1:-1] > 100 * 1e2)
+        # -ve.
+        cooling = -(1 - (200 * 1e2 - pdata[1:-1][lin_region])/(200 * 1e2 - 100 * 1e2)) * C_max
+
+        # +ve.
+        E_loss_lin_region = (cp / g * cooling * dp[lin_region]).sum()
+        E_loss = E_loss_up_to_200hPa + E_loss_lin_region
+        self.save_text('energy_loss.txt', 'Energy loss rate [W m-2]: {}\n'.format(E_loss))
+        p_profile.attributes['Energy loss rate [W m-2]'] = E_loss
+
     def run_analysis(self):
         cubes = self.cubes
 
@@ -288,6 +318,7 @@ class ProfileAnalyzer(Analyzer):
                                                       long_name=cloud_name,
                                                       dim_coords_and_dims=[(height_coord, 0)])
 
+        self.calc_energy_loss_rate()
 
     def display_results(self):
         self._plot_uv()

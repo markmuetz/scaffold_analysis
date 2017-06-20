@@ -42,6 +42,8 @@ class MassFluxPlotter(Analyzer):
 
         groups = []
 
+        linregress_details = ['z, expt, m, c, rval, pval, stderr']
+
 	for expt in self.expts:
 	    cubes = self.expt_cubes[expt]
             sorted_cubes = []
@@ -123,6 +125,7 @@ class MassFluxPlotter(Analyzer):
                 #import ipdb; ipdb.set_trace()
                 #plt.plot(bin_centers, fn(bin_centers, *popt), color=colour, linestyle='--')
                 plt.plot(x, np.exp(m * x + c), color=colour, linestyle='--')
+                linregress_details.append('{},{},{},{},{},{},{}'.format(group, expt, m, c, rval, pval, stderr))
 
                 plt.figure('combined_expt_mf_weighted_z{}'.format(group))
 		plt.plot(bin_centers, y2, label=expt)
@@ -146,6 +149,8 @@ class MassFluxPlotter(Analyzer):
                 colour = plot[0].get_color()
                 ax1.plot(x, np.exp(m * x + c), color=colour, linestyle='--')
                 ax2.plot(bin_centers, y2, label=expt)
+
+        self.save_text('mf_linregress.csv', '\n'.join(linregress_details) + '\n')
 
         for group in groups:
             plt.figure('combined_expt_z{}'.format(group))
