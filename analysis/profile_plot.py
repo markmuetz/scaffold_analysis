@@ -7,7 +7,6 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import rcParams
-rcParams.update({'figure.autolayout': True})
 import pylab as plt
 
 from omnium.analyzer import Analyzer
@@ -262,6 +261,7 @@ class ProfilePlotter(Analyzer):
             plt.savefig(self.figpath('{}.pressure_profile.png'.format(expt)))
 
     def display_results(self):
+        rcParams.update({'figure.autolayout': True})
         self._plot_input_profiles()
         self._plot_uv_profile()
         self._plot_thermodynamic_profile()
@@ -269,4 +269,5 @@ class ProfilePlotter(Analyzer):
         self._plot_dz_profile()
         self._plot_momentum_flux()
         self._plot_cooling()
+        rcParams.update({'figure.autolayout': False})
         plt.close('all')

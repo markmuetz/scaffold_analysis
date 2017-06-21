@@ -30,7 +30,7 @@ class PrecipPlot(Analyzer):
             fig, axes = plt.subplots(1, len(self.expts_to_plot))
 
             precip_max = 0
-            for expt in self.expts:
+            for expt in self.expts_to_plot:
                 precip = precips[expt]
                 precip_max = max(precip[i].data.max(), precip_max)
 
@@ -63,7 +63,7 @@ class PrecipPlot(Analyzer):
                 precip_data = precip[i].data * 3600
                 max_precips.append('{},{},{}'.format(i, expt, precip_data.max()))
 
-            fig.subplots_adjust(right=0.85)
+            plt.subplots_adjust(right=0.85)
             cbar_ax = fig.add_axes([0.89, 0.27, 0.02, 0.46])
             cbar = fig.colorbar(im, cax=cbar_ax)
             cbar.set_label('rainfall (mm hr$^{-1}$)', rotation=270, labelpad=20)
