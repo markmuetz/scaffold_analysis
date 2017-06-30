@@ -12,6 +12,8 @@ from scipy.optimize import curve_fit
 from omnium.analyzer import Analyzer
 from omnium.utils import get_cube_from_attr
 
+from analysis.utils import cm_to_inch
+
 
 class MassFluxPlotter(Analyzer):
     analysis_name = 'mass_flux_plot'
@@ -133,6 +135,10 @@ class MassFluxPlotter(Analyzer):
                 if plt.fignum_exists('both_z{}'.format(group)):
                     f = plt.figure('both_z{}'.format(group))
                     ax1, ax2 = f.axes
+
+                    # poster.
+                    f_p = plt.figure('poster_z{}'.format(group))
+                    ax1_p = f_p.axes[0]
                 else:
                     f, (ax1, ax2) = plt.subplots(2, 1, sharex=True, num='both_z{}'.format(group))
                     if self.xlim:
@@ -145,10 +151,23 @@ class MassFluxPlotter(Analyzer):
                     #ax1.set_xlabel('MF per cloud ($\\times 10^7$ kg s$^{-1}$)')
                     ax2.set_xlabel('Mass flux per cloud ($\\times 10^8$ kg s$^{-1}$)')
 
+                    f_p, ax1_p = plt.subplots(1, 1, num='poster_z{}'.format(group))
+                    f_p.set_size_inches(*cm_to_inch(25, 9))
+                    if self.xlim:
+                        ax1_p.set_xlim(self.xlim)
+                    if self.ylim:
+                        ax1_p.set_ylim(self.ylim)
+                    ax1_p.set_yscale('log')
+                    ax1_p.set_ylabel('Number of clouds')
+                    ax1_p.set_xlabel('Mass flux per cloud ($\\times 10^8$ kg s$^{-1}$)')
+
                 plot = ax1.plot(bin_centers, y, label=expt)
                 colour = plot[0].get_color()
                 ax1.plot(x, np.exp(m * x + c), color=colour, linestyle='--')
                 ax2.plot(bin_centers, y2, label=expt)
+
+                ax1_p.plot(bin_centers, y, color=colour, label=expt)
+                ax1_p.plot(x, np.exp(m * x + c), color=colour, linestyle='--')
 
         self.save_text('mf_linregress.csv', '\n'.join(linregress_details) + '\n')
 
@@ -166,6 +185,10 @@ class MassFluxPlotter(Analyzer):
             plt.figure('both_z{}'.format(group))
             plt.legend()
             plt.savefig(self.figpath('z{}_both.png'.format(group)))
+
+            plt.figure('poster_z{}'.format(group))
+            plt.legend()
+            plt.savefig(self.figpath('poster_z{}.png'.format(group)))
 
     def display_results(self):
         self._plot_mass_flux_hist()

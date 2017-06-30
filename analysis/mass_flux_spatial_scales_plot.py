@@ -10,6 +10,8 @@ import pylab as plt
 from omnium.analyzer import Analyzer
 from omnium.utils import get_cube_from_attr
 
+from analysis.utils import cm_to_inch
+
 
 class MassFluxSpatialScalesPlotter(Analyzer):
     analysis_name = 'mass_flux_spatial_scales_plot'
@@ -114,6 +116,10 @@ class MassFluxSpatialScalesPlotter(Analyzer):
                     if plt.fignum_exists(both_name):
                         f = plt.figure(both_name)
                         ax1, ax2 = f.axes
+
+                        # f_poster
+                        f_p = plt.figure('poster_' + both_name)
+                        ax1_p, ax2_p = f_p.axes
                     else:
                         f, (ax1, ax2) = plt.subplots(2, 1, sharex=True, num=both_name)
                         ax1.set_ylabel('Frequency (rescaled)')
@@ -122,14 +128,24 @@ class MassFluxSpatialScalesPlotter(Analyzer):
                         if self.xlim:
                             ax1.set_xlim(self.xlim)
 
+                        f_p, (ax1_p, ax2_p) = plt.subplots(1, 2, sharex=True, num='poster_' + both_name)
+                        ax1_p.set_ylabel('Frequency (rescaled)')
+                        ax1_p.set_xlabel('Mass flux (kg s$^{-1}$ m$^{-2}$)')
+                        ax2_p.set_xlabel('Mass flux (kg s$^{-1}$ m$^{-2}$)')
+                        if self.xlim:
+                            ax1_p.set_xlim(self.xlim)
+                            ax2_p.set_xlim(self.xlim)
+
                     styles = {1: 'b-',
                               2: 'b--',
                               4: 'b-.'}
                     if expt == 'S0' and n <= 4:
                         style = styles[n]
                         ax1.plot(bin_centers, y / n**2, style, label=n)
+                        ax1_p.plot(bin_centers, y / n**2, style, label=n)
                     if n == 1:
                         ax2.plot(bin_centers, y / n**2, label=expt)
+                        ax2_p.plot(bin_centers, y / n**2, label=expt)
 
         for height_index in heights:
             f = plt.figure('both_z{}'.format(height_index))
@@ -137,6 +153,15 @@ class MassFluxSpatialScalesPlotter(Analyzer):
             ax1.legend(loc='upper right')
             ax2.legend(loc='upper right')
             plt.savefig(self.figpath('both_z{}.png'.format(height_index)))
+
+            f_p = plt.figure('poster_both_z{}'.format(height_index))
+            f_p.set_size_inches(*cm_to_inch(25, 9))
+            ax1_p, ax2_p = f_p.axes
+            ax1_p.legend(loc='upper right')
+            ax2_p.legend(loc='upper right')
+            plt.tight_layout()
+            plt.savefig(self.figpath('poster_both_z{}.png'.format(height_index)))
+
 	    for expt in self.expts:
 		name = '{}.z{}.all_n.hist'.format(expt, height_index)
 		plt.figure(name)

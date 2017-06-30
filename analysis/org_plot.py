@@ -10,6 +10,9 @@ import pylab as plt
 from omnium.analyzer import Analyzer
 from omnium.utils import get_cube_from_attr
 
+from analysis.utils import cm_to_inch
+
+
 LX = 256000
 LY = 256000
 
@@ -120,6 +123,16 @@ class OrgPlotter(Analyzer):
                 plt.xlim((0, 256))
                 plt.ylim((1e-1, 2e1))
 
+                plt.figure('poster_combined_expt_z{}_log'.format(group))
+                plt.plot(xpoints / 1000, cloud_densities / mean_density, label=expt)
+                plt.yscale('log')
+                plt.xlabel('Distance (km)')
+                plt.ylabel('Normalized cloud\nnumber density')
+                plt.axhline(y=1, ls='--')
+
+                plt.xlim((0, 256))
+                plt.ylim((1e-1, 2e1))
+
         for group in groups:
             plt.figure('combined_expt_z{}'.format(group))
             #plt.title('combined_expt_z{}'.format(group))
@@ -129,6 +142,12 @@ class OrgPlotter(Analyzer):
             plt.figure('combined_expt_z{}_log'.format(group))
             plt.legend(loc='upper right')
             plt.savefig(self.figpath('z{}_combined_log.png'.format(group)))
+
+            fig = plt.figure('poster_combined_expt_z{}_log'.format(group))
+            fig.set_size_inches(*cm_to_inch(25, 7))
+            plt.legend(loc='upper center', ncol=5)
+            plt.tight_layout()
+            plt.savefig(self.figpath('poster_z{}_combined_log.png'.format(group)))
 
     def display_results(self):
         self._plot_org_hist()
