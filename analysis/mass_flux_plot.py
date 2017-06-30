@@ -187,6 +187,7 @@ class MassFluxPlotter(Analyzer):
             plt.savefig(self.figpath('z{}_both.png'.format(group)))
 
             plt.figure('poster_z{}'.format(group))
+            plt.tight_layout()
             plt.legend()
             plt.savefig(self.figpath('poster_z{}.png'.format(group)))
 
