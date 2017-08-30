@@ -1,14 +1,13 @@
-import os
-
-import numpy as np
 import matplotlib
+import numpy as np
+
 matplotlib.use('Agg')
 import pylab as plt
 import iris
 
 from omnium.analyzer import Analyzer
-from omnium.utils import get_cube, get_cube_from_attr, count_blobs_mask
-from omnium.consts import Re, L, cp, g
+from omnium.utils import get_cube_from_attr
+from cloud_tracking.utils import label_clds
 
 # TODO: take from data.
 LX = 256000
@@ -52,7 +51,7 @@ class OrgAnalyzer(Analyzer):
                                                     height_level_index,
                                                     thresh_index,
                                                     thresh_index].data.astype(bool)
-                    max_blob_index, blobs = count_blobs_mask(cloud_mask_ss, True)
+                    max_blob_index, blobs = label_clds(cloud_mask_ss, True)
 
                     cp = self._get_cloud_pos(blobs)
                     clouds = [Cloud(cp[j, 0], cp[j, 1]) for j in range(cp.shape[0])]
@@ -114,7 +113,7 @@ class OrgAnalyzer(Analyzer):
         total_clouds = 0
         for i in range(start_index, end_index):
             print(i)
-            cloud_mask = count_blobs_mask(mask[i], diagonal=True)[1]
+            cloud_mask = label_clds(mask[i], diagonal=True)[1]
             cp = self._get_cloud_pos(cloud_mask)
             clouds = []
             for j in range(cp.shape[0]):

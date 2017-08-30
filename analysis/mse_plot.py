@@ -1,7 +1,7 @@
-import os
 from collections import OrderedDict
 
 import matplotlib
+
 matplotlib.use('Agg')
 import pylab as plt
 

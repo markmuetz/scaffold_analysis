@@ -1,12 +1,11 @@
-import os
 from collections import OrderedDict
 from logging import getLogger
 
-import numpy as np
 import iris
-
+import numpy as np
+from cloud_tracking.utils import label_clds
 from omnium.analyzer import Analyzer
-from omnium.utils import get_cube_from_attr, coarse_grain, count_blobs_mask
+from omnium.utils import get_cube_from_attr
 
 logger = getLogger('om.mfssp')
 
@@ -44,7 +43,7 @@ class MassFluxSpatialScalesPoint(Analyzer):
                     cloud_mask_ss = cloud_mask_cube[time_index, height_index, 
                                                     thresh_index, thresh_index].data.astype(bool)
 
-                    max_blob_index, blobs = count_blobs_mask(cloud_mask_ss, True)
+                    max_blob_index, blobs = label_clds(cloud_mask_ss, True)
                     cloud_coords = []
                     for i in range(1, max_blob_index + 1):
                         blob_indices = np.where(b == i)

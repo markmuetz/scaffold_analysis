@@ -1,10 +1,8 @@
-import numpy as np
 import iris
-
-from omnium.utils import get_cube
-
+import numpy as np
 from omnium.analyzer import Analyzer
 from omnium.consts import Re, L, cp, g
+from omnium.utils import get_cube
 
 
 class RestartDumpAnalyzer(Analyzer):

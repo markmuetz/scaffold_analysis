@@ -1,15 +1,10 @@
-import os
-
 import matplotlib
 matplotlib.use('Agg')
-import numpy as np
 import pylab as plt
-import iris
 from matplotlib.colors import LogNorm
 
 from omnium.analyzer import Analyzer
 from omnium.utils import get_cube
-from omnium.consts import L
 
 
 class PrecipPlot(Analyzer):

@@ -1,7 +1,7 @@
 import os
 
-import numpy as np
 import f90nml
+import numpy as np
 
 
 class VertLev(object):

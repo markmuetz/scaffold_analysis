@@ -1,10 +1,9 @@
 import os
-from collections import OrderedDict
-from itertools import groupby
 from logging import getLogger
 
-import numpy as np
 import matplotlib
+import numpy as np
+
 matplotlib.use('Agg')
 from matplotlib import rcParams
 import pylab as plt

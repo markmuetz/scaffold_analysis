@@ -1,15 +1,14 @@
-import os
 from logging import getLogger
 
 import matplotlib
+
 matplotlib.use('Agg')
-import pylab as plt
 import numpy as np
 import iris
 
 from omnium.analyzer import Analyzer
 from omnium.utils import get_cube
-from omnium.consts import Re, L, cp, g
+from omnium.consts import Re
 from omnium.omnium_errors import OmniumError
 
 logger = getLogger('om.ca')

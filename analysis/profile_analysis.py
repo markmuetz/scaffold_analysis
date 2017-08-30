@@ -1,15 +1,15 @@
-import os
 from logging import getLogger
 
-import numpy as np
 import matplotlib
+import numpy as np
+
 matplotlib.use('Agg')
 import pylab as plt
 import iris
 
 from omnium.analyzer import Analyzer
 from omnium.utils import get_cube, count_blobs_mask
-from omnium.consts import Re, L, cp, g
+from omnium.consts import Re, cp, g
 
 logger = getLogger('om.prof_an')
 

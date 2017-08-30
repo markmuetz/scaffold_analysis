@@ -3,9 +3,8 @@ from collections import defaultdict
 from logging import getLogger
 
 import iris
-
 from omnium.analyzer import Analyzer
-from omnium.utils import get_cube_from_attr, is_power_of_two
+from omnium.utils import is_power_of_two
 
 logger = getLogger('om.mfssc')
 

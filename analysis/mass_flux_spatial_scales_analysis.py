@@ -1,10 +1,8 @@
-import os
 from collections import OrderedDict
 from logging import getLogger
 
-import numpy as np
 import iris
-
+import numpy as np
 from omnium.analyzer import Analyzer
 from omnium.utils import get_cube_from_attr, coarse_grain
 

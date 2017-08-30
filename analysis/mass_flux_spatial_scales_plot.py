@@ -1,14 +1,12 @@
-import os
-from collections import OrderedDict
 from itertools import groupby
 
-import numpy as np
 import matplotlib
+import numpy as np
+
 matplotlib.use('Agg')
 import pylab as plt
 
 from omnium.analyzer import Analyzer
-from omnium.utils import get_cube_from_attr
 
 from analysis.utils import cm_to_inch
 
