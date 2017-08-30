@@ -49,6 +49,6 @@ class CloudTrackAnalyzer(Analyzer):
                 # Force creation of output_dir (hacky).
                 dummy_path = self.figpath('tracks')
                 output_dir = os.path.dirname(dummy_path)
-                prefix = '{}_z{}_t{}_'.format(os.path.basename(dummy_path, height_level_index, thresh_index))
+                prefix = '{}_z{}_t{}_'.format(os.path.basename(dummy_path), height_level_index, thresh_index)
                 stats_for_expt = output_stats({self.expt: tracker}, output_dir, prefix=prefix)
                 stats = stats_for_expt[self.expt]
