@@ -22,12 +22,11 @@ class CloudTrackAnalyzer(Analyzer):
         # height_level_index refers to w as it has already picked out the height levels.
         for height_level_index, height_level in enumerate(level_number_coord.points):
             for thresh_index in range(w_thresh_coord.shape[0]):
-                cld_field = np.zeros(cloud_mask_cube.shape, dtype=int)
+                cld_field = np.zeros(cloud_mask_cube[:, height_level_index, thresh_index, thresh_index].shape, dtype=int)
                 cld_field_cube = cloud_mask_cube[:, height_level_index, thresh_index, thresh_index].copy()
                 cld_field_cube.rename('cloud_field')
 
-                for time_index in range(cloud_mask_cube.data.shape[0]):
-
+                for time_index in range(cloud_mask_cube.shape[0]):
                     cloud_mask_ss = cloud_mask_cube[time_index,
                                                     height_level_index,
                                                     thresh_index,
