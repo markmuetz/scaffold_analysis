@@ -8,8 +8,9 @@ import pylab as plt
 import iris
 
 from omnium.analyzer import Analyzer
-from omnium.utils import get_cube, count_blobs_mask
+from omnium.utils import get_cube
 from omnium.consts import Re, cp, g
+from cloud_tracking.utils import label_clds
 
 logger = getLogger('om.prof_an')
 
@@ -301,7 +302,7 @@ class ProfileAnalyzer(Analyzer):
                 mf_conv = mf[:, i][mask[:, i]].sum()
                 num_clouds = 0
                 for itime in range(mf.shape[0]):
-                    num_clouds += count_blobs_mask(mask[itime, i], diagonal=True)[0]
+                    num_clouds += label_clds(mask[itime, i], diagonal=True)[0]
                 # TODO: don't hard code!
                 # dx=1e3, dx**2=4e6 = Area of one grid cell.
                 profile_data.append(mf_conv/num_clouds * 4e6)
