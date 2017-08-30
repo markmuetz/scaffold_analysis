@@ -39,6 +39,7 @@ class CloudTrackAnalyzer(Analyzer):
 
         w_thresh_coord = cloud_mask_cube.coord('w_thres')
         level_number_coord = cloud_mask_cube.coord('model_level_number')
+        logger.debug(cloud_mask_cube.shape)
 
         # height_level refers to orig cube.
         # height_level_index refers to w as it has already picked out the height levels.
