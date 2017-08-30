@@ -1,9 +1,12 @@
+import os
+
 import numpy as np
 
 from omnium.analyzer import Analyzer
 from omnium.utils import get_cube_from_attr
 from cloud_tracking.utils import label_clds
 from cloud_tracking import Tracker
+from cloud_tracking.cloud_tracking_analysis import output_stats
 
 
 class CloudTrackAnalyzer(Analyzer):
@@ -42,3 +45,10 @@ class CloudTrackAnalyzer(Analyzer):
                 # iris.save(proj_cld_field_cube, 'output/{}_proj_cld_field.nc'.format(expt))
 
                 tracker.group()
+                # TODO: Hacky.
+                # Force creation of output_dir (hacky).
+                dummy_path = self.figpath('dummy')
+                output_dir = os.path.basename(dummy_path)
+                prefix = 'z{}_t{}_'.format(height_level_index, thresh_index)
+                stats_for_expt = output_stats({self.expt: tracker}, output_dir, prefix=prefix)
+                stats = stats_for_expt[self.expt]
