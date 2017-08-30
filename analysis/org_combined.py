@@ -14,9 +14,9 @@ class OrgCombined(Analyzer):
     multi_file = True
 
     def set_config(self, config):
-	super(OrgCombined, self).set_config(config)
+        super(OrgCombined, self).set_config(config)
         self.start_runid = config.getint('start_runid')
-	    
+            
     def load(self):
         self.append_log('Override load')
         self.dists = defaultdict(list)

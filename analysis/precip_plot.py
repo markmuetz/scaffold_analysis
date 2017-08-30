@@ -20,8 +20,8 @@ class PrecipPlot(Analyzer):
 
     def _plot(self):
         precips = {}
-	for expt in self.expts:
-	    cubes = self.expt_cubes[expt]
+        for expt in self.expts:
+            cubes = self.expt_cubes[expt]
             precip = get_cube(cubes, 4, 203)
             precips[expt] = precip
 

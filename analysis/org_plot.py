@@ -22,7 +22,7 @@ class OrgPlotter(Analyzer):
     multi_expt = True
 
     def set_config(self, config):
-	super(OrgPlotter, self).set_config(config)
+        super(OrgPlotter, self).set_config(config)
         if 'xlim' in config:
             self.xlim = [float(v) for v in config['xlim'].split(',')]
         else:
@@ -38,12 +38,12 @@ class OrgPlotter(Analyzer):
         pass
 
     def _plot_org_hist(self):
-	self.append_log('plotting org')
+        self.append_log('plotting org')
 
         groups = []
 
-	for expt in self.expts:
-	    cubes = self.expt_cubes[expt]
+        for expt in self.expts:
+            cubes = self.expt_cubes[expt]
             sorted_cubes = []
 
             for cube in cubes:

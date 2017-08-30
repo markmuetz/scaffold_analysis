@@ -18,9 +18,9 @@ class ProfileAnalyzer(Analyzer):
     analysis_name = 'profile_analysis'
 
     def set_config(self, config):
-	super(ProfileAnalyzer, self).set_config(config)
-	self.w_thresh = config.getfloat('w_thresh', 1)
-	self.qcl_thresh = config.getfloat('qcl_thresh', 0.0001)
+        super(ProfileAnalyzer, self).set_config(config)
+        self.w_thresh = config.getfloat('w_thresh', 1)
+        self.qcl_thresh = config.getfloat('qcl_thresh', 0.0001)
         if 'mfpercloud_profile_xlim' in config:
             self.mfpercloud_profile_xlim = [float(v) for v in config['mfpercloud_profile_xlim'].split(',')]
         else:
@@ -33,7 +33,7 @@ class ProfileAnalyzer(Analyzer):
             self.cloud_profile_xlim = [float(v) for v in config['cloud_profile_xlim'].split(',')]
         else:
             self.cloud_profile_xlim = None
-	    
+            
     def _plot_uv(self):
         u_profile = self.results['u_profile']
         v_profile = self.results['v_profile']
@@ -52,56 +52,56 @@ class ProfileAnalyzer(Analyzer):
         plt.savefig(self.figpath('uv_profile.png'))
 
     def _plot_theta_qcl(self):
-	plt.figure('theta')
+        plt.figure('theta')
         theta_profile = self.results['theta_profile']
         theta_cloud_profile = self.results['theta_cloud_profile']
         theta_not_cloud_profile = self.results['theta_not_cloud_profile']
         height = theta_profile.coord('level_height').points
-	plt.title(self.expt)
+        plt.title(self.expt)
         plt.plot(theta_profile.data, height, 'g-', label='theta')
         plt.plot(theta_cloud_profile.data, height, 'g--', label='theta cloud')
         plt.plot(theta_not_cloud_profile.data, height, 'g.', label='theta not_cloud')
-	plt.xlim((250, 500))
-	plt.ylim((0, 20000))
+        plt.xlim((250, 500))
+        plt.ylim((0, 20000))
         plt.xlabel('theta (K)')
         plt.ylabel('height (m)')
-	plt.legend()
+        plt.legend()
         plt.savefig(self.figpath('theta_profile.png'))
 
-	plt.figure('qcl')
+        plt.figure('qcl')
         qcl_profile = self.results['qcl_profile']
         qcl_cloud_profile = self.results['qcl_cloud_profile']
         qcl_not_cloud_profile = self.results['qcl_not_cloud_profile']
         height = qcl_profile.coord('level_height').points
-	plt.title(self.expt)
+        plt.title(self.expt)
         plt.plot(qcl_profile.data * 1000, height, 'g-', label='qcl')
         plt.plot(qcl_cloud_profile.data * 1000, height, 'g--', label='qcl cloud')
         plt.plot(qcl_not_cloud_profile.data * 1000, height, 'g.', label='qcl not_cloud')
-	plt.ylim((0, 20000))
+        plt.ylim((0, 20000))
         plt.xlabel('qcl (g kg$^{-1}$)')
         plt.ylabel('height (m)')
-	plt.legend()
+        plt.legend()
         plt.savefig(self.figpath('qcl_profile.png'))
 
-	#plt.figure('qgr')
+        #plt.figure('qgr')
         qgr_profile = self.results['qgr_profile']
-	plt.title(self.expt)
+        plt.title(self.expt)
         plt.plot(qgr_profile.data * 1000, height, 'r-', label='qgr')
-	plt.ylim((0, 20000))
+        plt.ylim((0, 20000))
         plt.xlabel('qgr (g kg$^{-1}$)')
         plt.ylabel('height (m)')
-	plt.legend()
+        plt.legend()
         #plt.savefig(self.figpath('qgr_profile.png'))
 
-	#plt.figure('qcf')
+        #plt.figure('qcf')
         qcf_profile = self.results['qcf_profile']
-	plt.title(self.expt)
+        plt.title(self.expt)
         plt.plot(qcf_profile.data * 1000, height, 'b-', label='qcf')
         plt.xlim((0, 0.1))
-	plt.ylim((0, 20000))
+        plt.ylim((0, 20000))
         plt.xlabel('qcf (g kg$^{-1}$)')
         plt.ylabel('height (m)')
-	plt.legend()
+        plt.legend()
         plt.savefig(self.figpath('hydrom_profile.png'))
 
     def _plot_momentum_flux(self):
@@ -135,9 +135,9 @@ class ProfileAnalyzer(Analyzer):
         plt.plot(mf_cloud_profile.data, height, label='cloud mask')
         plt.plot(mf_w_profile.data, height, label='w mask')
         plt.plot(mf_qcl_profile.data, height, label='qcl mask')
-	plt.ylim((0, 20000))
-	if self.mfpercloud_profile_xlim:
-	    plt.xlim(self.mfpercloud_profile_xlim)
+        plt.ylim((0, 20000))
+        if self.mfpercloud_profile_xlim:
+            plt.xlim(self.mfpercloud_profile_xlim)
         plt.legend()
         plt.savefig(self.figpath('mfpercloud_profile.png'))
 
@@ -146,9 +146,9 @@ class ProfileAnalyzer(Analyzer):
         plt.plot(clouds_cloud_profile.data, height, label='cloud mask')
         plt.plot(clouds_w_profile.data, height, label='w mask')
         plt.plot(clouds_qcl_profile.data, height, label='qcl mask')
-	plt.ylim((0, 20000))
-	if self.cloud_profile_xlim:
-	    plt.xlim(self.cloud_profile_xlim)
+        plt.ylim((0, 20000))
+        if self.cloud_profile_xlim:
+            plt.xlim(self.cloud_profile_xlim)
         plt.legend()
         plt.savefig(self.figpath('numclouds_profile.png'))
 
@@ -157,9 +157,9 @@ class ProfileAnalyzer(Analyzer):
         plt.plot(clouds_cloud_profile.data * mf_cloud_profile.data, height, label='cloud mask')
         plt.plot(clouds_w_profile.data * mf_w_profile.data, height, label='w mask')
         plt.plot(clouds_qcl_profile.data * mf_qcl_profile.data, height, label='qcl mask')
-	plt.ylim((0, 20000))
-	if self.mftotal_profile_xlim:
-	    plt.xlim(self.mftotal_profile_xlim)
+        plt.ylim((0, 20000))
+        if self.mftotal_profile_xlim:
+            plt.xlim(self.mftotal_profile_xlim)
         plt.legend()
         plt.savefig(self.figpath('totalmf_profile.png'))
 
@@ -231,27 +231,27 @@ class ProfileAnalyzer(Analyzer):
         self.results['qcf_profile'] = qcf.collapsed(['time', 'grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
         self.results['pressure_profile'] = pressure.collapsed(['time', 'grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
 
-	# Make masked arrays to grab subsets of data I want.
-	# N.B. masked where data will be ignored - hence ~cloud_mask.
-	theta_cloud_data = np.ma.array(theta.data, mask=~cloud_mask)
-	theta_not_cloud_data = np.ma.array(theta.data, mask=cloud_mask)
-	qcl_cloud_data = np.ma.array(qcl.data, mask=~cloud_mask)
-	qcl_not_cloud_data = np.ma.array(qcl.data, mask=cloud_mask)
+        # Make masked arrays to grab subsets of data I want.
+        # N.B. masked where data will be ignored - hence ~cloud_mask.
+        theta_cloud_data = np.ma.array(theta.data, mask=~cloud_mask)
+        theta_not_cloud_data = np.ma.array(theta.data, mask=cloud_mask)
+        qcl_cloud_data = np.ma.array(qcl.data, mask=~cloud_mask)
+        qcl_not_cloud_data = np.ma.array(qcl.data, mask=cloud_mask)
 
-	# Work out theta profiles in/out of clouds.
-	theta_cloud_profile = self.results['theta_profile'].copy()
-	theta_not_cloud_profile = self.results['theta_profile'].copy()
-	theta_cloud_profile.data = theta_cloud_data.mean(axis=(0, 2, 3)).data
-	theta_not_cloud_profile.data = theta_not_cloud_data.mean(axis=(0, 2, 3)).data
-	self.results['theta_cloud_profile'] = theta_cloud_profile
-	self.results['theta_not_cloud_profile'] = theta_not_cloud_profile
+        # Work out theta profiles in/out of clouds.
+        theta_cloud_profile = self.results['theta_profile'].copy()
+        theta_not_cloud_profile = self.results['theta_profile'].copy()
+        theta_cloud_profile.data = theta_cloud_data.mean(axis=(0, 2, 3)).data
+        theta_not_cloud_profile.data = theta_not_cloud_data.mean(axis=(0, 2, 3)).data
+        self.results['theta_cloud_profile'] = theta_cloud_profile
+        self.results['theta_not_cloud_profile'] = theta_not_cloud_profile
 
-	qcl_cloud_profile = self.results['qcl_profile'].copy()
-	qcl_not_cloud_profile = self.results['qcl_profile'].copy()
-	qcl_cloud_profile.data = qcl_cloud_data.mean(axis=(0, 2, 3)).data
-	qcl_not_cloud_profile.data = qcl_not_cloud_data.mean(axis=(0, 2, 3)).data
-	self.results['qcl_cloud_profile'] = qcl_cloud_profile
-	self.results['qcl_not_cloud_profile'] = qcl_not_cloud_profile
+        qcl_cloud_profile = self.results['qcl_profile'].copy()
+        qcl_not_cloud_profile = self.results['qcl_profile'].copy()
+        qcl_cloud_profile.data = qcl_cloud_data.mean(axis=(0, 2, 3)).data
+        qcl_not_cloud_profile.data = qcl_not_cloud_data.mean(axis=(0, 2, 3)).data
+        self.results['qcl_cloud_profile'] = qcl_cloud_profile
+        self.results['qcl_not_cloud_profile'] = qcl_not_cloud_profile
 
         z = theta.coord('level_height').points
         dz = z[1:] - z[:-1]
@@ -289,21 +289,21 @@ class ProfileAnalyzer(Analyzer):
         #mf_w_profile_data = np.array([mf[:, i][w_mask[:, i]].sum() for i in range(mf.shape[1])])
         #mf_qcl_profile_data = np.array([mf[:, i][qcl_rho_mask[:, i]].sum() for i in range(mf.shape[1])])
 
-	height_coord = iris.coords.DimCoord(height, long_name='level_height', units='m')
+        height_coord = iris.coords.DimCoord(height, long_name='level_height', units='m')
         for name, mask in [('cloud_profile', cloud_rho_mask),
                            ('w_profile', w_rho_mask), 
                            ('qcl_profile', qcl_rho_mask)]:
             profile_data = []
             cloud_data = []
 
-	    # Loop over height.
+            # Loop over height.
             for i in range(mf.shape[1]):
                 mf_conv = mf[:, i][mask[:, i]].sum()
                 num_clouds = 0
                 for itime in range(mf.shape[0]):
                     num_clouds += count_blobs_mask(mask[itime, i], diagonal=True)[0]
-		# TODO: don't hard code!
-		# dx=1e3, dx**2=4e6 = Area of one grid cell.
+                # TODO: don't hard code!
+                # dx=1e3, dx**2=4e6 = Area of one grid cell.
                 profile_data.append(mf_conv/num_clouds * 4e6)
                 cloud_data.append(num_clouds)
 

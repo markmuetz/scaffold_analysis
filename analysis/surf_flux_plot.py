@@ -24,8 +24,8 @@ class SurfFluxPlot(Analyzer):
 
     def _plot(self):
         lines = ['Expt,PFE [W m-2],LHF [W m-2],SHF [W m-2]']
-	for expt in self.expts:
-	    cubes = self.expt_cubes[expt]
+        for expt in self.expts:
+            cubes = self.expt_cubes[expt]
 
             precip = get_cube(cubes, 4, 203)
             lhf = get_cube(cubes, 3, 234)

@@ -21,9 +21,9 @@ class MassFluxSpatialScalesPlotter(Analyzer):
         return [float(v) for v in lim.split(',')]
 
     def set_config(self, config):
-	super(MassFluxSpatialScalesPlotter, self).set_config(config)
+        super(MassFluxSpatialScalesPlotter, self).set_config(config)
         self.nbins = config.getint('nbins', None)
-	self.x_cutoff = config.getfloat('x_cutoff', 0)
+        self.x_cutoff = config.getfloat('x_cutoff', 0)
 
         if 'xlim' in config:
             self.xlim = [float(v) for v in config['xlim'].split(',')]
@@ -39,13 +39,13 @@ class MassFluxSpatialScalesPlotter(Analyzer):
         pass
 
     def _plot_mass_flux_spatial(self):
-	self.append_log('plotting mass_flux_spatial')
+        self.append_log('plotting mass_flux_spatial')
 
         heights = []
         ns = []
 
-	for expt in self.expts:
-	    cubes = self.expt_cubes[expt]
+        for expt in self.expts:
+            cubes = self.expt_cubes[expt]
             sorted_cubes = []
 
             for cube in cubes:
@@ -83,15 +83,15 @@ class MassFluxSpatialScalesPlotter(Analyzer):
                     plt.title('{} z{} n{} mass_flux_spatial_hist'.format(expt, height_index, n))
 
                     hist_kwargs = {}
-		    if self.xlim:
+                    if self.xlim:
                         hist_kwargs['range'] = self.xlim
                     else:
                         #hist_kwargs['range'] = (0, 0.1)
-			pass
+                        pass
 
                     if self.nbins:
                         hist_kwargs['bins'] = self.nbins
-		    filtered_data = hist_datum.data[hist_datum.data >= self.x_cutoff]
+                    filtered_data = hist_datum.data[hist_datum.data >= self.x_cutoff]
                     y, bin_edges = np.histogram(filtered_data, **hist_kwargs)
                     bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
 
@@ -162,20 +162,20 @@ class MassFluxSpatialScalesPlotter(Analyzer):
             plt.tight_layout()
             plt.savefig(self.figpath('poster_both_z{}.png'.format(height_index)))
 
-	    for expt in self.expts:
-		name = '{}.z{}.all_n.hist'.format(expt, height_index)
-		plt.figure(name)
-		plt.title(name)
-		plt.legend()
-		plt.savefig(self.figpath(name + '.png'))
+            for expt in self.expts:
+                name = '{}.z{}.all_n.hist'.format(expt, height_index)
+                plt.figure(name)
+                plt.title(name)
+                plt.legend()
+                plt.savefig(self.figpath(name + '.png'))
 
-	    for n in ns:
-		plt.figure('combined_expt_z{}_n{}'.format(height_index, n))
-		plt.title('combined_expt_z{}_n{}'.format(height_index, n))
-		plt.legend()
-		if self.xlim:
-		    plt.xlim(self.xlim)
-		plt.savefig(self.figpath('z{}_n{}_combined.png'.format(height_index, n)))
+            for n in ns:
+                plt.figure('combined_expt_z{}_n{}'.format(height_index, n))
+                plt.title('combined_expt_z{}_n{}'.format(height_index, n))
+                plt.legend()
+                if self.xlim:
+                    plt.xlim(self.xlim)
+                plt.savefig(self.figpath('z{}_n{}_combined.png'.format(height_index, n)))
 
     def display_results(self):
         self._plot_mass_flux_spatial()

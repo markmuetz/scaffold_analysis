@@ -36,15 +36,15 @@ class ProfilePlotter(Analyzer):
 
         ax1.set_ylim((0, 25))
 
-	for expt in self.expts:
-	    cubes = self.expt_cubes[expt]
+        for expt in self.expts:
+            cubes = self.expt_cubes[expt]
             u_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'u_profile')
             # v_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'v_profile')
             height = u_profile.coord('level_height').points
             shear_factor = int(expt[1]) # i.e. 0-5.
             shear_u_profile = self.base_u_profile.copy()
             shear_u_profile[:, 1] *= shear_factor
-	    # N.B. convert m->km.
+            # N.B. convert m->km.
             plot = ax1.plot(shear_u_profile[:, 1], shear_u_profile[:, 0] / 1e3, label=expt)
             colour = plot[0].get_color()
             #import ipdb; ipdb.set_trace()
@@ -69,7 +69,7 @@ class ProfilePlotter(Analyzer):
 
         # Cooling profile is very similar in height coords for different expts.
         # Just use first.
-	expt = self.expts[0]
+        expt = self.expts[0]
         cubes = self.expt_cubes[expt]
         # in Pa.
         pressure_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'pressure_profile')
@@ -88,15 +88,15 @@ class ProfilePlotter(Analyzer):
         ax2.set_xlabel('prescribed heating (K day$^{-1}$)')
         ax2.axvline(x=0, color='k', linestyle='--')
 
-	for expt in self.expts:
-	    cubes = self.expt_cubes[expt]
+        for expt in self.expts:
+            cubes = self.expt_cubes[expt]
             u_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'u_profile')
             # v_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'v_profile')
             height = u_profile.coord('level_height').points
             shear_factor = int(expt[1]) # i.e. 0-5.
             shear_u_profile = self.base_u_profile.copy()
             shear_u_profile[:, 1] *= shear_factor
-	    # N.B. convert m->km.
+            # N.B. convert m->km.
             plot = ax3.plot(shear_u_profile[:, 1], shear_u_profile[:, 0] / 1e3, label=expt)
             colour = plot[0].get_color()
             #import ipdb; ipdb.set_trace()
@@ -113,15 +113,15 @@ class ProfilePlotter(Analyzer):
 
     def _plot_uv_profile(self):
         fig = plt.figure('uv_profile', figsize=(3.5, 4.5), dpi=1200)
-	for expt in self.expts:
-	    cubes = self.expt_cubes[expt]
+        for expt in self.expts:
+            cubes = self.expt_cubes[expt]
             u_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'u_profile')
             # v_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'v_profile')
             height = u_profile.coord('level_height').points
             shear_factor = int(expt[1]) # i.e. 0-5.
             shear_u_profile = self.base_u_profile.copy()
             shear_u_profile[:, 1] *= shear_factor
-	    # N.B. convert m->km.
+            # N.B. convert m->km.
             plot = plt.plot(shear_u_profile[:, 1], shear_u_profile[:, 0] / 1e3, label=expt)
             colour = plot[0].get_color()
             plt.plot(u_profile.data, height / 1e3, color=colour, linestyle='--')
@@ -130,15 +130,15 @@ class ProfilePlotter(Analyzer):
         plt.ylim((0, 20))
         plt.ylabel('height (km)')
         plt.xlabel('u profile (m s$^{-1}$)')
-	plt.legend(loc='upper left')
+        plt.legend(loc='upper left')
         plt.tight_layout()
         plt.savefig(self.figpath('uv_profile.png'))
 
     def _plot_thermodynamic_profile(self):
         plt.figure('thermodynamic_profile')
         f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
-	for expt in self.expts:
-	    cubes = self.expt_cubes[expt]
+        for expt in self.expts:
+            cubes = self.expt_cubes[expt]
             theta_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'theta_profile')
             theta_cloud_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'theta_cloud_profile')
             theta_not_cloud_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'theta_not_cloud_profile')
@@ -164,10 +164,10 @@ class ProfilePlotter(Analyzer):
         ax1.set_ylim((0, 18))
         ax1.set_xlabel('$\\theta$ (K)')
         ax1.set_ylabel('height (km)')
-	ax1.legend(loc='upper left')
+        ax1.legend(loc='upper left')
 
-	for expt in self.expts:
-	    cubes = self.expt_cubes[expt]
+        for expt in self.expts:
+            cubes = self.expt_cubes[expt]
 
             qcl_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'qcl_profile')
             qgr_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'qgr_profile')
@@ -199,8 +199,8 @@ class ProfilePlotter(Analyzer):
     def _plot_mf_profile(self):
         plt.figure('mf_profile')
         f, (ax1, ax2, ax3) = plt.subplots(1, 3, sharey=True)
-	for expt in self.expts:
-	    cubes = self.expt_cubes[expt]
+        for expt in self.expts:
+            cubes = self.expt_cubes[expt]
 
             mf_cloud_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'mf_cloud_profile')
             mf_w_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'mf_w_profile')
@@ -225,7 +225,7 @@ class ProfilePlotter(Analyzer):
         ax3.set_xlabel('Total MF ($\\times 10^8$ kg s$^{-1}$)')
         ax3.set_xlim((0, 100))
 
-	plt.legend(loc='upper right')
+        plt.legend(loc='upper right')
         plt.savefig(self.figpath('mf_profile.png'))
 
     def _plot_dz_profile(self):
@@ -255,8 +255,8 @@ class ProfilePlotter(Analyzer):
 
     def _plot_momentum_flux(self):
         fig = plt.figure('momf_profile', figsize=(3.5, 4.5), dpi=1200)
-	for expt in self.expts:
-	    cubes = self.expt_cubes[expt]
+        for expt in self.expts:
+            cubes = self.expt_cubes[expt]
             u_mom_flux_ts = get_cube_from_attr(cubes, 'omnium_cube_id', 'u_mom_flux_ts')
             v_mom_flux_ts = get_cube_from_attr(cubes, 'omnium_cube_id', 'v_mom_flux_ts')
             z = u_mom_flux_ts.coord('level_height').points
@@ -271,8 +271,8 @@ class ProfilePlotter(Analyzer):
         plt.savefig(self.figpath('momentum_flux_profile.png'))
 
     def _plot_cooling(self):
-	for expt in self.expts:
-	    cubes = self.expt_cubes[expt]
+        for expt in self.expts:
+            cubes = self.expt_cubes[expt]
             # in Pa.
             pressure_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'pressure_profile')
             z = pressure_profile.coord('level_height').points

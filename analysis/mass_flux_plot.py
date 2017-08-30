@@ -24,7 +24,7 @@ class MassFluxPlotter(Analyzer):
     dx = 2e3
 
     def set_config(self, config):
-	super(MassFluxPlotter, self).set_config(config)
+        super(MassFluxPlotter, self).set_config(config)
         if 'xlim' in config:
             self.xlim = [float(v) for v in config['xlim'].split(',')]
         else:
@@ -40,14 +40,14 @@ class MassFluxPlotter(Analyzer):
         pass
 
     def _plot_mass_flux_hist(self):
-	self.append_log('plotting mass_flux')
+        self.append_log('plotting mass_flux')
 
         groups = []
 
         linregress_details = ['z, expt, m, c, rval, pval, stderr']
 
-	for expt in self.expts:
-	    cubes = self.expt_cubes[expt]
+        for expt in self.expts:
+            cubes = self.expt_cubes[expt]
             sorted_cubes = []
 
             for cube in cubes:
@@ -88,7 +88,7 @@ class MassFluxPlotter(Analyzer):
                 #y_max, bin_edges = np.histogram(hist_data[0].data, bins=50, range=(0, dmax))
                 y, bin_edges = np.histogram(hist_data[1].data * self.dx**2 / 1e8, **hist_kwargs)
                 bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
-		y2 = bin_centers * y
+                y2 = bin_centers * y
 
                 # yerr is a rel, not abs, value.
                 # N.B. full width bins.
@@ -107,9 +107,9 @@ class MassFluxPlotter(Analyzer):
                     plt.ylim(self.ylim)
                 plt.savefig(self.figpath(name + '.png'))
 
-		plt.figure(name + 'mf_wieghted_plot_filename')
-		plt.clf()
-		plt.plot(bin_centers, y2)
+                plt.figure(name + 'mf_wieghted_plot_filename')
+                plt.clf()
+                plt.plot(bin_centers, y2)
                 plt.savefig(self.figpath(name + '.mf_weighted.png'))
 
                 plt.figure('combined_expt_z{}'.format(group))
@@ -130,7 +130,7 @@ class MassFluxPlotter(Analyzer):
                 linregress_details.append('{},{},{},{},{},{},{}'.format(group, expt, m, c, rval, pval, stderr))
 
                 plt.figure('combined_expt_mf_weighted_z{}'.format(group))
-		plt.plot(bin_centers, y2, label=expt)
+                plt.plot(bin_centers, y2, label=expt)
 
                 if plt.fignum_exists('both_z{}'.format(group)):
                     f = plt.figure('both_z{}'.format(group))
@@ -178,7 +178,7 @@ class MassFluxPlotter(Analyzer):
             plt.yscale('log')
             plt.savefig(self.figpath('z{}_combined.png'.format(group)))
 
-	    plt.figure('combined_expt_mf_weighted_z{}'.format(group))
+            plt.figure('combined_expt_mf_weighted_z{}'.format(group))
             plt.legend()
             plt.savefig(self.figpath('z{}_mf_weighted_comb.png'.format(group)))
 

@@ -19,13 +19,13 @@ class CloudAnalyzer(Analyzer):
     analysis_name = 'cloud_analysis'
 
     def set_config(self, config):
-	super(CloudAnalyzer, self).set_config(config)
-	self.height_levels = [int(l) for l in config['height_levels'].split(',')]
-	self.w_threshs = [float(t) for t in config['w_threshs'].split(',')]
-	self.qcl_threshs = [float(t) for t in config['qcl_threshs'].split(',')]
+        super(CloudAnalyzer, self).set_config(config)
+        self.height_levels = [int(l) for l in config['height_levels'].split(',')]
+        self.w_threshs = [float(t) for t in config['w_threshs'].split(',')]
+        self.qcl_threshs = [float(t) for t in config['qcl_threshs'].split(',')]
         if len(self.w_threshs) != len(self.qcl_threshs):
             raise OmniumError('w_threshs and qcl_threshs must be same length')
-	    
+            
     def run_analysis(self):
         cubes = self.cubes
 
@@ -79,10 +79,10 @@ class CloudAnalyzer(Analyzer):
 
         # VERY SLOW if data you are reading are compressed.
         # w_slice = w[:, self.height_levels]
-	# self.results['w_slice'] = w_slice
-	# self.results['w_slice'] = w_slice
-	# self.results['qcl_slice'] = qcl[:, self.height_levels].copy()
-	# self.results['rho_slice'] = rho[:, rho_height_levels].copy()
+        # self.results['w_slice'] = w_slice
+        # self.results['w_slice'] = w_slice
+        # self.results['qcl_slice'] = qcl[:, self.height_levels].copy()
+        # self.results['rho_slice'] = rho[:, rho_height_levels].copy()
 
         cloud_mask_data = np.zeros((w.shape[0], 
                                     len(self.height_levels),
@@ -91,8 +91,8 @@ class CloudAnalyzer(Analyzer):
                                     w.shape[-2],
                                     w.shape[-1]))
                               
-	for h_index, height_level in enumerate(self.height_levels):
-	    for w_index, w_thresh in enumerate(self.w_threshs):
+        for h_index, height_level in enumerate(self.height_levels):
+            for w_index, w_thresh in enumerate(self.w_threshs):
                 for qcl_index, qcl_thresh in enumerate(self.qcl_threshs):
                     logger.debug('h, w, qcl index: ({}, {}, {})'.format(h_index, w_index, qcl_index))
                     w_mask = w[:, height_level].data > w_thresh

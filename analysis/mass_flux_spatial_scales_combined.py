@@ -14,9 +14,9 @@ class MassFluxSpatialScalesCombined(Analyzer):
     multi_file = True
 
     def set_config(self, config):
-	super(MassFluxSpatialScalesCombined, self).set_config(config)
+        super(MassFluxSpatialScalesCombined, self).set_config(config)
         self.start_runid = config.getint('start_runid')
-	    
+            
     def load(self):
         self.append_log('Override load')
         self.spatial_mass_fluxes = defaultdict(list)

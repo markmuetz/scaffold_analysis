@@ -10,4 +10,4 @@ class MassFluxTimeSeriesAnalyzer(Analyzer):
 
         w = get_cube_from_attr(cubes, 'id', 'w')
 
-	self.results['w'] = w
+        self.results['w'] = w

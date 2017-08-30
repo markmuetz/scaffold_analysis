@@ -29,8 +29,8 @@ class OrgAnalyzer(Analyzer):
     def run_analysis(self):
         cubes = self.cubes
 
-	w_slice = get_cube_from_attr(cubes, 'omnium_cube_id', 'w_slice')
-	rho_slice = get_cube_from_attr(cubes, 'omnium_cube_id', 'rho_slice')
+        w_slice = get_cube_from_attr(cubes, 'omnium_cube_id', 'w_slice')
+        rho_slice = get_cube_from_attr(cubes, 'omnium_cube_id', 'rho_slice')
 
         cloud_mask_id = 'cloud_mask'
         cloud_mask_cube = get_cube_from_attr(cubes, 'omnium_cube_id', cloud_mask_id)
@@ -39,20 +39,20 @@ class OrgAnalyzer(Analyzer):
         qcl_thresh_coord = cloud_mask_cube.coord('qcl_thres')
         level_number_coord = cloud_mask_cube.coord('model_level_number')
 
-	# height_level refers to orig cube.
-	# height_level_index refers to w as it has already picked out the height levels.
-	for height_level_index, height_level in enumerate(level_number_coord.points):
+        # height_level refers to orig cube.
+        # height_level_index refers to w as it has already picked out the height levels.
+        for height_level_index, height_level in enumerate(level_number_coord.points):
             for thresh_index in range(w_thresh_coord.shape[0]):
                 # N.B. I just take the diagonal indices.
                 dists = []
                 total_clouds = 0
 
-		for time_index in range(cloud_mask_cube.data.shape[0]):
-		    cloud_mask_ss = cloud_mask_cube[time_index,
+                for time_index in range(cloud_mask_cube.data.shape[0]):
+                    cloud_mask_ss = cloud_mask_cube[time_index,
                                                     height_level_index,
                                                     thresh_index,
                                                     thresh_index].data.astype(bool)
-		    max_blob_index, blobs = count_blobs_mask(cloud_mask_ss, True)
+                    max_blob_index, blobs = count_blobs_mask(cloud_mask_ss, True)
 
                     cp = self._get_cloud_pos(blobs)
                     clouds = [Cloud(cp[j, 0], cp[j, 1]) for j in range(cp.shape[0])]
@@ -63,15 +63,15 @@ class OrgAnalyzer(Analyzer):
                 mean_clouds = total_clouds / cloud_mask_cube.data.shape[0]
 
                 dist_cube_id = 'dist_z{}_w{}_qcl{}'.format(height_level, thresh_index, thresh_index)
-		values = iris.coords.DimCoord(range(len(dists)), long_name='values')
-		dist_cube = iris.cube.Cube(dists, 
+                values = iris.coords.DimCoord(range(len(dists)), long_name='values')
+                dist_cube = iris.cube.Cube(dists, 
                                            long_name=dist_cube_id, 
                                            dim_coords_and_dims=[(values, 0)], 
                                            units='')
 
                 dist_cube.attributes['dist_key'] = (height_level_index, thresh_index)
                 dist_cube.attributes['dist_mean_total_clouds'] = (mean_clouds, total_clouds)
-		self.results[dist_cube_id] = dist_cube
+                self.results[dist_cube_id] = dist_cube
 
     def display_results(self):
         dist_cube_id = 'dist_z{}_w{}_qcl{}'.format(18, 1, 1)

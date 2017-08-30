@@ -53,11 +53,11 @@ class RestartDumpAnalyzer(Analyzer):
         rho, th(eta), ep (Exner Pressure) and q must be 3D fields
         returns 3D MSE, stores all working in object.
         """
-	self.results['theta'] = th
+        self.results['theta'] = th
         z = th.coord('level_height').points
         dz = z[1:] - z[:-1]
-	dz_heights = iris.coords.DimCoord((z[:-1] + z[1:]) / 2, long_name='level_height')
-	height_delta = iris.cube.Cube(dz, long_name='height_delta', dim_coords_and_dims=[(dz_heights, 0)], units='m')
+        dz_heights = iris.coords.DimCoord((z[:-1] + z[1:]) / 2, long_name='level_height')
+        height_delta = iris.cube.Cube(dz, long_name='height_delta', dim_coords_and_dims=[(dz_heights, 0)], units='m')
 
         Lv_rho_heights = rho.coord('level_height').points
         Lv_rho = Lv_rho_heights.repeat(rho.shape[1] * rho.shape[2]).reshape(rho.shape[0], rho.shape[1], rho.shape[2])
@@ -66,7 +66,7 @@ class RestartDumpAnalyzer(Analyzer):
         self.e_z = rho.data * g * Lv_rho
 
         self.mse_data = (self.e_t + self.e_q + self.e_z)
-	self.mse = self._create_cube(rho, self.mse_data, 'Moist Static Energy', 'J m-3')
+        self.mse = self._create_cube(rho, self.mse_data, 'Moist Static Energy', 'J m-3')
 
         self.results['MSE'] = self.mse
         self.results['MSE_T'] = self._create_cube(rho, self.e_t, 'Moist Static Energy (T term)', 'J m-3')
@@ -78,15 +78,15 @@ class RestartDumpAnalyzer(Analyzer):
         self.e_z_profile = self.e_z.mean(axis=(1, 2))
 
         self.mse_profile = self.mse.collapsed(['grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
-	self.mse_profile.rename('MSE profile')
-	self.results['mse_profile'] = self.mse_profile
+        self.mse_profile.rename('MSE profile')
+        self.results['mse_profile'] = self.mse_profile
         self.total_mse = (self.mse_profile * height_delta).collapsed(['level_height'], iris.analysis.SUM)
-	self.total_mse.rename('Total MSE')
-	#print('Total MSE units: {}'.format(self.total_mse.units))
-	#self.total_mse.rename('Total MSE')
-	#self.results['height_delta'] = height_delta
-	#self.results['total_mse'] = self.total_mse
-	#import ipdb; ipdb.set_trace()
+        self.total_mse.rename('Total MSE')
+        #print('Total MSE units: {}'.format(self.total_mse.units))
+        #self.total_mse.rename('Total MSE')
+        #self.results['height_delta'] = height_delta
+        #self.results['total_mse'] = self.total_mse
+        #import ipdb; ipdb.set_trace()
         print('MSE [GJ m^-2] = {0:.5f}'.format(self.total_mse.data / 1e9))
         print('  E(T) [GJ m^-2] = {0:.5f}'.format((self.e_t_profile * dz).sum() / 1e9))
         print('  E(q) [GJ m^-2] = {0:.5f}'.format((self.e_q_profile * dz).sum() / 1e9))
