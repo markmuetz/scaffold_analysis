@@ -11,6 +11,7 @@ from cloud_tracking.cloud_tracking_analysis import output_stats
 
 class CloudTrackAnalyzer(Analyzer):
     analysis_name = 'cloud_track_analysis'
+    multi_file = True
 
     def run_analysis(self):
         cubes = self.cubes
