@@ -1,6 +1,9 @@
 import os
+from logging import getLogger
 
 import numpy as np
+
+import iris
 
 from omnium.analyzer import Analyzer
 from omnium.utils import get_cube_from_attr
@@ -8,10 +11,25 @@ from cloud_tracking.utils import label_clds
 from cloud_tracking import Tracker
 from cloud_tracking.cloud_tracking_analysis import output_stats
 
+logger = getLogger('om.cta')
+
 
 class CloudTrackAnalyzer(Analyzer):
     analysis_name = 'cloud_track_analysis'
     multi_file = True
+
+    def load(self):
+        self.append_log('Override load')
+
+        cloud_mask_cubes = []
+        cloud_mask_id = 'cloud_mask'
+        for filename in self.filenames:
+            cubes = iris.load(filename)
+            cloud_mask_cube = get_cube_from_attr(cubes, 'omnium_cube_id', cloud_mask_id)
+            cloud_mask_cubes.append(cloud_mask_cube)
+
+        self.cubes = iris.cube.CubeList(cloud_mask_cubes).concatenate()
+        self.append_log('Override loaded')
 
     def run_analysis(self):
         cubes = self.cubes
