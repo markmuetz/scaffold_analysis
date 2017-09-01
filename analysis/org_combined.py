@@ -3,11 +3,11 @@ from collections import defaultdict
 from logging import getLogger
 
 import iris
-from omnium.analyzer import Analyzer
+from omnium.analyser import Analyser
 
 logger = getLogger('om.oc')
 
-class OrgCombined(Analyzer):
+class OrgCombined(Analyser):
     analysis_name = 'org_combined'
     multi_file = True
 

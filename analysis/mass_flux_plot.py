@@ -7,12 +7,12 @@ matplotlib.use('Agg')
 import pylab as plt
 from scipy.stats import linregress
 
-from omnium.analyzer import Analyzer
+from omnium.analyser import Analyser
 
 from analysis.utils import cm_to_inch
 
 
-class MassFluxPlotter(Analyzer):
+class MassFluxPlotter(Analyser):
     analysis_name = 'mass_flux_plot'
     multi_expt = True
     # Input values are in kg m-2 s-1, i.e. MF/cloud is an average over the cloud's area.

@@ -3,12 +3,12 @@ from collections import defaultdict
 from logging import getLogger
 
 import iris
-from omnium.analyzer import Analyzer
+from omnium.analyser import Analyser
 from omnium.utils import is_power_of_two
 
 logger = getLogger('om.mfssc')
 
-class MassFluxSpatialScalesCombined(Analyzer):
+class MassFluxSpatialScalesCombined(Analyser):
     analysis_name = 'mass_flux_spatial_scales_combined'
     multi_file = True
 

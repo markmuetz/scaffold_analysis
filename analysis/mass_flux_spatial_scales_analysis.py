@@ -3,17 +3,17 @@ from logging import getLogger
 
 import iris
 import numpy as np
-from omnium.analyzer import Analyzer
+from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr, coarse_grain
 
 logger = getLogger('om.mfssa')
 
 
-class MassFluxSpatialScalesAnalyzer(Analyzer):
+class MassFluxSpatialScalesAnalyser(Analyser):
     analysis_name = 'mass_flux_spatial_scales_analysis'
 
     def set_config(self, config):
-        super(MassFluxSpatialScalesAnalyzer, self).set_config(config)
+        super(MassFluxSpatialScalesAnalyser, self).set_config(config)
         self.npow = config.getint('npow', None)
 
     def run_analysis(self):

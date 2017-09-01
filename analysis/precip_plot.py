@@ -3,11 +3,11 @@ matplotlib.use('Agg')
 import pylab as plt
 from matplotlib.colors import LogNorm
 
-from omnium.analyzer import Analyzer
+from omnium.analyser import Analyser
 from omnium.utils import get_cube
 
 
-class PrecipPlot(Analyzer):
+class PrecipPlot(Analyser):
     """Pick out precip timesteps and plot."""
     analysis_name = 'precip_plot'
     multi_expt = True

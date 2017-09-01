@@ -7,7 +7,7 @@ matplotlib.use('Agg')
 import pylab as plt
 import iris
 
-from omnium.analyzer import Analyzer
+from omnium.analyser import Analyser
 from omnium.utils import get_cube
 from omnium.consts import Re, cp, g
 from cloud_tracking.utils import label_clds
@@ -15,11 +15,11 @@ from cloud_tracking.utils import label_clds
 logger = getLogger('om.prof_an')
 
 
-class ProfileAnalyzer(Analyzer):
+class ProfileAnalyser(Analyser):
     analysis_name = 'profile_analysis'
 
     def set_config(self, config):
-        super(ProfileAnalyzer, self).set_config(config)
+        super(ProfileAnalyser, self).set_config(config)
         self.w_thresh = config.getfloat('w_thresh', 1)
         self.qcl_thresh = config.getfloat('qcl_thresh', 0.0001)
         if 'mfpercloud_profile_xlim' in config:

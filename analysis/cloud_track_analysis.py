@@ -5,7 +5,7 @@ import numpy as np
 
 import iris
 
-from omnium.analyzer import Analyzer
+from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr
 from cloud_tracking.utils import label_clds
 from cloud_tracking import Tracker
@@ -14,7 +14,7 @@ from cloud_tracking.cloud_tracking_analysis import output_stats
 logger = getLogger('om.cta')
 
 
-class CloudTrackAnalyzer(Analyzer):
+class CloudTrackAnalyser(Analyser):
     analysis_name = 'cloud_track_analysis'
     multi_file = True
 

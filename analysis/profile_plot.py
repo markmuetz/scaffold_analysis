@@ -8,7 +8,7 @@ matplotlib.use('Agg')
 from matplotlib import rcParams
 import pylab as plt
 
-from omnium.analyzer import Analyzer
+from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr
 
 from analysis.vertlev import VertLev
@@ -17,7 +17,7 @@ from analysis.utils import cm_to_inch
 logger = getLogger('om.prof_plot')
 
 
-class ProfilePlotter(Analyzer):
+class ProfilePlotter(Analyser):
     analysis_name = 'profile_plot'
     multi_expt = True
     base_u_profile = np.array([(0, -2), (1e3, -3), (12e3, 2.5), (14.5e3, 0), (40e3, 0)])

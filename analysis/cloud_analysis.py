@@ -6,7 +6,7 @@ matplotlib.use('Agg')
 import numpy as np
 import iris
 
-from omnium.analyzer import Analyzer
+from omnium.analyser import Analyser
 from omnium.utils import get_cube
 from omnium.consts import Re
 from omnium.omnium_errors import OmniumError
@@ -14,11 +14,11 @@ from omnium.omnium_errors import OmniumError
 logger = getLogger('om.ca')
 
 
-class CloudAnalyzer(Analyzer):
+class CloudAnalyser(Analyser):
     analysis_name = 'cloud_analysis'
 
     def set_config(self, config):
-        super(CloudAnalyzer, self).set_config(config)
+        super(CloudAnalyser, self).set_config(config)
         self.height_levels = [int(l) for l in config['height_levels'].split(',')]
         self.w_threshs = [float(t) for t in config['w_threshs'].split(',')]
         self.qcl_threshs = [float(t) for t in config['qcl_threshs'].split(',')]

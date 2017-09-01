@@ -3,11 +3,11 @@ from collections import defaultdict
 from logging import getLogger
 
 import iris
-from omnium.analyzer import Analyzer
+from omnium.analyser import Analyser
 
 logger = getLogger('om.mfc')
 
-class MassFluxCombinedAnalysis(Analyzer):
+class MassFluxCombinedAnalysis(Analyser):
     analysis_name = 'mass_flux_combined'
     multi_file = True
 

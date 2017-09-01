@@ -6,7 +6,7 @@ import numpy as np
 matplotlib.use('Agg')
 import pylab as plt
 
-from omnium.analyzer import Analyzer
+from omnium.analyser import Analyser
 
 from analysis.utils import cm_to_inch
 
@@ -15,7 +15,7 @@ LX = 256000
 LY = 256000
 
 
-class OrgPlotter(Analyzer):
+class OrgPlotter(Analyser):
     analysis_name = 'org_plot'
     multi_expt = True
 

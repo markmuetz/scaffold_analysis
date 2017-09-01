@@ -6,12 +6,12 @@ import numpy as np
 matplotlib.use('Agg')
 import pylab as plt
 
-from omnium.analyzer import Analyzer
+from omnium.analyser import Analyser
 
 from analysis.utils import cm_to_inch
 
 
-class MassFluxSpatialScalesPlotter(Analyzer):
+class MassFluxSpatialScalesPlotter(Analyser):
     analysis_name = 'mass_flux_spatial_scales_plot'
     multi_expt = True
 

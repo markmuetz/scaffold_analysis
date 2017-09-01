@@ -1,11 +1,11 @@
 import iris
 import numpy as np
-from omnium.analyzer import Analyzer
+from omnium.analyser import Analyser
 from omnium.consts import Re, L, cp, g
 from omnium.utils import get_cube
 
 
-class RestartDumpAnalyzer(Analyzer):
+class RestartDumpAnalyser(Analyser):
     analysis_name = 'restart_dump_analysis'
 
     def run_analysis(self):

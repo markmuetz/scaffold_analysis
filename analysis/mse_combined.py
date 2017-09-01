@@ -1,8 +1,8 @@
-from omnium.analyzer import Analyzer
+from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr
 
 
-class MseCombinedAnalysis(Analyzer):
+class MseCombinedAnalysis(Analyser):
     analysis_name = 'mse_combined'
     multi_file = True
 

@@ -5,11 +5,11 @@ import matplotlib
 matplotlib.use('Agg')
 import pylab as plt
 
-from omnium.analyzer import Analyzer
+from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr
 
 
-class MsePlotter(Analyzer):
+class MsePlotter(Analyser):
     analysis_name = 'mse_plot'
 
     def run_analysis(self):

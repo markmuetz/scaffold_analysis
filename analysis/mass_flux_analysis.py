@@ -4,14 +4,14 @@ import numpy as np
 matplotlib.use('Agg')
 import iris
 
-from omnium.analyzer import Analyzer
+from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr
 from cloud_tracking.utils import label_clds
 
 from analysis.vertlev import VertLev
 
 
-class MassFluxAnalyzer(Analyzer):
+class MassFluxAnalyser(Analyser):
     analysis_name = 'mass_flux_analysis'
 
     def run_analysis(self):

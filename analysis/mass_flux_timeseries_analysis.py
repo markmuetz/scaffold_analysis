@@ -1,8 +1,8 @@
-from omnium.analyzer import Analyzer
+from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr
 
 
-class MassFluxTimeSeriesAnalyzer(Analyzer):
+class MassFluxTimeSeriesAnalyser(Analyser):
     analysis_name = 'mass_flux_timeseries_analysis'
 
     def run_analysis(self):

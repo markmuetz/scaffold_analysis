@@ -7,7 +7,7 @@ import numpy as np
 import pylab as plt
 import iris
 
-from omnium.analyzer import Analyzer
+from omnium.analyser import Analyser
 from omnium.utils import get_cube
 from omnium.consts import L
 
@@ -16,7 +16,7 @@ from analysis.colour import EXPT_COLOUR
 logger = getLogger('om.prof_an')
 
 
-class SurfFluxPlot(Analyzer):
+class SurfFluxPlot(Analyser):
     analysis_name = 'surf_flux_plot'
     multi_expt = True
     expts_to_plot = ['S0', 'S4']

@@ -4,13 +4,13 @@ import numpy as np
 import pylab as plt
 import iris
 
-from omnium.analyzer import Analyzer
+from omnium.analyser import Analyser
 from omnium.utils import get_cube
 from omnium.consts import L
 
 
-class SurfFluxAnalyzer(Analyzer):
-    """Analyze surface fluxes, plot graphs of energy/moisture fluxes."""
+class SurfFluxAnalyser(Analyser):
+    """Analyse surface fluxes, plot graphs of energy/moisture fluxes."""
     analysis_name = 'surf_flux_analysis'
 
     def _plot(self):
