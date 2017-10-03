@@ -58,7 +58,7 @@ class CloudTrackAnalyser(Analyser):
                     cld_field[time_index] = cld_labels
                 cld_field_cube.data = cld_field
 
-                tracker = Tracker(cld_field_cube.slices_over('time'))
+                tracker = Tracker(cld_field_cube.slices_over('time'), show_working=True)
                 tracker.track()
                 # proj_cld_field_cube = cld_field_cube.copy()
                 # proj_cld_field_cube.data = tracker.proj_cld_field.astype(float)
