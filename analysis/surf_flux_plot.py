@@ -13,7 +13,7 @@ from omnium.consts import L
 
 from analysis.colour import EXPT_COLOUR
 
-logger = getLogger('om.prof_an')
+logger = getLogger('scaf.prof_an')
 
 
 class SurfFluxPlot(Analyser):

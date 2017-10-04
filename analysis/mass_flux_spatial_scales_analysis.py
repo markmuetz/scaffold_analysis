@@ -6,7 +6,7 @@ import numpy as np
 from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr, coarse_grain
 
-logger = getLogger('om.mfssa')
+logger = getLogger('scaf.mfssa')
 
 
 class MassFluxSpatialScalesAnalyser(Analyser):

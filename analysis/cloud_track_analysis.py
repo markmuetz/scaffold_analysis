@@ -11,7 +11,7 @@ from cloud_tracking.utils import label_clds
 from cloud_tracking import Tracker
 from cloud_tracking.cloud_tracking_analysis import output_stats
 
-logger = getLogger('om.cta')
+logger = getLogger('scaf.cta')
 
 
 class CloudTrackAnalyser(Analyser):

@@ -12,7 +12,7 @@ from omnium.utils import get_cube
 from omnium.consts import Re, cp, g
 from cloud_tracking.utils import label_clds
 
-logger = getLogger('om.prof_an')
+logger = getLogger('scaf.prof_an')
 
 
 class ProfileAnalyser(Analyser):

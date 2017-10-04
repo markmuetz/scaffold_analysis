@@ -5,7 +5,7 @@ from logging import getLogger
 import iris
 from omnium.analyser import Analyser
 
-logger = getLogger('om.oc')
+logger = getLogger('scaf.oc')
 
 class OrgCombined(Analyser):
     analysis_name = 'org_combined'

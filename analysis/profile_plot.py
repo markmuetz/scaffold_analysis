@@ -14,7 +14,7 @@ from omnium.utils import get_cube_from_attr
 from analysis.vertlev import VertLev
 from analysis.utils import cm_to_inch
 
-logger = getLogger('om.prof_plot')
+logger = getLogger('scaf.prof_plot')
 
 
 class ProfilePlotter(Analyser):

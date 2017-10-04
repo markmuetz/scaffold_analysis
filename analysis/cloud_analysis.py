@@ -11,7 +11,7 @@ from omnium.utils import get_cube
 from omnium.consts import Re
 from omnium.omnium_errors import OmniumError
 
-logger = getLogger('om.ca')
+logger = getLogger('scaf.ca')
 
 
 class CloudAnalyser(Analyser):

@@ -7,7 +7,7 @@ from cloud_tracking.utils import label_clds
 from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr
 
-logger = getLogger('om.mfssp')
+logger = getLogger('scaf.mfssp')
 
 
 class MassFluxSpatialScalesPoint(Analyser):

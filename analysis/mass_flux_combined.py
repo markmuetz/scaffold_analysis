@@ -5,7 +5,7 @@ from logging import getLogger
 import iris
 from omnium.analyser import Analyser
 
-logger = getLogger('om.mfc')
+logger = getLogger('scaf.mfc')
 
 class MassFluxCombinedAnalysis(Analyser):
     analysis_name = 'mass_flux_combined'
