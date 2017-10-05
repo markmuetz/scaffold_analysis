@@ -2,11 +2,18 @@ import os
 import pylab as plt
 from configparser import ConfigParser
 
-BASEDIR = '/home/markmuetz/archer_mirror/nerc/um10.7_runs/postproc/u-ap347'
+from settings import BASEDIR, OUTDIR
 
 def plot_from_file(expt, filename, fmt):
     cp = ConfigParser()
-    cp.read(filename)
+    if expt == 'init':
+        with open(filename, 'r') as f:
+            f.readline()
+            f.readline()
+            cp.read_file(f)
+    else:
+        cp.read(filename)
+
     ideal = cp['namelist:idealise']
 
     mv_init_height = []
@@ -37,8 +44,8 @@ def main():
                       ('S4', 'g-'),
                       ('S0_1km', 'b--'),
                       ('S4_1km', 'g--')]:
-        filename = os.path.join(BASEDIR, 'app/um/rose-app.conf')
-        plot_from_file(expt, 'rose-app-{}_init.conf'.format(expt), fmt)
+        filename = os.path.join(OUTDIR, 'rose-app-{}_init.conf'.format(expt))
+        plot_from_file(expt, filename, fmt)
 
     plt.figure('mv')
     plt.legend()

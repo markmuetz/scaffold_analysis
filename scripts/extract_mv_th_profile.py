@@ -2,7 +2,7 @@ import os
 from configparser import ConfigParser
 import iris
 
-BASEDIR = '/home/markmuetz/archer_mirror/nerc/um10.7_runs/postproc/u-ap347'
+from settings import BASEDIR, OUTDIR
 
 if __name__ == '__main__':
     for expt, fmt in [('S0', 'b-'), 
@@ -33,5 +33,6 @@ if __name__ == '__main__':
 
         cp.set('namelist:idealise', 'theta_init_data', ','.join(th_val))
         cp.set('namelist:idealise', 'theta_init_height', ','.join(alt_val))
-        with open('rose-app-{}_init.conf'.format(expt), 'w') as f:
+        out_filename = os.path.join(OUTDIR, 'rose-app-{}_init.conf'.format(expt))
+        with open(out_filename, 'w') as f:
             cp.write(f)
