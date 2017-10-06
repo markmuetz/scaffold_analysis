@@ -19,7 +19,13 @@ logger = getLogger('scaf.prof_an')
 class SurfFluxPlot(Analyser):
     analysis_name = 'surf_flux_plot'
     multi_expt = True
-    expts_to_plot = ['S0', 'S4']
+
+    def set_config(self, config):
+        super(SurfFluxPlot, self).set_config(config)
+        if 'expts_to_plot' in config:
+            self.expts_to_plot = config['expts_to_plot'].split(',')
+        else:
+            self.expts_to_plot = self.expts
 
     def _plot(self):
         lines = ['Expt,PFE [W m-2],LHF [W m-2],SHF [W m-2]']
