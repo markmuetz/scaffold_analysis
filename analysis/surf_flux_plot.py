@@ -44,8 +44,10 @@ class SurfFluxPlot(Analyser):
                 start_time = precip_ts.coord('time').points[0]
                 times = (precip_ts.coord('time').points - start_time) / 24
 
-                colour = EXPT_COLOUR[expt]
-                plot = plt.plot(times, lhf_ts.data, label=expt, color=colour, linestyle='-')
+                kwargs = {}
+                if expt in EXPT_COLOUR:
+                    kwargs['color'] = EXPT_COLOUR[expt]
+                plot = plt.plot(times, lhf_ts.data, label=expt, linestyle='-', **kwargs)
                 #colour = plot[0].get_color()
                 colour = plot[0].get_color()
                 plt.plot(times, shf_ts.data, color=colour, linestyle='-.')

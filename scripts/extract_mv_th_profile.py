@@ -30,9 +30,11 @@ if __name__ == '__main__':
 
         cp.set('namelist:idealise', 'mv_init_data', ','.join(mv_val))
         cp.set('namelist:idealise', 'mv_init_height', ','.join(alt_val))
+        cp.set('namelist:idealise', 'num_mv_init_heights', str(len(alt_val)))
 
         cp.set('namelist:idealise', 'theta_init_data', ','.join(th_val))
         cp.set('namelist:idealise', 'theta_init_height', ','.join(alt_val))
+        cp.set('namelist:idealise', 'num_theta_init_heights', str(len(alt_val)))
         out_filename = os.path.join(OUTDIR, 'rose-app-{}_init.conf'.format(expt))
         with open(out_filename, 'w') as f:
             cp.write(f)
