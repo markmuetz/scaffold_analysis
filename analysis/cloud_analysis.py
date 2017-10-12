@@ -16,6 +16,7 @@ logger = getLogger('scaf.ca')
 
 class CloudAnalyser(Analyser):
     analysis_name = 'cloud_analysis'
+    single_file = True
 
     def set_config(self, config):
         super(CloudAnalyser, self).set_config(config)
