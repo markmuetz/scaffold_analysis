@@ -12,6 +12,7 @@ logger = getLogger('scaf.mfssp')
 
 class MassFluxSpatialScalesPoint(Analyser):
     analysis_name = 'mass_flux_spatial_scales_point'
+    single_file = True
 
     def run_analysis(self):
         cubes = self.cubes

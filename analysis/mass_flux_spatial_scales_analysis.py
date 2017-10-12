@@ -11,6 +11,7 @@ logger = getLogger('scaf.mfssa')
 
 class MassFluxSpatialScalesAnalyser(Analyser):
     analysis_name = 'mass_flux_spatial_scales_analysis'
+    single_file = True
 
     def set_config(self, config):
         super(MassFluxSpatialScalesAnalyser, self).set_config(config)

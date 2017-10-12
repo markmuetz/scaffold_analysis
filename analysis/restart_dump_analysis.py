@@ -7,6 +7,7 @@ from omnium.utils import get_cube
 
 class RestartDumpAnalyser(Analyser):
     analysis_name = 'restart_dump_analysis'
+    single_file = True
 
     def run_analysis(self):
         """Get useful cubes from self.dump, perform sanity chacks and calc MSE, TCW."""

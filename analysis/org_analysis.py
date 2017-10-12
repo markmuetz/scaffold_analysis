@@ -24,6 +24,7 @@ class Cloud(object):
 
 class OrgAnalyser(Analyser):
     analysis_name = 'org_analysis'
+    single_file = True
 
     def run_analysis(self):
         cubes = self.cubes

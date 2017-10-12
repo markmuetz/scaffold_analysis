@@ -12,6 +12,7 @@ from omnium.consts import L
 class SurfFluxAnalyser(Analyser):
     """Analyse surface fluxes, plot graphs of energy/moisture fluxes."""
     analysis_name = 'surf_flux_analysis'
+    single_file = True
 
     def _plot(self):
         precip_ts = self.results['precip_ts']

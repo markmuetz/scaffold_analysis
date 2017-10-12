@@ -4,6 +4,7 @@ from omnium.utils import get_cube_from_attr
 
 class MassFluxTimeSeriesAnalyser(Analyser):
     analysis_name = 'mass_flux_timeseries_analysis'
+    single_file = True
 
     def run_analysis(self):
         cubes = self.cubes

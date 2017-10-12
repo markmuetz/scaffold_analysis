@@ -11,6 +11,7 @@ from omnium.utils import get_cube_from_attr
 
 class MsePlotter(Analyser):
     analysis_name = 'mse_plot'
+    single_file = True
 
     def run_analysis(self):
         self.expt_mses = OrderedDict()

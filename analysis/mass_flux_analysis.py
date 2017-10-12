@@ -13,6 +13,7 @@ from analysis.vertlev import VertLev
 
 class MassFluxAnalyser(Analyser):
     analysis_name = 'mass_flux_analysis'
+    single_file = True
 
     def run_analysis(self):
         cubes = self.cubes

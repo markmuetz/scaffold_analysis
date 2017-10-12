@@ -17,6 +17,7 @@ logger = getLogger('scaf.prof_an')
 
 class ProfileAnalyser(Analyser):
     analysis_name = 'profile_analysis'
+    single_file = True
 
     def set_config(self, config):
         super(ProfileAnalyser, self).set_config(config)
