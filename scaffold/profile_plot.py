@@ -11,8 +11,8 @@ import pylab as plt
 from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr
 
-from analysis.vertlev import VertLev
-from analysis.utils import cm_to_inch
+from scaffold.vertlev import VertLev
+from scaffold.utils import cm_to_inch
 
 logger = getLogger('scaf.prof_plot')
 

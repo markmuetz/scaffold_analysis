@@ -11,7 +11,7 @@ from omnium.analyser import Analyser
 from omnium.utils import get_cube
 from omnium.consts import L
 
-from analysis.colour import EXPT_COLOUR
+from scaffold.colour import EXPT_COLOUR
 
 logger = getLogger('scaf.prof_an')
 

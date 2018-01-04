@@ -8,7 +8,7 @@ from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr
 from cloud_tracking.utils import label_clds
 
-from analysis.vertlev import VertLev
+from scaffold.vertlev import VertLev
 
 
 class MassFluxAnalyser(Analyser):

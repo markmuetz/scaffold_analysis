@@ -9,7 +9,7 @@ from scipy.stats import linregress
 
 from omnium.analyser import Analyser
 
-from analysis.utils import cm_to_inch
+from scaffold.utils import cm_to_inch
 
 
 class MassFluxPlotter(Analyser):
