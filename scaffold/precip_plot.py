@@ -48,7 +48,7 @@ class PrecipPlot(Analyser):
 
                 precip_min = 1e-4
                 precip_data[precip_data < precip_min] = 0
-                im = ax.imshow(precip_data, origin='lower', 
+                im = ax.imshow(precip_data, origin='lower',
                                interpolation='nearest', extent=[0, 256, 0, 256],
                                #vmin=0, vmax=precip_max * 3600)
                                norm=LogNorm(vmin=precip_min, vmax=precip_max * 3600))
@@ -73,4 +73,3 @@ class PrecipPlot(Analyser):
     def display_results(self):
         """Save all results for surf flux analysis."""
         self._plot()
-

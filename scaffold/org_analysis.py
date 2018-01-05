@@ -18,8 +18,8 @@ NY = 128
 
 class Cloud(object):
     def __init__(self, x, y):
-        self.x = x 
-        self.y = y 
+        self.x = x
+        self.y = y
 
 
 class OrgAnalyser(Analyser):
@@ -64,9 +64,9 @@ class OrgAnalyser(Analyser):
 
                 dist_cube_id = 'dist_z{}_w{}_qcl{}'.format(height_level, thresh_index, thresh_index)
                 values = iris.coords.DimCoord(range(len(dists)), long_name='values')
-                dist_cube = iris.cube.Cube(dists, 
-                                           long_name=dist_cube_id, 
-                                           dim_coords_and_dims=[(values, 0)], 
+                dist_cube = iris.cube.Cube(dists,
+                                           long_name=dist_cube_id,
+                                           dim_coords_and_dims=[(values, 0)],
                                            units='')
 
                 dist_cube.attributes['dist_key'] = (height_level_index, thresh_index)
@@ -188,4 +188,3 @@ class OrgAnalyser(Analyser):
                 new_dists = self._calc_min_dists(cloud, test_cloud)
                 dists.extend(new_dists)
         return dists
-

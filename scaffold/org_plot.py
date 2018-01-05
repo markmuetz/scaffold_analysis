@@ -150,4 +150,3 @@ class OrgPlotter(Analyser):
     def display_results(self):
         self._plot_org_hist()
         plt.close('all')
-

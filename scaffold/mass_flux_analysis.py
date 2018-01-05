@@ -91,9 +91,9 @@ class MassFluxAnalyser(Analyser):
                 self.results[blob_cube_id] = blob_cube
 
                 values = iris.coords.DimCoord(range(len(mass_fluxes)), long_name='values')
-                mass_flux_cube = iris.cube.Cube(mass_fluxes, 
-                                                long_name=mf_cube_id, 
-                                                dim_coords_and_dims=[(values, 0)], 
+                mass_flux_cube = iris.cube.Cube(mass_fluxes,
+                                                long_name=mf_cube_id,
+                                                dim_coords_and_dims=[(values, 0)],
                                                 units='kg s-1')
 
                 mass_flux_cube.attributes['mass_flux_key'] = (height_level_index, thresh_index)

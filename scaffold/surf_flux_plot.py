@@ -78,5 +78,3 @@ class SurfFluxPlot(Analyser):
     def display_results(self):
         """Save all results for surf flux analysis."""
         self._plot()
-
-

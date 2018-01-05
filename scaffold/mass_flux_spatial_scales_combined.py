@@ -15,7 +15,7 @@ class MassFluxSpatialScalesCombined(Analyser):
     def set_config(self, config):
         super(MassFluxSpatialScalesCombined, self).set_config(config)
         self.start_runid = config.getint('start_runid')
-            
+
     def load(self):
         self.append_log('Override load')
         self.spatial_mass_fluxes = defaultdict(list)
@@ -41,13 +41,13 @@ class MassFluxSpatialScalesCombined(Analyser):
         for key, spatial_mass_flux in self.spatial_mass_fluxes.items():
             (model_level_number, thresh_index, n) = key
 
-            smf_cube_id = 'spatial-mass-flux_z{0}_w{1}_qcl{1}_n{2}'.format(model_level_number, 
+            smf_cube_id = 'spatial-mass-flux_z{0}_w{1}_qcl{1}_n{2}'.format(model_level_number,
                                                                            thresh_index, n)
 
             values = iris.coords.DimCoord(range(len(spatial_mass_flux)), long_name='values')
-            mass_flux_spatial_cube = iris.cube.Cube(spatial_mass_flux, 
-                                                    long_name=smf_cube_id, 
-                                                    dim_coords_and_dims=[(values, 0)], 
+            mass_flux_spatial_cube = iris.cube.Cube(spatial_mass_flux,
+                                                    long_name=smf_cube_id,
+                                                    dim_coords_and_dims=[(values, 0)],
                                                     units='kg s-1')
             mass_flux_spatial_cube.attributes['mass_flux_spatial_key'] = key
             self.results[smf_cube_id] = mass_flux_spatial_cube

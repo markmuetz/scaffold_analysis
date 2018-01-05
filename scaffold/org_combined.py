@@ -14,7 +14,7 @@ class OrgCombined(Analyser):
     def set_config(self, config):
         super(OrgCombined, self).set_config(config)
         self.start_runid = config.getint('start_runid')
-            
+
     def load(self):
         self.append_log('Override load')
         self.dists = defaultdict(list)
@@ -40,9 +40,9 @@ class OrgCombined(Analyser):
             dist_cube_id = 'dist_{0}_w{1}_qcl{1}'.format(model_level_number, thresh_index)
 
             values = iris.coords.DimCoord(range(len(dists)), long_name='values')
-            dist_cube = iris.cube.Cube(dists, 
-                                       long_name=dist_cube_id, 
-                                       dim_coords_and_dims=[(values, 0)], 
+            dist_cube = iris.cube.Cube(dists,
+                                       long_name=dist_cube_id,
+                                       dim_coords_and_dims=[(values, 0)],
                                        units='m')
             dist_cube.attributes['dist_key'] = key
             self.results[dist_cube_id] = dist_cube

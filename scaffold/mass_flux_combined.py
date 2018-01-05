@@ -14,7 +14,7 @@ class MassFluxCombinedAnalysis(Analyser):
     def set_config(self, config):
         super(MassFluxCombinedAnalysis, self).set_config(config)
         self.start_runid = config.getint('start_runid')
-            
+
     def load(self):
         self.append_log('Override load')
         self.mass_fluxes = defaultdict(list)
@@ -40,10 +40,9 @@ class MassFluxCombinedAnalysis(Analyser):
             mf_cube_id = 'mass_flux_z{0}_w{1}_qcl{1}'.format(model_level_number, thresh_index)
 
             values = iris.coords.DimCoord(range(len(mass_flux)), long_name='values')
-            mass_flux_cube = iris.cube.Cube(mass_flux, 
-                                            long_name=mf_cube_id, 
-                                            dim_coords_and_dims=[(values, 0)], 
+            mass_flux_cube = iris.cube.Cube(mass_flux,
+                                            long_name=mf_cube_id,
+                                            dim_coords_and_dims=[(values, 0)],
                                             units='kg s-1')
             mass_flux_cube.attributes['mass_flux_key'] = key
             self.results[mf_cube_id] = mass_flux_cube
-

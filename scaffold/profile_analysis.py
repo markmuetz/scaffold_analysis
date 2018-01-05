@@ -35,7 +35,7 @@ class ProfileAnalyser(Analyser):
             self.cloud_profile_xlim = [float(v) for v in config['cloud_profile_xlim'].split(',')]
         else:
             self.cloud_profile_xlim = None
-            
+
     def _plot_uv(self):
         u_profile = self.results['u_profile']
         v_profile = self.results['v_profile']
@@ -293,7 +293,7 @@ class ProfileAnalyser(Analyser):
 
         height_coord = iris.coords.DimCoord(height, long_name='level_height', units='m')
         for name, mask in [('cloud_profile', cloud_rho_mask),
-                           ('w_profile', w_rho_mask), 
+                           ('w_profile', w_rho_mask),
                            ('qcl_profile', qcl_rho_mask)]:
             profile_data = []
             cloud_data = []
@@ -313,10 +313,10 @@ class ProfileAnalyser(Analyser):
             profile_data[np.isnan(profile_data)] = 0
             mf_name = 'mf_' + name
             cloud_name = 'clouds_' + name
-            self.results[mf_name] = iris.cube.Cube(profile_data, 
+            self.results[mf_name] = iris.cube.Cube(profile_data,
                                                    long_name=mf_name,
                                                    dim_coords_and_dims=[(height_coord, 0)])
-            self.results[cloud_name] = iris.cube.Cube(cloud_data, 
+            self.results[cloud_name] = iris.cube.Cube(cloud_data,
                                                       long_name=cloud_name,
                                                       dim_coords_and_dims=[(height_coord, 0)])
 

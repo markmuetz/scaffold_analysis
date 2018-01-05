@@ -43,7 +43,7 @@ class MassFluxSpatialScalesAnalyser(Analyser):
                 # There are 3 values of cloud_mask for each time/height:
                 for thresh_index in range(cloud_mask_cube.shape[2]):
                     # N.B. take diagonal of thresh, i.e. low/low, med/med, hi/hi.
-                    cloud_mask_ss = cloud_mask_cube[time_index, height_index, 
+                    cloud_mask_ss = cloud_mask_cube[time_index, height_index,
                                                     thresh_index, thresh_index].data.astype(bool)
                     coarse_data = coarse_grain(mf_ss, cloud_mask_ss, self.npow)
                     for n, coarse_datum in coarse_data:
@@ -52,14 +52,14 @@ class MassFluxSpatialScalesAnalyser(Analyser):
                         if key not in mass_flux:
                             mass_flux[key] = []
                         mass_flux[key] = np.append(mass_flux[key], coarse_datum.flatten() / Nsubdom**2)
-        
+
         for key, mass_fluxes in mass_flux.items():
             logger.debug('building iris cube for: {}'.format(key))
             values = iris.coords.DimCoord(range(len(mass_fluxes)), long_name='values')
             name = 'spatial-mass-flux-h{0}_w{1}_qcl{1}_n{2}'.format(*key)
-            mass_flux_spatial_cube = iris.cube.Cube(mass_fluxes, 
-                                                    long_name=name, 
-                                                    dim_coords_and_dims=[(values, 0)], 
+            mass_flux_spatial_cube = iris.cube.Cube(mass_fluxes,
+                                                    long_name=name,
+                                                    dim_coords_and_dims=[(values, 0)],
                                                     units='kg s-1')
 
             mass_flux_spatial_cube.attributes['mass_flux_spatial_key'] = key

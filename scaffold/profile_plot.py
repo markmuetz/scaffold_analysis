@@ -146,14 +146,14 @@ class ProfilePlotter(Analyser):
             cloud_profile_mask = theta_cloud_profile.data > 1
             plot = ax1.plot(theta_profile.data, height, label=expt)
             colour = plot[0].get_color()
-            ax1.plot(theta_cloud_profile.data[cloud_profile_mask], height[cloud_profile_mask], 
+            ax1.plot(theta_cloud_profile.data[cloud_profile_mask], height[cloud_profile_mask],
                      color=colour, linestyle='--')
             # Plot a marker at each end of the cloud profile.
             ax1.plot(theta_cloud_profile.data[cloud_profile_mask][0],
-                     height[cloud_profile_mask][0], 
+                     height[cloud_profile_mask][0],
                      color=colour, marker='+')
             ax1.plot(theta_cloud_profile.data[cloud_profile_mask][-1],
-                     height[cloud_profile_mask][-1], 
+                     height[cloud_profile_mask][-1],
                      color=colour, marker='o')
             # This is the TD profile outside of diagnosed clouds.
             # It almost exactly overlies the domain mean.
@@ -185,10 +185,10 @@ class ProfilePlotter(Analyser):
             ax2.plot(qcf_profile.data * 1e3, height, color=colour, linestyle='-.')
             ax2.set_xlim((1e-3, 1e-1))
             ax2.set_xscale('log')
-            #ax2.plot(qcl_cloud_profile.data[cloud_profile_mask] * 1e3, height[cloud_profile_mask], 
+            #ax2.plot(qcl_cloud_profile.data[cloud_profile_mask] * 1e3, height[cloud_profile_mask],
             #         color=colour, linestyle='--')
             #ax2.plot(qcl_cloud_profile.data[cloud_profile_mask][-1],
-            #         height[cloud_profile_mask][-1], 
+            #         height[cloud_profile_mask][-1],
             #         color=colour, marker='o')
             #ax2.plot(theta_not_cloud_profile.data, height, color=colour, marker='+')
 
@@ -213,7 +213,7 @@ class ProfilePlotter(Analyser):
             plot = ax1.plot(clouds_cloud_profile.data, height)
             colour = plot[0].get_color()
             ax2.plot(mf_cloud_profile.data / 1e8, height, color=colour)
-            ax3.plot(clouds_cloud_profile.data * mf_cloud_profile.data / 1e8, height, 
+            ax3.plot(clouds_cloud_profile.data * mf_cloud_profile.data / 1e8, height,
                      color=colour, label=expt)
 
         ax1.set_ylim((0, 18))
