@@ -1,8 +1,12 @@
+from logging import getLogger
+
 import iris
 import numpy as np
 from omnium.analyser import Analyser
 from omnium.consts import Re, L, cp, g
 from omnium.utils import get_cube
+
+logger = getLogger('scaf.prof_an')
 
 
 class RestartDumpAnalyser(Analyser):
@@ -33,10 +37,14 @@ class RestartDumpAnalyser(Analyser):
         self.qvars = [self.q, self.qcl, self.qcf, self.qrain, self.qgraup]
         self.mvars = [self.m, self.mcl, self.mcf, self.mrain, self.mgraup]
 
+        logger.debug('running _sanity_check_water_species')
         self._sanity_check_water_species(self.qvars, self.mvars)
+        logger.debug('running _sanity_wv_density')
         self._sanity_check_wv_density(self.rho, self.rho_d, self.q, self.m)
 
+        logger.debug('running _calc_tcw')
         self._calc_tcw(self.rho, self.qvars)
+        logger.debug('running _calc_mse')
         self._calc_mse(self.rho, self.th, self.ep, self.q)
 
     def _create_cube(self, archetype, data, name, units):

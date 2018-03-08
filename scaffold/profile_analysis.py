@@ -14,6 +14,7 @@ from cloud_tracking.utils import label_clds
 
 logger = getLogger('scaf.prof_an')
 
+
 def mean(a, axis=None):
     """Workaround for old versions of numpy, where using axis=tuple on masked_arrays doesn't work.
 
