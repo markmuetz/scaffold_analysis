@@ -194,6 +194,7 @@ class ProfileAnalyser(Analyser):
 
     def run_analysis(self):
         cubes = self.cubes
+        logger.debug('cubes: {}'.format(cubes))
 
         # u/v profile.
         u = get_cube(cubes, 0, 2)
@@ -223,6 +224,8 @@ class ProfileAnalyser(Analyser):
         rho = get_cube(cubes, 0, 253)
         pressure = get_cube(cubes, 0, 408)
 
+        logger.debug('got cubes of interest')
+
         w_mask = w.data > self.w_thresh
         qcl_mask = qcl.data > self.qcl_thresh
         cloud_mask = w_mask & qcl_mask
@@ -232,6 +235,8 @@ class ProfileAnalyser(Analyser):
         self.results['qgr_profile'] = qgr.collapsed(['time', 'grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
         self.results['qcf_profile'] = qcf.collapsed(['time', 'grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
         self.results['pressure_profile'] = pressure.collapsed(['time', 'grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
+
+        logger.debug('performed avging')
 
         # Make masked arrays to grab subsets of data I want.
         # N.B. masked where data will be ignored - hence ~cloud_mask.
@@ -254,6 +259,8 @@ class ProfileAnalyser(Analyser):
         qcl_not_cloud_profile.data = qcl_not_cloud_data.mean(axis=(0, 2, 3)).data
         self.results['qcl_cloud_profile'] = qcl_cloud_profile
         self.results['qcl_not_cloud_profile'] = qcl_not_cloud_profile
+
+        logger.debug('created masked arrays')
 
         z = theta.coord('level_height').points
         dz = z[1:] - z[:-1]
@@ -295,6 +302,7 @@ class ProfileAnalyser(Analyser):
         for name, mask in [('cloud_profile', cloud_rho_mask),
                            ('w_profile', w_rho_mask),
                            ('qcl_profile', qcl_rho_mask)]:
+            logger.debug('running {}'.format(name))
             profile_data = []
             cloud_data = []
 
@@ -305,8 +313,9 @@ class ProfileAnalyser(Analyser):
                 for itime in range(mf.shape[0]):
                     num_clouds += label_clds(mask[itime, i], diagonal=True)[0]
                 # TODO: don't hard code!
-                # dx=1e3, dx**2=4e6 = Area of one grid cell.
-                profile_data.append(mf_conv/num_clouds * 4e6)
+                # dx=2e3, dx**2=4e6 = Area of one grid cell.
+                # dx=1e3, dx**2=1e6 = Area of one grid cell.
+                profile_data.append(mf_conv/num_clouds * 1e6)
                 cloud_data.append(num_clouds)
 
             profile_data = np.array(profile_data)
