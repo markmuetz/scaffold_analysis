@@ -259,18 +259,12 @@ class ProfileAnalyser(Analyser):
 
         # Work out theta profiles in/out of clouds.
         theta_cloud_profile = self.results['theta_profile'].copy()
-        logger.debug('1')
         theta_not_cloud_profile = self.results['theta_profile'].copy()
-        logger.debug('2')
-        # This line causing problems - why?
+        # This line caused problems under numpy 1.9.2 - due to axis being tuple.
         theta_cloud_profile.data = mean(theta_cloud_data, axis=(0, 2, 3)).data
-        logger.debug('3')
         theta_not_cloud_profile.data = mean(theta_not_cloud_data, axis=(0, 2, 3)).data
-        logger.debug('4')
         self.results['theta_cloud_profile'] = theta_cloud_profile
-        logger.debug('5')
         self.results['theta_not_cloud_profile'] = theta_not_cloud_profile
-        logger.debug('6')
 
         qcl_cloud_profile = self.results['qcl_profile'].copy()
         qcl_not_cloud_profile = self.results['qcl_profile'].copy()

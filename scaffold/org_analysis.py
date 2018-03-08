@@ -1,3 +1,5 @@
+from logging import getLogger
+
 import matplotlib
 import numpy as np
 
@@ -15,6 +17,7 @@ LY = 256000
 NX = 128
 NY = 128
 
+logger = getLogger('scaf.org_an')
 
 class Cloud(object):
     def __init__(self, x, y):
@@ -31,6 +34,7 @@ class OrgAnalyser(Analyser):
 
         w_slice = get_cube_from_attr(cubes, 'omnium_cube_id', 'w_slice')
         rho_slice = get_cube_from_attr(cubes, 'omnium_cube_id', 'rho_slice')
+        logger.debug('got cube slices')
 
         cloud_mask_id = 'cloud_mask'
         cloud_mask_cube = get_cube_from_attr(cubes, 'omnium_cube_id', cloud_mask_id)
@@ -43,10 +47,13 @@ class OrgAnalyser(Analyser):
         # height_level_index refers to w as it has already picked out the height levels.
         for height_level_index, height_level in enumerate(level_number_coord.points):
             for thresh_index in range(w_thresh_coord.shape[0]):
+                logger.debug('height_index, thresh_index: {}, {}'.format(height_level_index,
+                                                                         thresh_index))
                 # N.B. I just take the diagonal indices.
                 dists = []
                 total_clouds = 0
 
+                logger.debug('# time indices: {}'.format(cloud_mask_cube.data.shape[0]))
                 for time_index in range(cloud_mask_cube.data.shape[0]):
                     cloud_mask_ss = cloud_mask_cube[time_index,
                                                     height_level_index,
