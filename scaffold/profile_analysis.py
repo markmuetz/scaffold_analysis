@@ -14,6 +14,16 @@ from cloud_tracking.utils import label_clds
 
 logger = getLogger('scaf.prof_an')
 
+def mean(a, axis=None):
+    """Workaround for old versions of numpy, where using axis=tuple on masked_arrays doesn't work.
+
+    https://stackoverflow.com/questions/30209624/numpy-mean-used-with-a-tuple-as-axis-argument-not-working-with-a-masked-arr
+    """
+    sums = a.sum(axis=axis)
+    counts = np.logical_not(a.mask).sum(axis=axis)
+    result = sums * 1. / counts
+    return result
+
 
 class ProfileAnalyser(Analyser):
     analysis_name = 'profile_analysis'
@@ -252,9 +262,10 @@ class ProfileAnalyser(Analyser):
         logger.debug('1')
         theta_not_cloud_profile = self.results['theta_profile'].copy()
         logger.debug('2')
-        theta_cloud_profile.data = theta_cloud_data.mean(axis=(0, 2, 3)).data
+        # This line causing problems - why?
+        theta_cloud_profile.data = mean(theta_cloud_data, axis=(0, 2, 3)).data
         logger.debug('3')
-        theta_not_cloud_profile.data = theta_not_cloud_data.mean(axis=(0, 2, 3)).data
+        theta_not_cloud_profile.data = mean(theta_not_cloud_data, axis=(0, 2, 3)).data
         logger.debug('4')
         self.results['theta_cloud_profile'] = theta_cloud_profile
         logger.debug('5')
@@ -263,8 +274,8 @@ class ProfileAnalyser(Analyser):
 
         qcl_cloud_profile = self.results['qcl_profile'].copy()
         qcl_not_cloud_profile = self.results['qcl_profile'].copy()
-        qcl_cloud_profile.data = qcl_cloud_data.mean(axis=(0, 2, 3)).data
-        qcl_not_cloud_profile.data = qcl_not_cloud_data.mean(axis=(0, 2, 3)).data
+        qcl_cloud_profile.data = mean(qcl_cloud_data, axis=(0, 2, 3)).data
+        qcl_not_cloud_profile.data = mean(qcl_not_cloud_data, axis=(0, 2, 3)).data
         self.results['qcl_cloud_profile'] = qcl_cloud_profile
         self.results['qcl_not_cloud_profile'] = qcl_not_cloud_profile
 
