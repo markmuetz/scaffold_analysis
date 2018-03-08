@@ -245,13 +245,21 @@ class ProfileAnalyser(Analyser):
         qcl_cloud_data = np.ma.array(qcl.data, mask=~cloud_mask)
         qcl_not_cloud_data = np.ma.array(qcl.data, mask=cloud_mask)
 
+        logger.debug('masked data')
+
         # Work out theta profiles in/out of clouds.
         theta_cloud_profile = self.results['theta_profile'].copy()
+        logger.debug('1')
         theta_not_cloud_profile = self.results['theta_profile'].copy()
+        logger.debug('2')
         theta_cloud_profile.data = theta_cloud_data.mean(axis=(0, 2, 3)).data
+        logger.debug('3')
         theta_not_cloud_profile.data = theta_not_cloud_data.mean(axis=(0, 2, 3)).data
+        logger.debug('4')
         self.results['theta_cloud_profile'] = theta_cloud_profile
+        logger.debug('5')
         self.results['theta_not_cloud_profile'] = theta_not_cloud_profile
+        logger.debug('6')
 
         qcl_cloud_profile = self.results['qcl_profile'].copy()
         qcl_not_cloud_profile = self.results['qcl_profile'].copy()
