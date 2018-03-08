@@ -14,8 +14,8 @@ from cloud_tracking.utils import label_clds
 # TODO: take from data.
 LX = 256000
 LY = 256000
-NX = 128
-NY = 128
+NX = 256
+NY = 256
 
 logger = getLogger('scaf.org_an')
 
