@@ -92,6 +92,10 @@ class RestartDumpAnalyser(Analyser):
         self.mse_profile = self.mse.collapsed(['grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
         self.mse_profile.rename('MSE profile')
         self.results['mse_profile'] = self.mse_profile
+
+        logger.debug(self.mse_profile)
+        logger.debug(height_delta)
+
         self.total_mse = (self.mse_profile * height_delta).collapsed(['level_height'], iris.analysis.SUM)
         self.total_mse.rename('Total MSE')
         #print('Total MSE units: {}'.format(self.total_mse.units))
