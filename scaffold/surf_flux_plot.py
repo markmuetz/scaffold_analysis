@@ -56,7 +56,7 @@ class SurfFluxPlot(Analyser):
                 precip_ts_smoothed = np.convolve(precip_ts.data, np.ones((96, )) / 96., mode='same')
                 plt.plot(times[96:-96], precip_ts_smoothed[96:-96] * L, color=colour, linestyle='--')
 
-            day20index = len(precip_ts.data) / 2
+            day20index = int(len(precip_ts.data) / 2)
             mean_pfe = precip_ts.data[day20index:].mean() * L
             mean_lhf = lhf_ts.data[day20index:].mean()
             mean_shf = shf_ts.data[day20index:].mean()
