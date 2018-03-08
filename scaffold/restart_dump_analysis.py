@@ -66,24 +66,29 @@ class RestartDumpAnalyser(Analyser):
         dz_heights = iris.coords.DimCoord((z[:-1] + z[1:]) / 2, long_name='level_height')
         height_delta = iris.cube.Cube(dz, long_name='height_delta', dim_coords_and_dims=[(dz_heights, 0)], units='m')
 
+        logger.debug('1')
         Lv_rho_heights = rho.coord('level_height').points
         Lv_rho = Lv_rho_heights.repeat(rho.shape[1] * rho.shape[2]).reshape(rho.shape[0], rho.shape[1], rho.shape[2])
         self.e_t = rho.data * (th[:-1, :, :].data + th[1:, :, :].data) / 2 * ep[:-1].data * cp
         self.e_q = rho.data * (q[:-1, :, :].data + q[1:, :, :].data) / 2 * L
         self.e_z = rho.data * g * Lv_rho
 
+        logger.debug('2')
         self.mse_data = (self.e_t + self.e_q + self.e_z)
         self.mse = self._create_cube(rho, self.mse_data, 'Moist Static Energy', 'J m-3')
 
+        logger.debug('3')
         self.results['MSE'] = self.mse
         self.results['MSE_T'] = self._create_cube(rho, self.e_t, 'Moist Static Energy (T term)', 'J m-3')
         self.results['MSE_Q'] = self._create_cube(rho, self.e_q, 'Moist Static Energy (Q term)', 'J m-3')
         self.results['MSE_Z'] = self._create_cube(rho, self.e_z, 'Moist Static Energy (Z term)', 'J m-3')
 
+        logger.debug('4')
         self.e_t_profile = self.e_t.mean(axis=(1, 2))
         self.e_q_profile = self.e_q.mean(axis=(1, 2))
         self.e_z_profile = self.e_z.mean(axis=(1, 2))
 
+        logger.debug('5')
         self.mse_profile = self.mse.collapsed(['grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
         self.mse_profile.rename('MSE profile')
         self.results['mse_profile'] = self.mse_profile
@@ -94,6 +99,8 @@ class RestartDumpAnalyser(Analyser):
         #self.results['height_delta'] = height_delta
         #self.results['total_mse'] = self.total_mse
         #import ipdb; ipdb.set_trace()
+
+        logger.debug('6')
         print('MSE [GJ m^-2] = {0:.5f}'.format(self.total_mse.data / 1e9))
         print('  E(T) [GJ m^-2] = {0:.5f}'.format((self.e_t_profile * dz).sum() / 1e9))
         print('  E(q) [GJ m^-2] = {0:.5f}'.format((self.e_q_profile * dz).sum() / 1e9))
