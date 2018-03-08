@@ -95,10 +95,10 @@ class RestartDumpAnalyser(Analyser):
         #self.results['total_mse'] = self.total_mse
         #import ipdb; ipdb.set_trace()
 
-        print('MSE [GJ m^-2] = {0:.5f}'.format(self.total_mse_data / 1e9))
-        print('  E(T) [GJ m^-2] = {0:.5f}'.format((self.e_t_profile * dz).sum() / 1e9))
-        print('  E(q) [GJ m^-2] = {0:.5f}'.format((self.e_q_profile * dz).sum() / 1e9))
-        print('  E(z) [GJ m^-2] = {0:.5f}'.format((self.e_z_profile * dz).sum() / 1e9))
+        logger.info('MSE [GJ m^-2] = {0:.5f}'.format(self.total_mse_data / 1e9))
+        logger.info('  E(T) [GJ m^-2] = {0:.5f}'.format((self.e_t_profile * dz).sum() / 1e9))
+        logger.info('  E(q) [GJ m^-2] = {0:.5f}'.format((self.e_q_profile * dz).sum() / 1e9))
+        logger.info('  E(z) [GJ m^-2] = {0:.5f}'.format((self.e_z_profile * dz).sum() / 1e9))
         return self.mse
 
     def _calc_mwvi(self, rho, var):
@@ -162,7 +162,7 @@ class RestartDumpAnalyser(Analyser):
             self.results[mwvi_qv.name()] = mwvi_qv
             self.mwvi_vars.append((qv.name(), mwvi_qv))
         self.tcw = np.sum([v[1].data.mean() for v in self.mwvi_vars])
-        print('Total col water (kg m-2/mm): {}'.format(self.tcw))
+        logger.info('Total col water (kg m-2/mm): {}'.format(self.tcw))
         return self.tcw
 
     def _sanity_check_water_species(self, qvars, mvars):
@@ -172,14 +172,14 @@ class RestartDumpAnalyser(Analyser):
             msum += mv.data
 
         for qv, mv in zip(qvars, mvars):
-            print(qv.name())
+            logger.info(qv.name())
             diff = np.abs((mv.data / (1 + msum)) - qv.data)
-            print('Max diff: {}'.format(diff.max()))
+            logger.info('Max diff: {}'.format(diff.max()))
             if diff.max() > 1e-15:
-                print('MAX DIFF TOO LARGE')
+                logger.info('MAX DIFF TOO LARGE')
 
     def _sanity_check_wv_density(self, rho, rho_d, q, m):
         q_rho = (q.data[:-1, :, :] + q.data[1:, :, :]) / 2
         m_rho = (m.data[:-1, :, :] + m.data[1:, :, :]) / 2
 
-        print('max diff rho_d * m, rho * q: {}'.format(np.abs(rho_d.data * m_rho - rho.data * q_rho).max()))
+        logger.info('max diff rho_d * m, rho * q: {}'.format(np.abs(rho_d.data * m_rho - rho.data * q_rho).max()))
