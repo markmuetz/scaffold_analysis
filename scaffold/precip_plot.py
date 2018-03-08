@@ -11,7 +11,7 @@ class PrecipPlot(Analyser):
     """Pick out precip timesteps and plot."""
     analysis_name = 'precip_plot'
     multi_expt = True
-    expts_to_plot = ['S0', 'S4']
+    expts_to_plot = ['S0_1km_data_test_1D_32nodes_atmos']
 
     def _plot(self):
         precips = {}
