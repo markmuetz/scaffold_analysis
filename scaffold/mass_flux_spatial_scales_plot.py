@@ -12,11 +12,9 @@ from scaffold.utils import cm_to_inch
 
 
 class MassFluxSpatialScalesPlotter(Analyser):
+    """Plots histograms of mass flux for each power of 2 (n), and expt."""
     analysis_name = 'mass_flux_spatial_scales_plot'
     multi_expt = True
-
-    def read_lim(self, lim):
-        return [float(v) for v in lim.split(',')]
 
     def set_config(self, config):
         super(MassFluxSpatialScalesPlotter, self).set_config(config)

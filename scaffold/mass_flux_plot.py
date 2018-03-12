@@ -13,12 +13,17 @@ from scaffold.utils import cm_to_inch
 
 
 class MassFluxPlotter(Analyser):
+    """Plots mass flux histograms for various combinations of height_level, thresh_index.
+
+    Fits a linear regression to the histograms (fitting a straight line to a log plot).
+    """
     analysis_name = 'mass_flux_plot'
     multi_expt = True
     # Input values are in kg m-2 s-1, i.e. MF/cloud is an average over the cloud's area.
     # I want total MF/cloud though: multiply by the area of a grid cell or dx**2
     # TODO: Should not be here.
-    dx = 2e3
+    dx = 1e3
+    mf_scaling = 1e8
 
     def set_config(self, config):
         super(MassFluxPlotter, self).set_config(config)
@@ -65,7 +70,7 @@ class MassFluxPlotter(Analyser):
                 for i, item in enumerate(cubes):
                     cube = item[1]
                     hist_data.append(cube)
-                    dmax = max(cube.data.max() * self.dx**2 / 1e8, dmax)
+                    dmax = max(cube.data.max() * self.dx**2 / self.mass_flux_scaling, dmax)
 
                 assert len(hist_data) == 3
                 name = '{}.z{}.mass_flux_hist'.format(expt, group)
@@ -83,7 +88,8 @@ class MassFluxPlotter(Analyser):
                     hist_kwargs['bins'] = self.nbins
                 #y_min, bin_edges = np.histogram(hist_data[2].data, bins=50, range=(0, dmax))
                 #y_max, bin_edges = np.histogram(hist_data[0].data, bins=50, range=(0, dmax))
-                y, bin_edges = np.histogram(hist_data[1].data * self.dx**2 / 1e8, **hist_kwargs)
+                y, bin_edges = np.histogram(hist_data[1].data * self.dx**2 / self.mass_flux_scaling,
+                                            **hist_kwargs)
                 bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
                 y2 = bin_centers * y
 
@@ -120,6 +126,8 @@ class MassFluxPlotter(Analyser):
 
                 log_y = np.log(y[y > 10])
                 x = bin_centers[:len(log_y)]
+                # TODO: Not a good idea to fit a straight line to exp data.
+                # Would be better to do fit to explonential function surely.
                 m, c, rval, pval, stderr = linregress(x[1:], log_y[1:])
                 #import ipdb; ipdb.set_trace()
                 #plt.plot(bin_centers, fn(bin_centers, *popt), color=colour, linestyle='--')
@@ -144,6 +152,9 @@ class MassFluxPlotter(Analyser):
                         ax1.set_ylim(self.ylim)
                     ax1.set_yscale('log')
                     ax1.set_ylabel('Number of clouds')
+
+                    # MUST MATCH self.mass_flux_scaling.
+                    assert self.mass_flux_scaling == 1e8
                     ax2.set_ylabel('Mass flux contrib. ($\\times 10^8$ kg s$^{-1}$)')
                     #ax1.set_xlabel('MF per cloud ($\\times 10^7$ kg s$^{-1}$)')
                     ax2.set_xlabel('Mass flux per cloud ($\\times 10^8$ kg s$^{-1}$)')

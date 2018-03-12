@@ -12,6 +12,13 @@ from scaffold.vertlev import VertLev
 
 
 class MassFluxAnalyser(Analyser):
+    """Works out the mass flux for each cloud.
+
+    Performs some sanity checks on rho/w indices.
+    Uses the output from cloud_analysis, and labels each of the contiguous clouds
+    (with diagonal=True). Uses these clouds to work out the mass flux for each cloud.
+    Saves these in 'mass_fluxes'.
+    """
     analysis_name = 'mass_flux_analysis'
     single_file = True
 
@@ -29,20 +36,22 @@ class MassFluxAnalyser(Analyser):
         level_number_coord = cloud_mask_cube.coord('model_level_number')
 
         vertlevs = VertLev(self.suite.suite_dir)
-        # height_level refers to orig cube.
+        # level_number refers to orig cube.
         # height_level_index refers to w as it has already picked out the height levels.
-        for height_level_index, height_level in enumerate(level_number_coord.points):
+        for height_level_index, level_number in enumerate(level_number_coord.points):
+
             # Need to get these to do proper interp of rho onto theta.
             # Work out in 2 ways and check equal because paranoid.
+            # AKA sanity checks.
             w_height = w_slice.attributes['heights'][height_level_index]
-            w_height2 = vertlevs.z_theta[height_level]
+            w_height2 = vertlevs.z_theta[level_number]
 
             # N.B. for every 1 w_height, there are 2 rho_heights. Index appropriately.
             rho_height_lower = rho_slice.attributes['heights'][2 * height_level_index]
-            rho_height_lower2 = vertlevs.z_rho[height_level - 1]
+            rho_height_lower2 = vertlevs.z_rho[level_number - 1]
 
             rho_height_upper = rho_slice.attributes['heights'][2 * height_level_index + 1]
-            rho_height_upper2 = vertlevs.z_rho[height_level]
+            rho_height_upper2 = vertlevs.z_rho[level_number]
 
             # Calc scaling for linear interp.
             alpha = (w_height - rho_height_lower)/(rho_height_upper - rho_height_lower)
@@ -63,6 +72,7 @@ class MassFluxAnalyser(Analyser):
                 blob_cube_data = np.zeros_like(blob_cube.data)
                 mass_fluxes = []
                 for time_index in range(cloud_mask_cube.data.shape[0]):
+                    # w_ss == w_snapshot.
                     w_ss = w_slice[time_index, height_level_index].data
                     rho_ss_lower = rho_slice[time_index, height_level_index].data
                     rho_ss_upper = rho_slice[time_index, height_level_index + 1].data
@@ -74,7 +84,7 @@ class MassFluxAnalyser(Analyser):
                                                     height_level_index,
                                                     thresh_index,
                                                     thresh_index].data.astype(bool)
-                    max_blob_index, blobs = label_clds(cloud_mask_ss, True)
+                    max_blob_index, blobs = label_clds(cloud_mask_ss, diagonal=True)
                     blob_cube_data[time_index] = blobs
                     mf_ss = rho_ss_interp * w_ss
 
@@ -83,8 +93,8 @@ class MassFluxAnalyser(Analyser):
                         mass_flux = mf_ss[mask].sum()
                         mass_fluxes.append(mass_flux)
 
-                mf_cube_id = 'mass_flux_z{}_w{}_qcl{}'.format(height_level, w_thresh, qcl_thresh)
-                blob_cube_id = 'blob_z{}_w{}_qcl{}'.format(height_level, w_thresh, qcl_thresh)
+                mf_cube_id = 'mass_flux_z{}_w{}_qcl{}'.format(level_number, w_thresh, qcl_thresh)
+                blob_cube_id = 'blob_z{}_w{}_qcl{}'.format(level_number, w_thresh, qcl_thresh)
 
                 blob_cube.rename(blob_cube_id)
                 blob_cube.data = blob_cube_data

@@ -15,6 +15,15 @@ logger = getLogger('scaf.ca')
 
 
 class CloudAnalyser(Analyser):
+    """Performs thresholding of w, qcl to determine where clouds are.
+
+    Does thresholding on height_levels.
+    Performs analysis once for each combination of height_level, w_thresh, qcl_thresh.
+
+    Outputs cloud_mask: result of combined (&'ed) w and qcl thresholding.
+    cloud_mask has coords for the height_level, w_thresh and qcl_thresh used.
+    Also output w, qcl and rho slices for future analysis.
+    """
     analysis_name = 'cloud_analysis'
     single_file = True
 

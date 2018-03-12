@@ -9,6 +9,11 @@ from omnium.utils import is_power_of_two
 logger = getLogger('scaf.mfssc')
 
 class MassFluxSpatialScalesCombined(Analyser):
+    """Combines all mass flux spatial scales
+
+    Only loads files greater than runid == start_runid.
+    Loads/saves a separate file for each key (model_level_number, thresh_index, n).
+    """
     analysis_name = 'mass_flux_spatial_scales_combined'
     multi_file = True
 

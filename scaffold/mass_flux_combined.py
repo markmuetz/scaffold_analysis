@@ -8,6 +8,10 @@ from omnium.analyser import Analyser
 logger = getLogger('scaf.mfc')
 
 class MassFluxCombinedAnalysis(Analyser):
+    """Combines previously worked out mass_fluxes into one large sequence of mass_fluxes.
+
+    overrides load(...) to only load mass fluxes greater than a given start_runid.
+    """
     analysis_name = 'mass_flux_combined'
     multi_file = True
 

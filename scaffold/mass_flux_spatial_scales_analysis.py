@@ -10,6 +10,11 @@ logger = getLogger('scaf.mfssa')
 
 
 class MassFluxSpatialScalesAnalyser(Analyser):
+    """Split mass flux into powers of 2 subdomains, calc the total conv. mf for each subdomain.
+
+    conv. mf = mass flux where cloud_mask == true.
+    Saves a separate file for each key (model_level_number, thresh_index, n).
+    """
     analysis_name = 'mass_flux_spatial_scales_analysis'
     single_file = True
 
@@ -33,6 +38,7 @@ class MassFluxSpatialScalesAnalyser(Analyser):
                 # One value of w (w SnapShot) for each time/height.
                 w_ss = w[time_index, height_index].data
 
+                # TODO: Not doing proper rho interp! See mass_flux_analysis for correct impl.
                 rho_ss_lower = rho_slice[time_index, height_index].data
                 rho_ss_upper = rho_slice[time_index, height_index + 1].data
                 rho_ss_interp = (rho_ss_lower + rho_ss_upper) / 2
@@ -45,6 +51,10 @@ class MassFluxSpatialScalesAnalyser(Analyser):
                     # N.B. take diagonal of thresh, i.e. low/low, med/med, hi/hi.
                     cloud_mask_ss = cloud_mask_cube[time_index, height_index,
                                                     thresh_index, thresh_index].data.astype(bool)
+                    # Heart of the analysis. Coarse grain the data.
+                    # i.e. split into 4, then 8, then 16... subdomains.
+                    # For each subdomain (and each power), save the convective mass flux for that
+                    # subdomain (convective == where cloud_mask is true). Store all of these.
                     coarse_data = coarse_grain(mf_ss, cloud_mask_ss, self.npow)
                     for n, coarse_datum in coarse_data:
                         key = (height_index, thresh_index, n)
