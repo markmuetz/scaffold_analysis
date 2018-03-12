@@ -40,28 +40,34 @@ class OrgAnalyser(Analyser):
         cloud_mask_cube = get_cube_from_attr(cubes, 'omnium_cube_id', cloud_mask_id)
 
         w_thresh_coord = cloud_mask_cube.coord('w_thres')
+        qcl_thresh_coord = cloud_mask_cube.coord('qcl_thres')
         level_number_coord = cloud_mask_cube.coord('model_level_number')
 
-        # height_level refers to orig cube.
+        # level_number refers to orig cube.
         # height_level_index refers to w as it has already picked out the height levels.
-        for height_level_index, height_level in enumerate(level_number_coord.points):
+        for height_level_index, level_number in enumerate(level_number_coord.points):
             for thresh_index in range(w_thresh_coord.shape[0]):
                 logger.debug('height_index, thresh_index: {}, {}'.format(height_level_index,
                                                                          thresh_index))
+
+                w_thresh = w_thresh_coord.points[thresh_index]
+                qcl_thresh = qcl_thresh_coord.points[thresh_index]
+                labelled_clouds_cube_id = 'labelled_clouds_z{}_w{}_qcl{}'.format(level_number,
+                                                                                 w_thresh,
+                                                                                 qcl_thresh)
+                labelled_clouds_cube = get_cube_from_attr(cubes,
+                                                          'omnium_cube_id',
+                                                          labelled_clouds_cube_id)
                 # N.B. I just take the diagonal indices.
                 dists = []
                 total_clouds = 0
 
                 logger.debug('# time indices: {}'.format(cloud_mask_cube.data.shape[0]))
                 for time_index in range(cloud_mask_cube.data.shape[0]):
-                    cloud_mask_ss = cloud_mask_cube[time_index,
-                                                    height_level_index,
-                                                    thresh_index,
-                                                    thresh_index].data.astype(bool)
                     # Find each cloud.
-                    max_blob_index, blobs = label_clds(cloud_mask_ss, diagonal=True)
+                    labelled_clouds = labelled_clouds_cube[time_index].data
 
-                    cp = self._get_cloud_pos(blobs)
+                    cp = self._get_cloud_pos(labelled_clouds)
                     clouds = [Cloud(cp[j, 0], cp[j, 1]) for j in range(cp.shape[0])]
                     total_clouds += len(clouds)
                     # Heart of analysis.
@@ -70,7 +76,7 @@ class OrgAnalyser(Analyser):
 
                 mean_clouds = total_clouds / cloud_mask_cube.data.shape[0]
 
-                dist_cube_id = 'dist_z{}_w{}_qcl{}'.format(height_level, thresh_index, thresh_index)
+                dist_cube_id = 'dist_z{}_w{}_qcl{}'.format(level_number, thresh_index, thresh_index)
                 values = iris.coords.DimCoord(range(len(dists)), long_name='values')
                 dist_cube = iris.cube.Cube(dists,
                                            long_name=dist_cube_id,

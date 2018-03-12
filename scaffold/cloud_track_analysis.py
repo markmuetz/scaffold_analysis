@@ -45,24 +45,33 @@ class CloudTrackAnalyser(Analyser):
         cloud_mask_cube = get_cube_from_attr(cubes, 'omnium_cube_id', cloud_mask_id)
 
         w_thresh_coord = cloud_mask_cube.coord('w_thres')
+        qcl_thresh_coord = cloud_mask_cube.coord('qcl_thres')
         level_number_coord = cloud_mask_cube.coord('model_level_number')
         logger.debug(cloud_mask_cube.shape)
 
         # height_level refers to orig cube.
         # height_level_index refers to w as it has already picked out the height levels.
-        for height_level_index, height_level in enumerate(level_number_coord.points):
+        for height_level_index, level_number in enumerate(level_number_coord.points):
             for thresh_index in range(w_thresh_coord.shape[0]):
+
+                logger.debug('height_index, thresh_index: {}, {}'.format(height_level_index,
+                                                                         thresh_index))
+
+                w_thresh = w_thresh_coord.points[thresh_index]
+                qcl_thresh = qcl_thresh_coord.points[thresh_index]
+                labelled_clouds_cube_id = 'labelled_clouds_z{}_w{}_qcl{}'.format(level_number,
+                                                                                 w_thresh,
+                                                                                 qcl_thresh)
+                labelled_clouds_cube = get_cube_from_attr(cubes,
+                                                          'omnium_cube_id',
+                                                          labelled_clouds_cube_id)
                 cld_field = np.zeros(cloud_mask_cube[:, height_level_index, thresh_index, thresh_index].shape, dtype=int)
                 cld_field_cube = cloud_mask_cube[:, height_level_index, thresh_index, thresh_index].copy()
                 cld_field_cube.rename('cloud_field')
 
                 for time_index in range(cloud_mask_cube.shape[0]):
-                    cloud_mask_ss = cloud_mask_cube[time_index,
-                                                    height_level_index,
-                                                    thresh_index,
-                                                    thresh_index].data.astype(bool)
-                    max_label, cld_labels = label_clds(cloud_mask_ss, True)
-                    cld_field[time_index] = cld_labels
+                    labelled_clouds_ss = labelled_clouds_cube[time_index].data
+                    cld_field[time_index] = labelled_clouds_ss
                 cld_field_cube.data = cld_field
 
                 tracker = Tracker(cld_field_cube.slices_over('time'), store_working=True)

@@ -17,7 +17,7 @@ class MassFluxAnalyser(Analyser):
     Performs some sanity checks on rho/w indices.
     Uses the output from cloud_analysis, and labels each of the contiguous clouds
     (with diagonal=True). Uses these clouds to work out the mass flux for each cloud.
-    Saves these in 'mass_fluxes'.
+
     """
     analysis_name = 'mass_flux_analysis'
     single_file = True
@@ -65,40 +65,32 @@ class MassFluxAnalyser(Analyser):
                 # N.B. I just take the diagonal indices.
                 w_thresh = w_thresh_coord.points[thresh_index]
                 qcl_thresh = qcl_thresh_coord.points[thresh_index]
+                labelled_clouds_cube_id = 'labelled_clouds_z{}_w{}_qcl{}'.format(level_number,
+                                                                                 w_thresh,
+                                                                                 qcl_thresh)
+                labelled_clouds_cube = get_cube_from_attr(cubes, 'omnium_cube_id', labelled_clouds_cube_id)
 
-                blob_cube = w_slice[:, height_level_index].copy()
-                blob_cube.units = ''
-
-                blob_cube_data = np.zeros_like(blob_cube.data)
                 mass_fluxes = []
                 for time_index in range(cloud_mask_cube.data.shape[0]):
                     # w_ss == w_snapshot.
                     w_ss = w_slice[time_index, height_level_index].data
+
+                    # Interp rho onto w grid.
                     rho_ss_lower = rho_slice[time_index, height_level_index].data
                     rho_ss_upper = rho_slice[time_index, height_level_index + 1].data
 
-                    # rho_ss_interp_old = (rho_ss_lower + rho_ss_upper) / 2
-                    rho_ss_interp = (1 - alpha) * rho_ss_lower + alpha* rho_ss_upper
-                    #rho_ss_interp = (rho_ss_lower + rho_ss_upper) / 2
-                    cloud_mask_ss = cloud_mask_cube[time_index,
-                                                    height_level_index,
-                                                    thresh_index,
-                                                    thresh_index].data.astype(bool)
-                    max_blob_index, blobs = label_clds(cloud_mask_ss, diagonal=True)
-                    blob_cube_data[time_index] = blobs
-                    mf_ss = rho_ss_interp * w_ss
+                    rho_ss_interp = (1 - alpha) * rho_ss_lower + alpha * rho_ss_upper
 
-                    for i in range(1, max_blob_index + 1):
-                        mask = (blobs == i)
+                    labelled_clouds_ss = labelled_clouds_cube[time_index].data
+                    mf_ss = rho_ss_interp * w_ss
+                    max_labelled_cloud_index = np.max(labelled_clouds_ss)
+
+                    for i in range(1, max_labelled_cloud_index + 1):
+                        mask = (labelled_clouds_ss == i)
                         mass_flux = mf_ss[mask].sum()
                         mass_fluxes.append(mass_flux)
 
                 mf_cube_id = 'mass_flux_z{}_w{}_qcl{}'.format(level_number, w_thresh, qcl_thresh)
-                blob_cube_id = 'blob_z{}_w{}_qcl{}'.format(level_number, w_thresh, qcl_thresh)
-
-                blob_cube.rename(blob_cube_id)
-                blob_cube.data = blob_cube_data
-                self.results[blob_cube_id] = blob_cube
 
                 values = iris.coords.DimCoord(range(len(mass_fluxes)), long_name='values')
                 mass_flux_cube = iris.cube.Cube(mass_fluxes,

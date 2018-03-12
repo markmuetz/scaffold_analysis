@@ -6,6 +6,8 @@ matplotlib.use('Agg')
 import numpy as np
 import iris
 
+from cloud_tracking.utils import label_clds
+
 from omnium.analyser import Analyser
 from omnium.utils import get_cube
 from omnium.consts import Re
@@ -35,7 +37,7 @@ class CloudAnalyser(Analyser):
         if len(self.w_threshs) != len(self.qcl_threshs):
             raise OmniumError('w_threshs and qcl_threshs must be same length')
 
-    def run_analysis(self):
+    def _apply_cloud_thresholds(self):
         cubes = self.cubes
 
         w = get_cube(cubes, 0, 150)
@@ -121,3 +123,44 @@ class CloudAnalyser(Analyser):
                                                               (w.coord('grid_longitude'), 5)])
 
         self.results['cloud_mask'] = cloud_mask_cube
+
+    def _label_clouds(self):
+        cloud_mask_cube = self.results['cloud_mask']
+        w_slice = self.results['w_slice']
+
+        w_thresh_coord = cloud_mask_cube.coord('w_thres')
+        qcl_thresh_coord = cloud_mask_cube.coord('qcl_thres')
+        level_number_coord = cloud_mask_cube.coord('model_level_number')
+
+        # level_number refers to orig cube.
+        # height_level_index refers to w as it has already picked out the height levels.
+        for height_level_index, level_number in enumerate(level_number_coord.points):
+
+            for thresh_index in range(w_thresh_coord.shape[0]):
+                # N.B. I just take the diagonal indices.
+                w_thresh = w_thresh_coord.points[thresh_index]
+                qcl_thresh = qcl_thresh_coord.points[thresh_index]
+
+                labelled_clouds_cube = w_slice[:, height_level_index].copy()
+                labelled_clouds_cube.units = ''
+
+                labelled_clouds_data = np.zeros_like(labelled_clouds_cube.data)
+                for time_index in range(cloud_mask_cube.data.shape[0]):
+                    cloud_mask_ss = cloud_mask_cube[time_index,
+                                                    height_level_index,
+                                                    thresh_index,
+                                                    thresh_index].data.astype(bool)
+                    max_cld_index, labelled_clouds = label_clds(cloud_mask_ss, diagonal=True)
+                    labelled_clouds_data[time_index] = labelled_clouds
+
+                labelled_clouds_cube_id = 'labelled_clouds_z{}_w{}_qcl{}'.format(level_number,
+                                                                                 w_thresh,
+                                                                                 qcl_thresh)
+
+                labelled_clouds_cube.rename(labelled_clouds_cube_id)
+                labelled_clouds_cube.data = labelled_clouds_data
+                self.results[labelled_clouds_cube_id] = labelled_clouds_cube
+
+    def run_analysis(self):
+        self._apply_cloud_thresholds()
+        self._label_clouds()
