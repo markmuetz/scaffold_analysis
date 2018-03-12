@@ -10,6 +10,7 @@ from scipy.stats import linregress
 from omnium.analyser import Analyser
 
 from scaffold.utils import cm_to_inch
+from scaffold.suite_settings import dx
 
 
 class MassFluxPlotter(Analyser):
@@ -21,8 +22,6 @@ class MassFluxPlotter(Analyser):
     multi_expt = True
     # Input values are in kg m-2 s-1, i.e. MF/cloud is an average over the cloud's area.
     # I want total MF/cloud though: multiply by the area of a grid cell or dx**2
-    # TODO: Should not be here.
-    dx = 1e3
     mf_scaling = 1e8
 
     def set_config(self, config):
@@ -70,7 +69,7 @@ class MassFluxPlotter(Analyser):
                 for i, item in enumerate(cubes):
                     cube = item[1]
                     hist_data.append(cube)
-                    dmax = max(cube.data.max() * self.dx**2 / self.mass_flux_scaling, dmax)
+                    dmax = max(cube.data.max() * dx**2 / self.mass_flux_scaling, dmax)
 
                 assert len(hist_data) == 3
                 name = '{}.z{}.mass_flux_hist'.format(expt, group)
@@ -88,7 +87,7 @@ class MassFluxPlotter(Analyser):
                     hist_kwargs['bins'] = self.nbins
                 #y_min, bin_edges = np.histogram(hist_data[2].data, bins=50, range=(0, dmax))
                 #y_max, bin_edges = np.histogram(hist_data[0].data, bins=50, range=(0, dmax))
-                y, bin_edges = np.histogram(hist_data[1].data * self.dx**2 / self.mass_flux_scaling,
+                y, bin_edges = np.histogram(hist_data[1].data * dx**2 / self.mass_flux_scaling,
                                             **hist_kwargs)
                 bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
                 y2 = bin_centers * y

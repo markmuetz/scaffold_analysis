@@ -12,6 +12,7 @@ from omnium.utils import get_cube
 from omnium.consts import Re, cp, g
 from cloud_tracking.utils import label_clds
 
+from scaffold.suite_settings import dx
 logger = getLogger('scaf.prof_an')
 
 
@@ -27,6 +28,11 @@ def mean(a, axis=None):
 
 
 class ProfileAnalyser(Analyser):
+    """Calculates profiles for u, v, w, theta, qcl (+qi), in-cloud theta, qcl, mass-flux and # cld.
+
+    Calculates energy lost using pressure from model.
+    Calculates *average* profile for all times in the loaded cubes.
+    """
     analysis_name = 'profile_analysis'
     single_file = True
 
@@ -329,7 +335,7 @@ class ProfileAnalyser(Analyser):
                 # TODO: don't hard code!
                 # dx=2e3, dx**2=4e6 = Area of one grid cell.
                 # dx=1e3, dx**2=1e6 = Area of one grid cell.
-                profile_data.append(mf_conv/num_clouds * 1e6)
+                profile_data.append(mf_conv/num_clouds * dx**2)
                 cloud_data.append(num_clouds)
 
             profile_data = np.array(profile_data)

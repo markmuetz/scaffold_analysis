@@ -11,11 +11,7 @@ from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr
 from cloud_tracking.utils import label_clds
 
-# TODO: take from data.
-LX = 256000
-LY = 256000
-NX = 256
-NY = 256
+from scaffold.suite_settings import LX, LY, NX, NY
 
 logger = getLogger('scaf.org_an')
 
