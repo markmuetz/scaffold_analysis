@@ -15,6 +15,11 @@ logger = getLogger('scaf.cta')
 
 
 class CloudTrackAnalyser(Analyser):
+    """Tracks clouds using method similar to Plant 2009.
+
+    Change is due to temporal resolution of data being less, take account of this by first
+    calculating spatial correlation then using this to project the cloud field at a given height
+    forward in time. Most heavy lifting is handled by cloud_tracking package."""
     analysis_name = 'cloud_track_analysis'
     multi_file = True
 
