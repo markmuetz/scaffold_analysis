@@ -16,6 +16,12 @@ LY = 256000
 
 
 class OrgPlotter(Analyser):
+    """Performs organization analysis similar to that in Cohen & Craig 2006.
+
+    Calcs and plots a 'histogram' of cloud-cloud distances.
+    Uses cloud-cloud distances, divided by area of annulus for each bin, and normalalizes by the
+    area avg cloud density (to get a value that would be 1 if cloud field randomly distributed.
+    """
     analysis_name = 'org_plot'
     multi_expt = True
 

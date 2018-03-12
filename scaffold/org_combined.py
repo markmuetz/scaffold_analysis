@@ -8,6 +8,7 @@ from omnium.analyser import Analyser
 logger = getLogger('scaf.oc')
 
 class OrgCombined(Analyser):
+    """Combines the organizational data for runid >= self.start_runid."""
     analysis_name = 'org_combined'
     multi_file = True
 
