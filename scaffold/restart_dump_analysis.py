@@ -10,6 +10,7 @@ logger = getLogger('scaf.prof_an')
 
 
 class RestartDumpAnalyser(Analyser):
+    """Performs some sanity checks, calcs MSE, TCW."""
     analysis_name = 'restart_dump_analysis'
     single_file = True
 

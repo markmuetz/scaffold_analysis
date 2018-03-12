@@ -10,6 +10,7 @@ from omnium.utils import get_cube_from_attr
 
 
 class MsePlotter(Analyser):
+    """Plots timeseries of MSE."""
     analysis_name = 'mse_plot'
     single_file = True
 
