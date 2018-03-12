@@ -65,7 +65,7 @@ class OrgAnalyser(Analyser):
                 logger.debug('# time indices: {}'.format(cloud_mask_cube.data.shape[0]))
                 for time_index in range(cloud_mask_cube.data.shape[0]):
                     # Find each cloud.
-                    labelled_clouds = labelled_clouds_cube[time_index].data
+                    labelled_clouds = labelled_clouds_cube[time_index].data.astype(int)
 
                     cp = self._get_cloud_pos(labelled_clouds)
                     clouds = [Cloud(cp[j, 0], cp[j, 1]) for j in range(cp.shape[0])]

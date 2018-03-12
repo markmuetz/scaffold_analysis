@@ -81,7 +81,7 @@ class MassFluxAnalyser(Analyser):
 
                     rho_ss_interp = (1 - alpha) * rho_ss_lower + alpha * rho_ss_upper
 
-                    labelled_clouds_ss = labelled_clouds_cube[time_index].data
+                    labelled_clouds_ss = labelled_clouds_cube[time_index].data.astype(int)
                     mf_ss = rho_ss_interp * w_ss
                     max_labelled_cloud_index = np.max(labelled_clouds_ss)
 

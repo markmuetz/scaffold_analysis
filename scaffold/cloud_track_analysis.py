@@ -70,7 +70,7 @@ class CloudTrackAnalyser(Analyser):
                 cld_field_cube.rename('cloud_field')
 
                 for time_index in range(cloud_mask_cube.shape[0]):
-                    labelled_clouds_ss = labelled_clouds_cube[time_index].data
+                    labelled_clouds_ss = labelled_clouds_cube[time_index].data.astype(int)
                     cld_field[time_index] = labelled_clouds_ss
                 cld_field_cube.data = cld_field
 
