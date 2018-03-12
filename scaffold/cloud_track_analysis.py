@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 from logging import getLogger
 
 import numpy as np
@@ -26,14 +27,16 @@ class CloudTrackAnalyser(Analyser):
     def load(self):
         self.append_log('Override load')
 
-        cloud_mask_cubes = []
-        cloud_mask_id = 'cloud_mask'
+        all_cubes = defaultdict(list)
         for filename in self.filenames:
             cubes = iris.load(filename)
-            cloud_mask_cube = get_cube_from_attr(cubes, 'omnium_cube_id', cloud_mask_id)
-            cloud_mask_cubes.append(cloud_mask_cube)
+            for cube in cubes:
+                all_cubes[cube.name()].append(cube)
+        concat_cubes = []
+        for cubes in all_cubes.values():
+            concat_cubes.append(iris.cube.CubeList(cubes).concatenate())
 
-        self.cubes = iris.cube.CubeList(cloud_mask_cubes).concatenate()
+        self.cubes = iris.cube.CubeList(concat_cubes)
         self.append_log('Override loaded')
 
     def run_analysis(self):
