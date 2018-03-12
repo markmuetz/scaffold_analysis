@@ -17,6 +17,7 @@ logger = getLogger('scaf.prof_an')
 
 
 class SurfFluxPlot(Analyser):
+    """Plots surf fluxes and precip timeseries for all expts."""
     analysis_name = 'surf_flux_plot'
     multi_expt = True
 
