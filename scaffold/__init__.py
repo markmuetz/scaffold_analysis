@@ -8,7 +8,6 @@ from scaffold.mass_flux_plot import MassFluxPlotter
 from scaffold.mass_flux_spatial_scales_analysis import MassFluxSpatialScalesAnalyser
 from scaffold.mass_flux_spatial_scales_combined import MassFluxSpatialScalesCombined
 from scaffold.mass_flux_spatial_scales_plot import MassFluxSpatialScalesPlotter
-from scaffold.mass_flux_timeseries_analysis import MassFluxTimeSeriesAnalyser
 from scaffold.mse_combined import MseCombinedAnalysis
 from scaffold.mse_plot import MsePlotter
 from scaffold.org_analysis import OrgAnalyser
@@ -34,7 +33,6 @@ analysis_classes = [
     MassFluxSpatialScalesAnalyser,
     MassFluxSpatialScalesCombined,
     MassFluxSpatialScalesPlotter,
-    MassFluxTimeSeriesAnalyser,
     MseCombinedAnalysis,
     MsePlotter,
     OrgAnalyser,

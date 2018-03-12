@@ -41,6 +41,8 @@ class MassFluxSpatialScalesAnalyser(Analyser):
                 # TODO: Not doing proper rho interp! See mass_flux_analysis for correct impl.
                 rho_ss_lower = rho_slice[time_index, height_index].data
                 rho_ss_upper = rho_slice[time_index, height_index + 1].data
+                # Fix this.
+                assert False
                 rho_ss_interp = (rho_ss_lower + rho_ss_upper) / 2
 
                 mf_ss = rho_ss_interp * w_ss
