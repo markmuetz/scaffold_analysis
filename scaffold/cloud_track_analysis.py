@@ -24,21 +24,6 @@ class CloudTrackAnalyser(Analyser):
     analysis_name = 'cloud_track_analysis'
     multi_file = True
 
-    def load(self):
-        self.append_log('Override load')
-
-        all_cubes = defaultdict(list)
-        for filename in self.filenames:
-            cubes = iris.load(filename)
-            for cube in cubes:
-                all_cubes[cube.name()].append(cube)
-        concat_cubes = []
-        for cubes in all_cubes.values():
-            concat_cubes.append(iris.cube.CubeList(cubes).concatenate())
-
-        self.cubes = iris.cube.CubeList(concat_cubes)
-        self.append_log('Override loaded')
-
     def run_analysis(self):
         cubes = self.cubes
 
