@@ -1,20 +1,24 @@
 import os
 from configparser import ConfigParser
 import iris
+import omnium as om
 
-from settings import BASEDIR, OUTDIR
+# from settings import BASEDIR, OUTDIR
+BASEDIR = '/home/n02/n02/mmuetz/work/cylc-run/u-as229/'
+OUTDIR = '/home/n02/n02/mmuetz/work/cylc-run/u-as229/share/data/history'
+EXPTS = [('S0_spinup', 'b-'),
+         ('S4_spinup', 'b-'), ]
 
 if __name__ == '__main__':
-    for expt, fmt in [('S0', 'b-'), 
-                      ('S4', 'g-'),
-                      ('S0_1km', 'b--'),
-                      ('S4_1km', 'g--')]:
-        d = iris.load(os.path.join(BASEDIR, 'share/data/history/', expt, 'atmosa_da240.nc'))
+    for expt, fmt in EXPTS:
+        d = iris.load(os.path.join(BASEDIR, 'share/data/history/', expt, 'atmosa_da480'))
         cp = ConfigParser()
         cp.add_section('namelist:idealise')
 
-        th = d[71]
-        mv = d[57]
+        th = om.utils.get_cube(d, 0, 4)
+        mv = om.utils.get_cube(d, 0, 391)
+        print(th)
+        print(mv)
 
         th_profile = th.collapsed(['grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
         mv_profile = mv.collapsed(['grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
