@@ -6,15 +6,14 @@ import iris
 
 from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr
-from cloud_tracking.utils import label_clds
 
 from scaffold.vertlev import VertLev
+from scaffold.utils import interp_vert_rho2w
 
 
 class MassFluxAnalyser(Analyser):
     """Works out the mass flux for each cloud.
 
-    Performs some sanity checks on rho/w indices.
     Uses the output from cloud_analysis, and labels each of the contiguous clouds
     (with diagonal=True). Uses these clouds to work out the mass flux for each cloud.
 
@@ -39,28 +38,6 @@ class MassFluxAnalyser(Analyser):
         # level_number refers to orig cube.
         # height_level_index refers to w as it has already picked out the height levels.
         for height_level_index, level_number in enumerate(level_number_coord.points):
-
-            # Need to get these to do proper interp of rho onto theta.
-            # Work out in 2 ways and check equal because paranoid.
-            # AKA sanity checks.
-            w_height = w_slice.attributes['heights'][height_level_index]
-            w_height2 = vertlevs.z_theta[level_number]
-
-            # N.B. for every 1 w_height, there are 2 rho_heights. Index appropriately.
-            rho_height_lower = rho_slice.attributes['heights'][2 * height_level_index]
-            rho_height_lower2 = vertlevs.z_rho[level_number - 1]
-
-            rho_height_upper = rho_slice.attributes['heights'][2 * height_level_index + 1]
-            rho_height_upper2 = vertlevs.z_rho[level_number]
-
-            # Calc scaling for linear interp.
-            alpha = (w_height - rho_height_lower)/(rho_height_upper - rho_height_lower)
-            # Paranoia. Well justified it turns out. Saved me from doing wrong analysis.
-            assert w_height == w_height2
-            assert rho_height_lower == rho_height_lower2
-            assert rho_height_upper == rho_height_upper2
-            assert 0 <= alpha <= 1
-
             for thresh_index in range(w_thresh_coord.shape[0]):
                 # N.B. I just take the diagonal indices.
                 w_thresh = w_thresh_coord.points[thresh_index]
@@ -75,11 +52,8 @@ class MassFluxAnalyser(Analyser):
                     # w_ss == w_snapshot.
                     w_ss = w_slice[time_index, height_level_index].data
 
-                    # Interp rho onto w grid.
-                    rho_ss_lower = rho_slice[time_index, height_level_index].data
-                    rho_ss_upper = rho_slice[time_index, height_level_index + 1].data
-
-                    rho_ss_interp = (1 - alpha) * rho_ss_lower + alpha * rho_ss_upper
+                    rho_ss_interp = interp_vert_rho2w(vertlevs, w_slice, rho_slice, time_index,
+                                                      height_level_index, level_number)
 
                     labelled_clouds_ss = labelled_clouds_cube[time_index].data.astype(int)
                     mf_ss = rho_ss_interp * w_ss
@@ -100,3 +74,4 @@ class MassFluxAnalyser(Analyser):
 
                 mass_flux_cube.attributes['mass_flux_key'] = (height_level_index, thresh_index)
                 self.results[mf_cube_id] = mass_flux_cube
+

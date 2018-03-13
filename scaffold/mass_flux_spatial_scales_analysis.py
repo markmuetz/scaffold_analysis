@@ -3,8 +3,12 @@ from logging import getLogger
 
 import iris
 import numpy as np
+
 from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr, coarse_grain
+
+from scaffold.vertlev import VertLev
+from scaffold.utils import interp_vert_rho2w
 
 logger = getLogger('scaf.mfssa')
 
@@ -25,25 +29,24 @@ class MassFluxSpatialScalesAnalyser(Analyser):
     def run_analysis(self):
         cubes = self.cubes
 
-        w = get_cube_from_attr(cubes, 'omnium_cube_id', 'w_slice')
+        w_slice = get_cube_from_attr(cubes, 'omnium_cube_id', 'w_slice')
         rho_slice = get_cube_from_attr(cubes, 'omnium_cube_id', 'rho_slice')
 
         cloud_mask_cube = get_cube_from_attr(cubes, 'omnium_cube_id', 'cloud_mask')
+
+        level_number_coord = cloud_mask_cube.coord('model_level_number')
+        vertlevs = VertLev(self.suite.suite_dir)
 
         mass_flux = OrderedDict()
         for time_index in range(cloud_mask_cube.shape[0]):
             logger.debug('time: {}/{}'.format(time_index + 1, cloud_mask_cube.shape[0]))
 
-            for height_index in range(cloud_mask_cube.shape[1]):
-                # One value of w (w SnapShot) for each time/height.
-                w_ss = w[time_index, height_index].data
+            for height_level_index, level_number in enumerate(level_number_coord.points):
+                # One value of w_slice (w SnapShot) for each time/height.
+                w_ss = w_slice[time_index, height_level_index].data
 
-                # TODO: Not doing proper rho interp! See mass_flux_analysis for correct impl.
-                rho_ss_lower = rho_slice[time_index, height_index].data
-                rho_ss_upper = rho_slice[time_index, height_index + 1].data
-                # Fix this.
-                assert False
-                rho_ss_interp = (rho_ss_lower + rho_ss_upper) / 2
+                rho_ss_interp = interp_vert_rho2w(vertlevs, w_slice, rho_slice, time_index,
+                                                  height_level_index, level_number)
 
                 mf_ss = rho_ss_interp * w_ss
                 N = mf_ss.shape[-1]
@@ -51,7 +54,7 @@ class MassFluxSpatialScalesAnalyser(Analyser):
                 # There are 3 values of cloud_mask for each time/height:
                 for thresh_index in range(cloud_mask_cube.shape[2]):
                     # N.B. take diagonal of thresh, i.e. low/low, med/med, hi/hi.
-                    cloud_mask_ss = cloud_mask_cube[time_index, height_index,
+                    cloud_mask_ss = cloud_mask_cube[time_index, height_level_index,
                                                     thresh_index, thresh_index].data.astype(bool)
                     # Heart of the analysis. Coarse grain the data.
                     # i.e. split into 4, then 8, then 16... subdomains.
@@ -59,7 +62,7 @@ class MassFluxSpatialScalesAnalyser(Analyser):
                     # subdomain (convective == where cloud_mask is true). Store all of these.
                     coarse_data = coarse_grain(mf_ss, cloud_mask_ss, self.npow)
                     for n, coarse_datum in coarse_data:
-                        key = (height_index, thresh_index, n)
+                        key = (height_level_index, thresh_index, n)
                         Nsubdom = N / n
                         if key not in mass_flux:
                             mass_flux[key] = []
