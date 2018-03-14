@@ -22,7 +22,7 @@ class MassFluxPlotter(Analyser):
     multi_expt = True
     # Input values are in kg m-2 s-1, i.e. MF/cloud is an average over the cloud's area.
     # I want total MF/cloud though: multiply by the area of a grid cell or dx**2
-    mf_scaling = 1e8
+    mass_flux_scaling = 1e8
 
     def set_config(self, config):
         super(MassFluxPlotter, self).set_config(config)
