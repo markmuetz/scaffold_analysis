@@ -14,6 +14,7 @@ from scaffold.org_analysis import OrgAnalyser
 from scaffold.org_combined import OrgCombined
 from scaffold.org_plot import OrgPlotter
 from scaffold.precip_plot import PrecipPlot
+from scaffold.precip_hovmoller import PrecipHovmollerAnalyser
 from scaffold.profile_analysis import ProfileAnalyser
 from scaffold.profile_plot import ProfilePlotter
 from scaffold.restart_dump_analysis import RestartDumpAnalyser
@@ -39,6 +40,7 @@ analysis_classes = [
     OrgCombined,
     OrgPlotter,
     PrecipPlot,
+    PrecipHovmollerAnalyser,
     ProfileAnalyser,
     ProfilePlotter,
     RestartDumpAnalyser,
