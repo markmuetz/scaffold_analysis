@@ -45,6 +45,7 @@ class PrecipHovmollerAnalyser(Analyser):
         plt.savefig(self.figpath('hovmoller_x.png'))
         plt.clf()
 
+        plt.title('Hovmöller (y)'.format(self.expt))
         # Mask out very small values of precip.
         mask = hov_y < 0.00001
         plt.imshow(np.ma.masked_array(hov_y, mask), interpolation='nearest',
