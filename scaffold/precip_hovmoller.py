@@ -32,6 +32,7 @@ class PrecipHovmollerAnalyser(Analyser):
         hov_x = precip.data.mean(axis=1)
         hov_y = precip.data.mean(axis=2)
 
+        plt.clf()
         plt.title('Hovmöller (x)'.format(self.expt))
         # Mask out very small values of precip.
         mask = hov_x < 0.00001
