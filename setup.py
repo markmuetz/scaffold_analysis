@@ -27,7 +27,16 @@ setup(
     maintainer_email='m.muetzelfeldt@pgr.reading.ac.uk',
     packages=['scaffold', ],
     scripts=[ ],
-    install_requires=[ ],
+    python_requires='>=3.6',
+    install_requires=[
+        'omnium',
+        'cloud_tracking',
+        'f90nml',
+        'iris',
+        'matplotlib',
+        'numpy',
+        'scipy',
+    ],
     package_data={ },
     url='https://github.com/markmuetz/scaffold_analysis',
     classifiers=[
