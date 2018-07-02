@@ -13,6 +13,8 @@ from omnium.consts import Re, cp, g
 from cloud_tracking.utils import label_clds
 
 from scaffold.suite_settings import dx
+from scaffold.scaffold_settings import settings
+
 logger = getLogger('scaf.prof_an')
 
 
@@ -35,23 +37,12 @@ class ProfileAnalyser(Analyser):
     """
     analysis_name = 'profile_analysis'
     single_file = True
+    input_dir = 'share/data/history/{expt}'
+    input_filename_glob = '{input_dir}/atmos.???.pp2.nc'
+    output_dir = 'omnium_output/{version_dir}/{expt}'
+    output_filenames = ['{output_dir}/atmos.{runid}.profile_analysis.nc']
 
-    def set_config(self, config):
-        super(ProfileAnalyser, self).set_config(config)
-        self.w_thresh = config.getfloat('w_thresh', 1)
-        self.qcl_thresh = config.getfloat('qcl_thresh', 0.0001)
-        if 'mfpercloud_profile_xlim' in config:
-            self.mfpercloud_profile_xlim = [float(v) for v in config['mfpercloud_profile_xlim'].split(',')]
-        else:
-            self.mfpercloud_profile_xlim = None
-        if 'mftotal_profile_xlim' in config:
-            self.mftotal_profile_xlim = [float(v) for v in config['mftotal_profile_xlim'].split(',')]
-        else:
-            self.mftotal_profile_xlim = None
-        if 'cloud_profile_xlim' in config:
-            self.cloud_profile_xlim = [float(v) for v in config['cloud_profile_xlim'].split(',')]
-        else:
-            self.cloud_profile_xlim = None
+    settings = settings
 
     def _plot_uv(self):
         u_profile = self.results['u_profile']
@@ -209,7 +200,10 @@ class ProfileAnalyser(Analyser):
         self.save_text('energy_loss.txt', 'Energy loss rate [W m-2]: {}\n'.format(E_loss))
         p_profile.attributes['Energy loss rate [W m-2]'] = E_loss
 
-    def run_analysis(self):
+    def load(self):
+        self.load_cubes()
+
+    def run(self):
         cubes = self.cubes
         logger.debug('cubes: {}'.format(cubes))
 
@@ -243,8 +237,8 @@ class ProfileAnalyser(Analyser):
 
         logger.debug('got cubes of interest')
 
-        w_mask = w.data > self.w_thresh
-        qcl_mask = qcl.data > self.qcl_thresh
+        w_mask = w.data > settings.w_thresh
+        qcl_mask = qcl.data > settings.qcl_thresh
         cloud_mask = w_mask & qcl_mask
 
         self.results['theta_profile'] = theta.collapsed(['time', 'grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
@@ -306,8 +300,8 @@ class ProfileAnalyser(Analyser):
         qcl_rho_grid = (qcl[:, :-1].data + qcl[:, 1:].data) / 2
 
         # Threshold.
-        w_rho_mask = w_rho_grid > self.w_thresh
-        qcl_rho_mask = qcl_rho_grid > self.qcl_thresh
+        w_rho_mask = w_rho_grid > settings.w_thresh
+        qcl_rho_mask = qcl_rho_grid > settings.qcl_thresh
         cloud_rho_mask = w_rho_mask & qcl_rho_mask
 
         # Total mass-flux across domain.
@@ -351,7 +345,13 @@ class ProfileAnalyser(Analyser):
 
         self.calc_energy_loss_rate()
 
+    def save(self, state, suite):
+        self.save_results_cubes(state, suite)
+
     def display_results(self):
+        self.mfpercloud_profile_xlim = None
+        self.mftotal_profile_xlim = None
+        self.cloud_profile_xlim = None
         self._plot_uv()
         self._plot_theta_qcl()
         self._plot_momentum_flux()

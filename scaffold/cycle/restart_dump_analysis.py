@@ -6,15 +6,26 @@ from omnium.analyser import Analyser
 from omnium.consts import Re, L, cp, g
 from omnium.utils import get_cube
 
-logger = getLogger('scaf.prof_an')
+from scaffold.scaffold_settings import settings
+
+logger = getLogger('scaf.restart')
 
 
 class RestartDumpAnalyser(Analyser):
     """Performs some sanity checks, calcs MSE, TCW."""
     analysis_name = 'restart_dump_analysis'
     single_file = True
+    input_dir = 'share/data/history/{expt}'
+    input_filename_glob = 'atmosa_da???'
+    output_dir = 'omnium_output/{version_dir}/{expt}'
+    output_filenames = ['{output_dir}/atmos.{runid}.restart_dump_analysis.nc']
 
-    def run_analysis(self):
+    settings = settings
+
+    def load(self):
+        self.load_cubes()
+
+    def run(self):
         """Get useful cubes from self.dump, perform sanity chacks and calc MSE, TCW."""
         dump = self.cubes
         self.rho = get_cube(dump, 0, 253) / Re ** 2
@@ -47,6 +58,9 @@ class RestartDumpAnalyser(Analyser):
         self._calc_tcw(self.rho, self.qvars)
         logger.debug('running _calc_mse')
         self._calc_mse(self.rho, self.th, self.ep, self.q)
+
+    def save(self, state, suite):
+        self.save_results_cubes(state, suite)
 
     def _create_cube(self, archetype, data, name, units):
         cube = archetype.copy()

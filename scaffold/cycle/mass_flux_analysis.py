@@ -10,6 +10,8 @@ from omnium.utils import get_cube_from_attr
 from scaffold.vertlev import VertLev
 from scaffold.utils import interp_vert_rho2w
 
+from scaffold.scaffold_settings import settings
+
 
 class MassFluxAnalyser(Analyser):
     """Works out the mass flux for each cloud.
@@ -20,8 +22,17 @@ class MassFluxAnalyser(Analyser):
     """
     analysis_name = 'mass_flux_analysis'
     single_file = True
+    input_dir = 'share/data/history/{expt}'
+    input_filename_glob = '{input_dir}/atmos.???.cloud_analysis.nc'
+    output_dir = 'omnium_output/{version_dir}/{expt}'
+    output_filenames = ['{output_dir}/atmos.{runid}.mass_flux_analysis.nc']
 
-    def run_analysis(self):
+    settings = settings
+
+    def load(self):
+        self.load_cubes()
+
+    def run(self):
         cubes = self.cubes
 
         w_slice = get_cube_from_attr(cubes, 'omnium_cube_id', 'w_slice')
@@ -75,3 +86,5 @@ class MassFluxAnalyser(Analyser):
                 mass_flux_cube.attributes['mass_flux_key'] = (height_level_index, thresh_index)
                 self.results[mf_cube_id] = mass_flux_cube
 
+    def save(self, state, suite):
+        self.save_results_cubes(state, suite)

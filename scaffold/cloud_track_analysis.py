@@ -1,14 +1,10 @@
 import os
-from collections import defaultdict
 from logging import getLogger
 
 import numpy as np
 
-import iris
-
 from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr
-from cloud_tracking.utils import label_clds
 from cloud_tracking import Tracker
 from cloud_tracking.cloud_tracking_analysis import generate_stats, plot_stats, output_stats_to_file
 
@@ -23,8 +19,12 @@ class CloudTrackAnalyser(Analyser):
     forward in time. Most heavy lifting is handled by cloud_tracking package."""
     analysis_name = 'cloud_track_analysis'
     multi_file = True
+    input_dir = 'share/data/history/{expt}'
 
-    def run_analysis(self):
+    def load(self):
+        self.load_cubes()
+
+    def run(self):
         cubes = self.cubes
 
         self.trackers = {}
@@ -69,6 +69,9 @@ class CloudTrackAnalyser(Analyser):
                 stats = generate_stats(self.expt, tracker)
                 self.trackers[(height_level_index, thresh_index)] = tracker
                 self.all_stats[(height_level_index, thresh_index)] = stats
+
+    def save(self, state, suite):
+        self.save_results_cubes()
 
     def display_results(self):
         self.append_log('displaying results')

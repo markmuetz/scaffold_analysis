@@ -9,14 +9,14 @@ import iris
 
 from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr
-from cloud_tracking.utils import label_clds
 
 from scaffold.suite_settings import LX, LY, NX, NY
+from scaffold.scaffold_settings import settings
 
 logger = getLogger('scaf.org_an')
 
 
-class Cloud(object):
+class Cloud:
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -30,8 +30,17 @@ class OrgAnalyser(Analyser):
     Performs once for each height level, and each pair of low/low, med/med, high/high threshs."""
     analysis_name = 'org_analysis'
     single_file = True
+    input_dir = 'share/data/history/{expt}'
+    input_filename_glob = '{input_dir}/atmos.???.cloud_analysis.nc'
+    output_dir = 'omnium_output/{version_dir}/{expt}'
+    output_filenames = ['{output_dir}/atmos.{runid}.org_analysis.nc']
 
-    def run_analysis(self):
+    settings = settings
+
+    def load(self):
+        self.load_cubes()
+
+    def run(self):
         cubes = self.cubes
 
         logger.debug('got cube slices')
@@ -86,6 +95,9 @@ class OrgAnalyser(Analyser):
                 dist_cube.attributes['dist_key'] = (height_level_index, thresh_index)
                 dist_cube.attributes['dist_mean_total_clouds'] = (mean_clouds, total_clouds)
                 self.results[dist_cube_id] = dist_cube
+
+    def save(self, state, suite):
+        self.save_results_cubes(state, suite)
 
     def display_results(self):
         dist_cube_id = 'dist_z{}_w{}_qcl{}'.format(18, 1, 1)

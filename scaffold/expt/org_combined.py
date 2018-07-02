@@ -5,24 +5,27 @@ from logging import getLogger
 import iris
 from omnium.analyser import Analyser
 
+from scaffold.scaffold_settings import settings
+
 logger = getLogger('scaf.oc')
 
 class OrgCombined(Analyser):
     """Combines the organizational data for runid >= self.start_runid."""
     analysis_name = 'org_combined'
     multi_file = True
+    input_dir = 'omnium_output/{version_dir}/{expt}'
+    input_filename_glob = '{input_dir}/atmos.???.org_analysis.nc'
+    output_dir = 'omnium_output/{version_dir}/{expt}'
+    output_filenames = ['{output_dir}/atmos.org_combined.nc']
 
-    def set_config(self, config):
-        super(OrgCombined, self).set_config(config)
-        self.start_runid = config.getint('start_runid')
+    settings = settings
 
     def load(self):
-        self.append_log('Override load')
         self.dists = defaultdict(list)
         for filename in self.filenames:
             basename = os.path.basename(filename)
             runid = int(basename.split('.')[1])
-            if runid >= self.start_runid:
+            if runid >= settings.start_runid:
                 logger.debug('adding runid: {}'.format(runid))
                 cubes = iris.load(filename)
                 for cube in cubes:
@@ -32,9 +35,7 @@ class OrgCombined(Analyser):
             else:
                 logger.debug('skipping runid: {}'.format(runid))
 
-        self.append_log('Override loaded')
-
-    def run_analysis(self):
+    def run(self):
         for key, dists in self.dists.items():
             (model_level_number, thresh_index) = key
 
@@ -47,3 +48,6 @@ class OrgCombined(Analyser):
                                        units='m')
             dist_cube.attributes['dist_key'] = key
             self.results[dist_cube_id] = dist_cube
+
+    def save(self, state, suite):
+        self.save_results_cubes(state, suite)

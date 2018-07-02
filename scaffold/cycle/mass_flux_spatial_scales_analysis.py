@@ -9,6 +9,7 @@ from omnium.utils import get_cube_from_attr, coarse_grain
 
 from scaffold.vertlev import VertLev
 from scaffold.utils import interp_vert_rho2w
+from scaffold.scaffold_settings import settings
 
 logger = getLogger('scaf.mfssa')
 
@@ -21,12 +22,17 @@ class MassFluxSpatialScalesAnalyser(Analyser):
     """
     analysis_name = 'mass_flux_spatial_scales_analysis'
     single_file = True
+    input_dir = 'share/data/history/{expt}'
+    input_filename_glob = '{input_dir}/atmos.???.cloud_analysis.nc'
+    output_dir = 'omnium_output/{version_dir}/{expt}'
+    output_filenames = ['{output_dir}/atmos.{runid}.mass_flux_spatial_scales_analysis.nc']
 
-    def set_config(self, config):
-        super(MassFluxSpatialScalesAnalyser, self).set_config(config)
-        self.npow = config.getint('npow', None)
+    settings = settings
 
-    def run_analysis(self):
+    def load(self):
+        self.load_cubes()
+
+    def run(self):
         cubes = self.cubes
 
         w_slice = get_cube_from_attr(cubes, 'omnium_cube_id', 'w_slice')
@@ -60,7 +66,7 @@ class MassFluxSpatialScalesAnalyser(Analyser):
                     # i.e. split into 4, then 8, then 16... subdomains.
                     # For each subdomain (and each power), save the convective mass flux for that
                     # subdomain (convective == where cloud_mask is true). Store all of these.
-                    coarse_data = coarse_grain(mf_ss, cloud_mask_ss, self.npow)
+                    coarse_data = coarse_grain(mf_ss, cloud_mask_ss, settings.npow)
                     for n, coarse_datum in coarse_data:
                         key = (height_level_index, thresh_index, n)
                         Nsubdom = N / n
@@ -79,3 +85,6 @@ class MassFluxSpatialScalesAnalyser(Analyser):
 
             mass_flux_spatial_cube.attributes['mass_flux_spatial_key'] = key
             self.results[name] = mass_flux_spatial_cube
+
+    def save(self, state, suite):
+        self.save_results_cubes(state, suite)

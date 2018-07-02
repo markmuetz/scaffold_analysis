@@ -4,28 +4,30 @@ from logging import getLogger
 
 import iris
 from omnium.analyser import Analyser
+from scaffold.scaffold_settings import settings
 
 logger = getLogger('scaf.mfc')
 
 class MassFluxCombinedAnalysis(Analyser):
     """Combines previously worked out mass_fluxes into one large sequence of mass_fluxes.
 
-    overrides load(...) to only load mass fluxes greater than a given start_runid.
+    load(...) only loads mass fluxes greater than a given start_runid.
     """
     analysis_name = 'mass_flux_combined'
     multi_file = True
+    input_dir = 'omnium_output/{version_dir}/{expt}'
+    input_filename_glob = '{input_dir}/atmos.???.mass_flux_spatial_scales.nc'
+    output_dir = 'omnium_output/{version_dir}/{expt}'
+    output_filenames = ['{output_dir}/atmos.mass_flux_combined.nc']
 
-    def set_config(self, config):
-        super(MassFluxCombinedAnalysis, self).set_config(config)
-        self.start_runid = config.getint('start_runid')
+    settings = settings
 
     def load(self):
-        self.append_log('Override load')
         self.mass_fluxes = defaultdict(list)
         for filename in self.filenames:
             basename = os.path.basename(filename)
             runid = int(basename.split('.')[1])
-            if runid >= self.start_runid:
+            if runid >= settings.start_runid:
                 logger.debug('adding runid: {}'.format(runid))
                 cubes = iris.load(filename)
                 for cube in cubes:
@@ -35,9 +37,7 @@ class MassFluxCombinedAnalysis(Analyser):
             else:
                 logger.debug('skipping runid: {}'.format(runid))
 
-        self.append_log('Override loaded')
-
-    def run_analysis(self):
+    def run(self):
         for key, mass_flux in self.mass_fluxes.items():
             (model_level_number, thresh_index) = key
 
@@ -50,3 +50,6 @@ class MassFluxCombinedAnalysis(Analyser):
                                             units='kg s-1')
             mass_flux_cube.attributes['mass_flux_key'] = key
             self.results[mf_cube_id] = mass_flux_cube
+
+    def save(self, state, suite):
+        self.save_results_cubes(state, suite)
