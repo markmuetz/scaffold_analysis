@@ -21,9 +21,9 @@ class MassFluxPlotter(Analyser):
     """
     analysis_name = 'mass_flux_plot'
     multi_expt = True
-    input_dir = 'omnium_output/{version_dir}'
-    input_filename = '{input_dir}/{expt}/atmos.mass_flux_combined.nc'
-    output_dir = 'omnium_output/{version_dir}/suite'
+    input_dir = 'omnium_output/{version_dir}/{expt}'
+    input_filename = '{input_dir}/atmos.mass_flux_combined.nc'
+    output_dir = 'omnium_output/{version_dir}/suite_{expts}'
     output_filenames = ['{output_dir}/atmos.mass_flux_plot.dummy']
 
     settings = settings
@@ -56,7 +56,7 @@ class MassFluxPlotter(Analyser):
 
         linregress_details = ['z, expt, m, c, rval, pval, stderr']
 
-        for expt in self.expts:
+        for expt in self.task.expts:
             cubes = self.expt_cubes[expt]
             sorted_cubes = []
 

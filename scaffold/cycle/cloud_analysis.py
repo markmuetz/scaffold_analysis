@@ -30,11 +30,23 @@ class CloudAnalyser(Analyser):
     analysis_name = 'cloud_analysis'
     single_file = True
     input_dir = 'share/data/history/{expt}'
-    input_filename = '{input_dir}/atmos.???.pp1.nc'
+    input_filename_glob = '{input_dir}/atmos.???.pp1.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
-    output_filenames = ['{output_dir}/atmos.{runid}.cloud_analysis.nc']
+    output_filenames = ['{output_dir}/atmos.{runid:03}.cloud_analysis.nc']
+    uses_runid = True
+    runid_pattern = 'atmos.(?P<runid>\d{3}).pp1.nc'
 
     settings = settings
+
+    def load(self):
+        self.load_cubes()
+
+    def run(self):
+        self._apply_cloud_thresholds()
+        self._label_clouds()
+
+    def save(self, state, suite):
+        self.save_results_cubes(state, suite)
 
     def _apply_cloud_thresholds(self):
         cubes = self.cubes
@@ -159,13 +171,3 @@ class CloudAnalyser(Analyser):
                 labelled_clouds_cube.rename(labelled_clouds_cube_id)
                 labelled_clouds_cube.data = labelled_clouds_data
                 self.results[labelled_clouds_cube_id] = labelled_clouds_cube
-
-    def load(self):
-        self.load_cubes()
-
-    def run(self):
-        self._apply_cloud_thresholds()
-        self._label_clouds()
-
-    def save(self, state, suite):
-        self.save_results_cubes(state, suite)

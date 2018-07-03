@@ -30,5 +30,3 @@ def interp_vert_rho2w(vertlevs, w_slice, rho_slice, time_index, height_level_ind
 
     rho_ss_interp = (1 - alpha) * rho_ss_lower + alpha * rho_ss_upper
     return rho_ss_interp
-
-

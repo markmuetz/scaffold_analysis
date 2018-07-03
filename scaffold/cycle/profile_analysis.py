@@ -44,162 +44,6 @@ class ProfileAnalyser(Analyser):
 
     settings = settings
 
-    def _plot_uv(self):
-        u_profile = self.results['u_profile']
-        v_profile = self.results['v_profile']
-        height = u_profile.coord('level_height').points
-        plt.figure(self.output_filename + '_uv_profile')
-        plt.clf()
-        plt.title(self.output_filename + '_uv_profile')
-
-        plt.plot(u_profile.data, height, 'g-', label='u')
-        plt.plot(v_profile.data, height, 'b--', label='v')
-
-        plt.ylabel('height (m)')
-        plt.xlabel('(m s$^{-1}$)')
-
-        plt.legend()
-        plt.savefig(self.file_path('uv_profile.png'))
-
-    def _plot_theta_qcl(self):
-        plt.figure('theta')
-        theta_profile = self.results['theta_profile']
-        theta_cloud_profile = self.results['theta_cloud_profile']
-        theta_not_cloud_profile = self.results['theta_not_cloud_profile']
-        height = theta_profile.coord('level_height').points
-        plt.title(self.expt)
-        plt.plot(theta_profile.data, height, 'g-', label='theta')
-        plt.plot(theta_cloud_profile.data, height, 'g--', label='theta cloud')
-        plt.plot(theta_not_cloud_profile.data, height, 'g.', label='theta not_cloud')
-        plt.xlim((250, 500))
-        plt.ylim((0, 20000))
-        plt.xlabel('theta (K)')
-        plt.ylabel('height (m)')
-        plt.legend()
-        plt.savefig(self.file_path('theta_profile.png'))
-
-        plt.figure('qcl')
-        qcl_profile = self.results['qcl_profile']
-        qcl_cloud_profile = self.results['qcl_cloud_profile']
-        qcl_not_cloud_profile = self.results['qcl_not_cloud_profile']
-        height = qcl_profile.coord('level_height').points
-        plt.title(self.expt)
-        plt.plot(qcl_profile.data * 1000, height, 'g-', label='qcl')
-        plt.plot(qcl_cloud_profile.data * 1000, height, 'g--', label='qcl cloud')
-        plt.plot(qcl_not_cloud_profile.data * 1000, height, 'g.', label='qcl not_cloud')
-        plt.ylim((0, 20000))
-        plt.xlabel('qcl (g kg$^{-1}$)')
-        plt.ylabel('height (m)')
-        plt.legend()
-        plt.savefig(self.file_path('qcl_profile.png'))
-
-        #plt.figure('qgr')
-        qgr_profile = self.results['qgr_profile']
-        plt.title(self.expt)
-        plt.plot(qgr_profile.data * 1000, height, 'r-', label='qgr')
-        plt.ylim((0, 20000))
-        plt.xlabel('qgr (g kg$^{-1}$)')
-        plt.ylabel('height (m)')
-        plt.legend()
-        #plt.savefig(self.file_path('qgr_profile.png'))
-
-        #plt.figure('qcf')
-        qcf_profile = self.results['qcf_profile']
-        plt.title(self.expt)
-        plt.plot(qcf_profile.data * 1000, height, 'b-', label='qcf')
-        plt.xlim((0, 0.1))
-        plt.ylim((0, 20000))
-        plt.xlabel('qcf (g kg$^{-1}$)')
-        plt.ylabel('height (m)')
-        plt.legend()
-        plt.savefig(self.file_path('hydrom_profile.png'))
-
-    def _plot_momentum_flux(self):
-        u_mom_flux_ts = self.results['u_mom_flux_ts']
-        v_mom_flux_ts = self.results['v_mom_flux_ts']
-        z = u_mom_flux_ts.coord('level_height').points
-
-        plt.figure(self.output_filename + '_momentum_flux_profile')
-        plt.clf()
-        plt.title(self.output_filename + '_momentum_flux_profile')
-
-        plt.plot(u_mom_flux_ts.data.mean(axis=0), z, 'g-', label='u')
-        plt.plot(v_mom_flux_ts.data.mean(axis=0), z, 'b--', label='v')
-        plt.ylabel('height (m)')
-        plt.xlabel('mom flux (kg m$^{-1}$ s$^{-2}$)')
-        plt.legend()
-        plt.savefig(self.file_path('momentum_flux_profile.png'))
-
-    def _plot_mass_flux(self):
-        mf_cloud_profile = self.results['mf_cloud_profile']
-        mf_w_profile = self.results['mf_w_profile']
-        mf_qcl_profile = self.results['mf_qcl_profile']
-        height = mf_cloud_profile.coord('level_height').points
-
-        clouds_cloud_profile = self.results['clouds_cloud_profile']
-        clouds_w_profile = self.results['clouds_w_profile']
-        clouds_qcl_profile = self.results['clouds_qcl_profile']
-
-        plt.clf()
-        plt.title(self.expt + ': mf/cloud')
-        plt.plot(mf_cloud_profile.data, height, label='cloud mask')
-        plt.plot(mf_w_profile.data, height, label='w mask')
-        plt.plot(mf_qcl_profile.data, height, label='qcl mask')
-        plt.ylim((0, 20000))
-        if self.mfpercloud_profile_xlim:
-            plt.xlim(self.mfpercloud_profile_xlim)
-        plt.legend()
-        plt.savefig(self.file_path('mfpercloud_profile.png'))
-
-        plt.clf()
-        plt.title(self.expt + ': #clouds')
-        plt.plot(clouds_cloud_profile.data, height, label='cloud mask')
-        plt.plot(clouds_w_profile.data, height, label='w mask')
-        plt.plot(clouds_qcl_profile.data, height, label='qcl mask')
-        plt.ylim((0, 20000))
-        if self.cloud_profile_xlim:
-            plt.xlim(self.cloud_profile_xlim)
-        plt.legend()
-        plt.savefig(self.file_path('numclouds_profile.png'))
-
-        plt.clf()
-        plt.title(self.expt + ': total mf')
-        plt.plot(clouds_cloud_profile.data * mf_cloud_profile.data, height, label='cloud mask')
-        plt.plot(clouds_w_profile.data * mf_w_profile.data, height, label='w mask')
-        plt.plot(clouds_qcl_profile.data * mf_qcl_profile.data, height, label='qcl mask')
-        plt.ylim((0, 20000))
-        if self.mftotal_profile_xlim:
-            plt.xlim(self.mftotal_profile_xlim)
-        plt.legend()
-        plt.savefig(self.file_path('totalmf_profile.png'))
-
-    def calc_energy_loss_rate(self):
-        # Integ(-cp / g * C(z), p_0, p_TOA, dp)
-        # 1e2: convert hPa to Pa.
-        p_profile = self.results['pressure_profile']  # Pa
-        pdata = p_profile.data
-
-        p0 = pdata[0]
-        # N.B. these are all -ve.
-        dp = (pdata[2:] - pdata[:-2]) / 2
-
-        # Calc analytically (C(z) const)
-        # loss, therefore want +ve.
-        C_max = 2. / 86400  # [K/s]
-        E_loss_up_to_200hPa = cp / g * C_max * (p0 - 200 * 1e2)
-
-        # N.B slice means pdata[1:-1] has same length as dp.
-        # lin_region can be used on pdata[1:-1] or dp.
-        lin_region = (pdata[1:-1] < 200 * 1e2) & (pdata[1:-1] > 100 * 1e2)
-        # -ve.
-        cooling = -(1 - (200 * 1e2 - pdata[1:-1][lin_region])/(200 * 1e2 - 100 * 1e2)) * C_max
-
-        # +ve.
-        E_loss_lin_region = (cp / g * cooling * dp[lin_region]).sum()
-        E_loss = E_loss_up_to_200hPa + E_loss_lin_region
-        self.save_text('energy_loss.txt', 'Energy loss rate [W m-2]: {}\n'.format(E_loss))
-        p_profile.attributes['Energy loss rate [W m-2]'] = E_loss
-
     def load(self):
         self.load_cubes()
 
@@ -357,3 +201,159 @@ class ProfileAnalyser(Analyser):
         self._plot_momentum_flux()
         self._plot_mass_flux()
         plt.close('all')
+
+    def _plot_uv(self):
+        u_profile = self.results['u_profile']
+        v_profile = self.results['v_profile']
+        height = u_profile.coord('level_height').points
+        plt.figure(self.output_filename + '_uv_profile')
+        plt.clf()
+        plt.title(self.output_filename + '_uv_profile')
+
+        plt.plot(u_profile.data, height, 'g-', label='u')
+        plt.plot(v_profile.data, height, 'b--', label='v')
+
+        plt.ylabel('height (m)')
+        plt.xlabel('(m s$^{-1}$)')
+
+        plt.legend()
+        plt.savefig(self.file_path('uv_profile.png'))
+
+    def _plot_theta_qcl(self):
+        plt.figure('theta')
+        theta_profile = self.results['theta_profile']
+        theta_cloud_profile = self.results['theta_cloud_profile']
+        theta_not_cloud_profile = self.results['theta_not_cloud_profile']
+        height = theta_profile.coord('level_height').points
+        plt.title(self.expt)
+        plt.plot(theta_profile.data, height, 'g-', label='theta')
+        plt.plot(theta_cloud_profile.data, height, 'g--', label='theta cloud')
+        plt.plot(theta_not_cloud_profile.data, height, 'g.', label='theta not_cloud')
+        plt.xlim((250, 500))
+        plt.ylim((0, 20000))
+        plt.xlabel('theta (K)')
+        plt.ylabel('height (m)')
+        plt.legend()
+        plt.savefig(self.file_path('theta_profile.png'))
+
+        plt.figure('qcl')
+        qcl_profile = self.results['qcl_profile']
+        qcl_cloud_profile = self.results['qcl_cloud_profile']
+        qcl_not_cloud_profile = self.results['qcl_not_cloud_profile']
+        height = qcl_profile.coord('level_height').points
+        plt.title(self.expt)
+        plt.plot(qcl_profile.data * 1000, height, 'g-', label='qcl')
+        plt.plot(qcl_cloud_profile.data * 1000, height, 'g--', label='qcl cloud')
+        plt.plot(qcl_not_cloud_profile.data * 1000, height, 'g.', label='qcl not_cloud')
+        plt.ylim((0, 20000))
+        plt.xlabel('qcl (g kg$^{-1}$)')
+        plt.ylabel('height (m)')
+        plt.legend()
+        plt.savefig(self.file_path('qcl_profile.png'))
+
+        #plt.figure('qgr')
+        qgr_profile = self.results['qgr_profile']
+        plt.title(self.expt)
+        plt.plot(qgr_profile.data * 1000, height, 'r-', label='qgr')
+        plt.ylim((0, 20000))
+        plt.xlabel('qgr (g kg$^{-1}$)')
+        plt.ylabel('height (m)')
+        plt.legend()
+        #plt.savefig(self.file_path('qgr_profile.png'))
+
+        #plt.figure('qcf')
+        qcf_profile = self.results['qcf_profile']
+        plt.title(self.expt)
+        plt.plot(qcf_profile.data * 1000, height, 'b-', label='qcf')
+        plt.xlim((0, 0.1))
+        plt.ylim((0, 20000))
+        plt.xlabel('qcf (g kg$^{-1}$)')
+        plt.ylabel('height (m)')
+        plt.legend()
+        plt.savefig(self.file_path('hydrom_profile.png'))
+
+    def _plot_momentum_flux(self):
+        u_mom_flux_ts = self.results['u_mom_flux_ts']
+        v_mom_flux_ts = self.results['v_mom_flux_ts']
+        z = u_mom_flux_ts.coord('level_height').points
+
+        plt.figure(self.output_filename + '_momentum_flux_profile')
+        plt.clf()
+        plt.title(self.output_filename + '_momentum_flux_profile')
+
+        plt.plot(u_mom_flux_ts.data.mean(axis=0), z, 'g-', label='u')
+        plt.plot(v_mom_flux_ts.data.mean(axis=0), z, 'b--', label='v')
+        plt.ylabel('height (m)')
+        plt.xlabel('mom flux (kg m$^{-1}$ s$^{-2}$)')
+        plt.legend()
+        plt.savefig(self.file_path('momentum_flux_profile.png'))
+
+    def _plot_mass_flux(self):
+        mf_cloud_profile = self.results['mf_cloud_profile']
+        mf_w_profile = self.results['mf_w_profile']
+        mf_qcl_profile = self.results['mf_qcl_profile']
+        height = mf_cloud_profile.coord('level_height').points
+
+        clouds_cloud_profile = self.results['clouds_cloud_profile']
+        clouds_w_profile = self.results['clouds_w_profile']
+        clouds_qcl_profile = self.results['clouds_qcl_profile']
+
+        plt.clf()
+        plt.title(self.expt + ': mf/cloud')
+        plt.plot(mf_cloud_profile.data, height, label='cloud mask')
+        plt.plot(mf_w_profile.data, height, label='w mask')
+        plt.plot(mf_qcl_profile.data, height, label='qcl mask')
+        plt.ylim((0, 20000))
+        if self.mfpercloud_profile_xlim:
+            plt.xlim(self.mfpercloud_profile_xlim)
+        plt.legend()
+        plt.savefig(self.file_path('mfpercloud_profile.png'))
+
+        plt.clf()
+        plt.title(self.expt + ': #clouds')
+        plt.plot(clouds_cloud_profile.data, height, label='cloud mask')
+        plt.plot(clouds_w_profile.data, height, label='w mask')
+        plt.plot(clouds_qcl_profile.data, height, label='qcl mask')
+        plt.ylim((0, 20000))
+        if self.cloud_profile_xlim:
+            plt.xlim(self.cloud_profile_xlim)
+        plt.legend()
+        plt.savefig(self.file_path('numclouds_profile.png'))
+
+        plt.clf()
+        plt.title(self.expt + ': total mf')
+        plt.plot(clouds_cloud_profile.data * mf_cloud_profile.data, height, label='cloud mask')
+        plt.plot(clouds_w_profile.data * mf_w_profile.data, height, label='w mask')
+        plt.plot(clouds_qcl_profile.data * mf_qcl_profile.data, height, label='qcl mask')
+        plt.ylim((0, 20000))
+        if self.mftotal_profile_xlim:
+            plt.xlim(self.mftotal_profile_xlim)
+        plt.legend()
+        plt.savefig(self.file_path('totalmf_profile.png'))
+
+    def calc_energy_loss_rate(self):
+        # Integ(-cp / g * C(z), p_0, p_TOA, dp)
+        # 1e2: convert hPa to Pa.
+        p_profile = self.results['pressure_profile']  # Pa
+        pdata = p_profile.data
+
+        p0 = pdata[0]
+        # N.B. these are all -ve.
+        dp = (pdata[2:] - pdata[:-2]) / 2
+
+        # Calc analytically (C(z) const)
+        # loss, therefore want +ve.
+        C_max = 2. / 86400  # [K/s]
+        E_loss_up_to_200hPa = cp / g * C_max * (p0 - 200 * 1e2)
+
+        # N.B slice means pdata[1:-1] has same length as dp.
+        # lin_region can be used on pdata[1:-1] or dp.
+        lin_region = (pdata[1:-1] < 200 * 1e2) & (pdata[1:-1] > 100 * 1e2)
+        # -ve.
+        cooling = -(1 - (200 * 1e2 - pdata[1:-1][lin_region])/(200 * 1e2 - 100 * 1e2)) * C_max
+
+        # +ve.
+        E_loss_lin_region = (cp / g * cooling * dp[lin_region]).sum()
+        E_loss = E_loss_up_to_200hPa + E_loss_lin_region
+        self.save_text('energy_loss.txt', 'Energy loss rate [W m-2]: {}\n'.format(E_loss))
+        p_profile.attributes['Energy loss rate [W m-2]'] = E_loss

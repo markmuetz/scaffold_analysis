@@ -22,8 +22,8 @@ class SurfFluxPlot(Analyser):
     analysis_name = 'surf_flux_plot'
     multi_expt = True
 
-    input_dir = 'work/20000101T0000Z'
-    input_filename_glob = '{input_dir}/{expt}_atmos}/atmos.pp3.nc'
+    input_dir = 'work/20000101T0000Z/{expt}_atmos'
+    input_filename_glob = '{input_dir}/atmos.pp1.nc'
     output_dir = 'omnium_output/{version_dir}/suite'
     output_filenames = ['{output_dir}/atmos.surf_flux_plot.dummy']
 
@@ -41,12 +41,12 @@ class SurfFluxPlot(Analyser):
 
     def display_results(self):
         """Save all results for surf flux analysis."""
-        self.expts_to_plot = self.expts
+        self.expts_to_plot = self.task.expts
         self._plot()
 
     def _plot(self):
         lines = ['Expt,PFE [W m-2],LHF [W m-2],SHF [W m-2]']
-        for expt in self.expts:
+        for expt in self.task.expts:
             cubes = self.expt_cubes[expt]
 
             precip = get_cube(cubes, 4, 203)

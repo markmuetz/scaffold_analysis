@@ -13,7 +13,6 @@ from scaffold.expt.mass_flux_combined import MassFluxCombinedAnalysis
 from scaffold.expt.mass_flux_spatial_scales_combined import MassFluxSpatialScalesCombined
 from scaffold.expt.mse_combined import MseCombinedAnalysis
 from scaffold.expt.org_combined import OrgCombined
-from scaffold.expt.precip_hovmoller import PrecipHovmollerAnalyser
 from scaffold.expt.surf_flux_analysis import SurfFluxAnalyser
 
 from scaffold.suite.mass_flux_plot import MassFluxPlotter
@@ -23,6 +22,7 @@ from scaffold.suite.org_plot import OrgPlotter
 from scaffold.suite.precip_plot import PrecipPlot
 from scaffold.suite.profile_plot import ProfilePlotter
 from scaffold.suite.surf_flux_plot import SurfFluxPlot
+from scaffold.expt.precip_hovmoller import PrecipHovmollerAnalyser
 
 
 __version__ = VERSION

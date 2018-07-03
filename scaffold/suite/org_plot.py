@@ -22,8 +22,8 @@ class OrgPlotter(Analyser):
     """
     analysis_name = 'org_plot'
     multi_expt = True
-    input_dir = 'omnium_output/{version_dir}'
-    input_filename = '{input_dir}/{expt}/atmos.mass_flux_combined.nc'
+    input_dir = 'omnium_output/{version_dir}/{expt}'
+    input_filename = '{input_dir}/atmos.mass_flux_combined.nc'
     output_dir = 'omnium_output/{version_dir}/suite'
     output_filenames = ['{output_dir}/atmos.mass_flux_plot.dummy']
 

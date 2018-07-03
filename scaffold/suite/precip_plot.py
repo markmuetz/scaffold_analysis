@@ -13,14 +13,14 @@ class PrecipPlot(Analyser):
     """Pick out precip timesteps and plot."""
     analysis_name = 'precip_plot'
     multi_expt = True
-    input_dir = 'work/20000101T0000Z'
-    input_filename_glob = '{input_dir}/{expt}_atmos}/atmos.pp3.nc'
+    input_dir = 'work/20000101T0000Z/{expt}_atmos'
+    input_filename_glob = '{input_dir}/atmos.pp1.nc'
     output_dir = 'omnium_output/{version_dir}/suite'
     output_filenames = ['{output_dir}/atmos.precip_plot.dummy']
 
     settings = settings
 
-    expts_to_plot = ['S0_1km_data_test_6D_32nodes', 'S4_1km_data_test_6D_32nodes']
+    expts_to_plot = None
 
     def load(self):
         self.load_cubes()
@@ -36,8 +36,11 @@ class PrecipPlot(Analyser):
         self._plot()
 
     def _plot(self):
+        if not self.expts_to_plot:
+            self.expts_to_plot = self.task.expts
+
         precips = {}
-        for expt in self.expts:
+        for expt in self.task.expts:
             cubes = self.expt_cubes[expt]
             precip = get_cube(cubes, 4, 203)
             precips[expt] = precip
@@ -53,7 +56,7 @@ class PrecipPlot(Analyser):
 
             for ax, expt in zip(axes, self.expts_to_plot):
                 ax.set_title(expt)
-                if expt == self.expts[0]:
+                if expt == self.task.expts[0]:
                     ax.set_ylabel('y (km)')
                 else:
                     ax.get_yaxis().set_visible(False)
@@ -75,7 +78,7 @@ class PrecipPlot(Analyser):
                                #vmin=0, vmax=precip_max * 3600)
                                norm=LogNorm(vmin=precip_min, vmax=precip_max * 3600))
 
-            for expt in self.expts:
+            for expt in self.task.expts:
                 precip = precips[expt]
                 precip_data = precip[i].data * 3600
                 max_precips.append('{},{},{}'.format(i, expt, precip_data.max()))

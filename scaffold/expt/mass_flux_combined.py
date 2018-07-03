@@ -16,7 +16,7 @@ class MassFluxCombinedAnalysis(Analyser):
     analysis_name = 'mass_flux_combined'
     multi_file = True
     input_dir = 'omnium_output/{version_dir}/{expt}'
-    input_filename_glob = '{input_dir}/atmos.???.mass_flux_spatial_scales.nc'
+    input_filename_glob = '{input_dir}/atmos.???.mass_flux_analysis.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.mass_flux_combined.nc']
 
@@ -24,10 +24,11 @@ class MassFluxCombinedAnalysis(Analyser):
 
     def load(self):
         self.mass_fluxes = defaultdict(list)
-        for filename in self.filenames:
+        for filename in self.task.filenames:
             basename = os.path.basename(filename)
             runid = int(basename.split('.')[1])
-            if runid >= settings.start_runid:
+            # if runid >= settings.start_runid:
+            if runid >= 24:
                 logger.debug('adding runid: {}'.format(runid))
                 cubes = iris.load(filename)
                 for cube in cubes:

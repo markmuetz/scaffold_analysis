@@ -22,9 +22,9 @@ class ProfilePlotter(Analyser):
     analysis_name = 'profile_plot'
     multi_expt = True
 
-    input_dir = 'omnium_output/{version_dir}'
+    input_dir = 'omnium_output/{version_dir}/{expt}'
     # TODO: Not sure how this works with multile runids.
-    input_filename_glob = '{input_dir}/{expt}/atmos.???.profile_analysis.nc'
+    input_filename_glob = '{input_dir}/atmos.???.profile_analysis.nc'
     output_dir = 'omnium_output/{version_dir}/suite'
     output_filenames = ['{output_dir}/atmos.profile_plot.dummy']
 

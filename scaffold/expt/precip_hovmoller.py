@@ -15,9 +15,9 @@ class PrecipHovmollerAnalyser(Analyser):
     analysis_name = 'precip_hovmoller_analysis'
     single_file = True
 
-    input_dir = 'work/20000101T0000Z'
-    input_filename_glob = '{input_dir}/{expt}_atmos}/atmos.pp1.nc'
-    output_dir = 'omnium_output/{version_dir}/suite'
+    input_dir = 'work/20000101T0000Z/{expt}_atmos'
+    input_filename_glob = '{input_dir}/atmos.pp1.nc'
+    output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.precip_hovmoller_analysis.dummy']
 
     settings = settings
@@ -26,7 +26,7 @@ class PrecipHovmollerAnalyser(Analyser):
         self.load_cubes()
 
     def run(self):
-        self.precip = get_cube(self.cubes, 4, 203)
+        pass
 
     def save(self, state, suite):
         with open(self.task.output_filenames[0], 'w') as f:
@@ -34,10 +34,10 @@ class PrecipHovmollerAnalyser(Analyser):
 
     def display_results(self):
         """Save all results for surf flux analysis."""
-        self._plot()
+        self._plot(self.task.expt)
 
-    def _plot(self):
-        precip = self.precip
+    def _plot(self, expt):
+        precip = get_cube(self.cubes, 4, 203)
 
         start_time = precip.coord('time').points[0]
         times = precip.coord('time').points - start_time
@@ -56,7 +56,7 @@ class PrecipHovmollerAnalyser(Analyser):
         hov_y = precip.data.mean(axis=2)
 
         plt.clf()
-        plt.title('{} Hovmöller (x)'.format(self.expt))
+        plt.title('{} Hovmöller (x)'.format(expt))
         # Mask out very small values of precip.
         mask = hov_x < 0.00001
         plt.imshow(np.ma.masked_array(hov_x, mask), interpolation='nearest',
@@ -66,10 +66,10 @@ class PrecipHovmollerAnalyser(Analyser):
         cb.set_label('precip. (mm hr$^{-1}$)')
         plt.xlabel('x (km)')
         plt.ylabel('time (day)')
-        plt.savefig(self.file_path('hovmoller_x.png'))
+        plt.savefig(self.file_path(expt + '_hovmoller_x.png'))
         plt.clf()
 
-        plt.title('{} Hovmöller (y)'.format(self.expt))
+        plt.title('{} Hovmöller (y)'.format(expt))
         # Mask out very small values of precip.
         mask = hov_y < 0.00001
         plt.imshow(np.ma.masked_array(hov_y, mask), interpolation='nearest',
@@ -79,4 +79,4 @@ class PrecipHovmollerAnalyser(Analyser):
         cb.set_label('precip. (mm hr$^{-1}$)')
         plt.xlabel('y (km)')
         plt.ylabel('time (day)')
-        plt.savefig(self.file_path('hovmoller_y.png'))
+        plt.savefig(self.file_path(expt + '_hovmoller_y.png'))

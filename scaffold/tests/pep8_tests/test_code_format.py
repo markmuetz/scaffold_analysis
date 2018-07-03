@@ -20,14 +20,6 @@ def test_src_generator():
         yield _test_conformance_in_file, filename
 
 
-def test_tests_generator():
-    filenames = _get_python_filenames('.')
-    for filename in filenames:
-        if 'test_suite' in filename:
-            continue
-        yield _test_conformance_in_file, filename
-
-
 def _test_conformance_in_file(filename):
     print(filename)
     # Ignore E402 -

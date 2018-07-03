@@ -22,10 +22,12 @@ class MassFluxAnalyser(Analyser):
     """
     analysis_name = 'mass_flux_analysis'
     single_file = True
-    input_dir = 'share/data/history/{expt}'
+    input_dir = 'omnium_output/{version_dir}/{expt}'
     input_filename_glob = '{input_dir}/atmos.???.cloud_analysis.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
-    output_filenames = ['{output_dir}/atmos.{runid}.mass_flux_analysis.nc']
+    output_filenames = ['{output_dir}/atmos.{runid:03}.mass_flux_analysis.nc']
+    uses_runid = True
+    runid_pattern = 'atmos.(?P<runid>\d{3}).cloud_analysis.nc'
 
     settings = settings
 
