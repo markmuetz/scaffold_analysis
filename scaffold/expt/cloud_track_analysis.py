@@ -8,6 +8,8 @@ from omnium.utils import get_cube_from_attr
 from cloud_tracking import Tracker
 from cloud_tracking.cloud_tracking_analysis import generate_stats, plot_stats, output_stats_to_file
 
+from scaffold.scaffold_settings import settings
+
 logger = getLogger('scaf.cta')
 
 
@@ -19,7 +21,12 @@ class CloudTrackAnalyser(Analyser):
     forward in time. Most heavy lifting is handled by cloud_tracking package."""
     analysis_name = 'cloud_track_analysis'
     multi_file = True
-    input_dir = 'share/data/history/{expt}'
+    input_dir = 'omnium_output/{version_dir}/{expt}'
+    input_filename_glob = '{input_dir}/atmos.???.cloud_analysis.nc'
+    output_dir = 'omnium_output/{version_dir}/{expt}'
+    output_filenames = ['{output_dir}/atmos.cloud_track_analysis.nc']
+
+    settings = settings
 
     def load(self):
         self.load_cubes()
@@ -71,11 +78,11 @@ class CloudTrackAnalyser(Analyser):
                 self.all_stats[(height_level_index, thresh_index)] = stats
 
     def save(self, state, suite):
-        self.save_results_cubes()
+        self.save_results_cubes(state, suite)
 
     def display_results(self):
         self.append_log('displaying results')
-        figpath = self.figpath('cloud_tracking')
+        figpath = self.file_path('cloud_tracking')
 
         cubes = self.cubes
         cloud_mask_id = 'cloud_mask'

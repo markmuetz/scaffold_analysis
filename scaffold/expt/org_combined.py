@@ -9,6 +9,7 @@ from scaffold.scaffold_settings import settings
 
 logger = getLogger('scaf.oc')
 
+
 class OrgCombined(Analyser):
     """Combines the organizational data for runid >= self.start_runid."""
     analysis_name = 'org_combined'
@@ -17,6 +18,7 @@ class OrgCombined(Analyser):
     input_filename_glob = '{input_dir}/atmos.???.org_analysis.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.org_combined.nc']
+    # TODO: runid
 
     settings = settings
 

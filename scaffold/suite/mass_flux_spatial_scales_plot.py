@@ -9,6 +9,7 @@ import pylab as plt
 from omnium.analyser import Analyser
 
 from scaffold.utils import cm_to_inch
+from scaffold.scaffold_settings import settings
 
 
 class MassFluxSpatialScalesPlotter(Analyser):
@@ -16,23 +17,31 @@ class MassFluxSpatialScalesPlotter(Analyser):
     analysis_name = 'mass_flux_spatial_scales_plot'
     multi_expt = True
 
-    def set_config(self, config):
-        super(MassFluxSpatialScalesPlotter, self).set_config(config)
-        self.nbins = config.getint('nbins', None)
-        self.x_cutoff = config.getfloat('x_cutoff', 0)
+    input_dir = 'omnium_output/{version_dir}'
+    input_filename = '{input_dir}/{expt}/atmos.mass_flux_spatial_scales_combined.nc'
+    output_dir = 'omnium_output/{version_dir}/suite'
+    output_filenames = ['{output_dir}/atmos.mass_flux_spatial_scales_plot.dummy']
 
-        if 'xlim' in config:
-            self.xlim = [float(v) for v in config['xlim'].split(',')]
-        else:
-            self.xlim = None
+    settings = settings
 
-        if 'ylim' in config:
-            self.ylim = [float(v) for v in config['ylim'].split(',')]
-        else:
-            self.ylim = None
+    def load(self):
+        self.load_cubes()
 
-    def run_analysis(self):
+    def run(self):
         pass
+
+    def save(self, state, suite):
+        with open(self.task.output_filenames[0], 'w') as f:
+            f.write('done')
+
+    def display_results(self):
+        self.nbins = None
+        self.x_cutoff = 0
+        self.xlim = None
+        self.ylim = None
+
+        self._plot_mass_flux_spatial()
+        plt.close('all')
 
     def _plot_mass_flux_spatial(self):
         self.append_log('plotting mass_flux_spatial')
@@ -99,7 +108,7 @@ class MassFluxSpatialScalesPlotter(Analyser):
                         plt.xlim(self.xlim)
                     if self.ylim:
                         plt.ylim(self.ylim)
-                    plt.savefig(self.figpath(name + '.png'))
+                    plt.savefig(self.file_path(name + '.png'))
 
                     name = '{}.z{}.all_n.hist'.format(expt, height_index)
                     plt.figure(name)
@@ -148,7 +157,7 @@ class MassFluxSpatialScalesPlotter(Analyser):
             ax1, ax2 = f.axes
             ax1.legend(loc='upper right')
             ax2.legend(loc='upper right')
-            plt.savefig(self.figpath('both_z{}.png'.format(height_index)))
+            plt.savefig(self.file_path('both_z{}.png'.format(height_index)))
 
             f_p = plt.figure('poster_both_z{}'.format(height_index))
             f_p.set_size_inches(*cm_to_inch(25, 9))
@@ -156,14 +165,14 @@ class MassFluxSpatialScalesPlotter(Analyser):
             ax1_p.legend(loc='upper right')
             ax2_p.legend(loc='upper right')
             plt.tight_layout()
-            plt.savefig(self.figpath('poster_both_z{}.png'.format(height_index)))
+            plt.savefig(self.file_path('poster_both_z{}.png'.format(height_index)))
 
             for expt in self.expts:
                 name = '{}.z{}.all_n.hist'.format(expt, height_index)
                 plt.figure(name)
                 plt.title(name)
                 plt.legend()
-                plt.savefig(self.figpath(name + '.png'))
+                plt.savefig(self.file_path(name + '.png'))
 
             for n in ns:
                 plt.figure('combined_expt_z{}_n{}'.format(height_index, n))
@@ -171,8 +180,4 @@ class MassFluxSpatialScalesPlotter(Analyser):
                 plt.legend()
                 if self.xlim:
                     plt.xlim(self.xlim)
-                plt.savefig(self.figpath('z{}_n{}_combined.png'.format(height_index, n)))
-
-    def display_results(self):
-        self._plot_mass_flux_spatial()
-        plt.close('all')
+                plt.savefig(self.file_path('z{}_n{}_combined.png'.format(height_index, n)))

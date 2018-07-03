@@ -12,6 +12,7 @@ from omnium.utils import get_cube
 from omnium.consts import L
 
 from scaffold.colour import EXPT_COLOUR
+from scaffold.scaffold_settings import settings
 
 logger = getLogger('scaf.prof_an')
 
@@ -21,12 +22,27 @@ class SurfFluxPlot(Analyser):
     analysis_name = 'surf_flux_plot'
     multi_expt = True
 
-    def set_config(self, config):
-        super(SurfFluxPlot, self).set_config(config)
-        if 'expts_to_plot' in config:
-            self.expts_to_plot = config['expts_to_plot'].split(',')
-        else:
-            self.expts_to_plot = self.expts
+    input_dir = 'work/20000101T0000Z'
+    input_filename_glob = '{input_dir}/{expt}_atmos}/atmos.pp3.nc'
+    output_dir = 'omnium_output/{version_dir}/suite'
+    output_filenames = ['{output_dir}/atmos.surf_flux_plot.dummy']
+
+    settings = settings
+
+    def load(self):
+        self.load_cubes()
+
+    def run(self):
+        pass
+
+    def save(self, state, suite):
+        with open(self.task.output_filenames[0], 'w') as f:
+            f.write('done')
+
+    def display_results(self):
+        """Save all results for surf flux analysis."""
+        self.expts_to_plot = self.expts
+        self._plot()
 
     def _plot(self):
         lines = ['Expt,PFE [W m-2],LHF [W m-2],SHF [W m-2]']
@@ -71,11 +87,4 @@ class SurfFluxPlot(Analyser):
         plt.ylabel('flux (W m$^{-2}$)')
         plt.xlabel('time (day)')
         plt.axvline(x=20, linestyle='--', color='k')
-        plt.savefig(self.figpath('energy_fluxes.png'))
-
-    def run_analysis(self):
-        pass
-
-    def display_results(self):
-        """Save all results for surf flux analysis."""
-        self._plot()
+        plt.savefig(self.file_path('energy_fluxes.png'))

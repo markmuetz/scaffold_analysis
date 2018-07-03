@@ -131,7 +131,7 @@ class OrgAnalyser(Analyser):
 
         plt.xlim((0, 120))
         plt.ylim((0, 20))
-        plt.savefig(self.figpath('dists_hist.png'))
+        plt.savefig(self.file_path('dists_hist.png'))
 
     def _get_cloud_pos(self, clouds):
         "For each cloud, calc its centroid."

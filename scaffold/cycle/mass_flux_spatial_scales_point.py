@@ -7,14 +7,26 @@ from cloud_tracking.utils import label_clds
 from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr
 
+from scaffold.scaffold_settings import settings
+
 logger = getLogger('scaf.mfssp')
 
 
 class MassFluxSpatialScalesPoint(Analyser):
     analysis_name = 'mass_flux_spatial_scales_point'
     single_file = True
+    input_dir = 'share/data/history/{expt}'
+    input_filename_glob = '{input_dir}/atmos.???.cloud_analysis.nc'
+    output_dir = 'omnium_output/{version_dir}/{expt}'
+    output_filenames = ['{output_dir}/atmos.{runid}.mass_flux_spatial_scales_analysis.nc']
 
-    def run_analysis(self):
+    settings = settings
+
+    def load(self):
+        self.load_cubes()
+
+    def run(self):
+        raise NotImplemented('Need to check implementation')
         cubes = self.cubes
 
         w = get_cube_from_attr(cubes, 'omnium_cube_id', 'w_slice')
@@ -77,3 +89,6 @@ class MassFluxSpatialScalesPoint(Analyser):
 
             mass_flux_spatial_cube.attributes['mass_flux_spatial_key'] = key
             self.results[name] = mass_flux_spatial_cube
+
+    def save(self, state, suite):
+        self.save_results_cubes(state, suite)

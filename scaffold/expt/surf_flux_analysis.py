@@ -8,11 +8,44 @@ from omnium.analyser import Analyser
 from omnium.utils import get_cube
 from omnium.consts import L
 
+from scaffold.scaffold_settings import settings
+
 
 class SurfFluxAnalyser(Analyser):
     """Analyse surface fluxes, plot graphs of energy/moisture fluxes."""
     analysis_name = 'surf_flux_analysis'
     single_file = True
+    input_dir = 'work/20000101T0000Z/{expt}_atmos'
+    input_filename = '{input_dir}/atmos.pp3.nc'
+    output_dir = 'omnium_output/{version_dir}/{expt}'
+    output_filenames = ['{output_dir}/atmos.surf_flux_analysis.nc']
+
+    settings = settings
+
+    def load(self):
+        self.load_cubes()
+
+    def save(self, state, suite):
+        self.save_results_cubes(state, suite)
+
+    def run(self):
+        cubes = self.cubes
+
+        precip = get_cube(cubes, 4, 203)
+        lhf = get_cube(cubes, 3, 234)
+        shf = get_cube(cubes, 3, 217)
+
+        self.precip_ts = precip.collapsed(['grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
+        self.lhf_ts = lhf.collapsed(['grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
+        self.shf_ts = shf.collapsed(['grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
+
+        self.results['precip_ts'] = self.precip_ts
+        self.results['lhf_ts'] = self.lhf_ts
+        self.results['shf_ts'] = self.shf_ts
+
+    def display_results(self):
+        """Save all results for surf flux analysis."""
+        self._plot()
 
     def _plot(self):
         precip_ts = self.results['precip_ts']
@@ -36,7 +69,7 @@ class SurfFluxAnalyser(Analyser):
         plt.legend()
         plt.ylabel('flux (W m$^{-2}$)')
         plt.xlabel('time (hrs)')
-        plt.savefig(self.figpath('energy_fluxes.png'))
+        plt.savefig(self.file_path('energy_fluxes.png'))
 
         plt.figure(self.output_filename + '_water_fluxes')
         plt.clf()
@@ -48,23 +81,4 @@ class SurfFluxAnalyser(Analyser):
         plt.legend()
         plt.ylabel('water flux (mm hr$^{-1}$)')
         plt.xlabel('time (hrs)')
-        plt.savefig(self.figpath('water_fluxes.png'))
-
-    def run_analysis(self):
-        cubes = self.cubes
-
-        precip = get_cube(cubes, 4, 203)
-        lhf = get_cube(cubes, 3, 234)
-        shf = get_cube(cubes, 3, 217)
-
-        self.precip_ts = precip.collapsed(['grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
-        self.lhf_ts = lhf.collapsed(['grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
-        self.shf_ts = shf.collapsed(['grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
-
-        self.results['precip_ts'] = self.precip_ts
-        self.results['lhf_ts'] = self.lhf_ts
-        self.results['shf_ts'] = self.shf_ts
-
-    def display_results(self):
-        """Save all results for surf flux analysis."""
-        self._plot()
+        plt.savefig(self.file_path('water_fluxes.png'))

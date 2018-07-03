@@ -9,10 +9,8 @@ import pylab as plt
 from omnium.analyser import Analyser
 
 from scaffold.utils import cm_to_inch
-
-
-LX = 256000
-LY = 256000
+from scaffold.suite_settings import LX, LY
+from scaffold.scaffold_settings import settings
 
 
 class OrgPlotter(Analyser):
@@ -24,22 +22,30 @@ class OrgPlotter(Analyser):
     """
     analysis_name = 'org_plot'
     multi_expt = True
+    input_dir = 'omnium_output/{version_dir}'
+    input_filename = '{input_dir}/{expt}/atmos.mass_flux_combined.nc'
+    output_dir = 'omnium_output/{version_dir}/suite'
+    output_filenames = ['{output_dir}/atmos.mass_flux_plot.dummy']
 
-    def set_config(self, config):
-        super(OrgPlotter, self).set_config(config)
-        if 'xlim' in config:
-            self.xlim = [float(v) for v in config['xlim'].split(',')]
-        else:
-            self.xlim = None
+    settings = settings
 
-        if 'ylim' in config:
-            self.ylim = [float(v) for v in config['ylim'].split(',')]
-        else:
-            self.ylim = None
-        self.nbins = config.getint('nbins', None)
+    def load(self):
+        self.load_cubes()
 
-    def run_analysis(self):
+    def run(self):
         pass
+
+    def save(self, state, suite):
+        with open(self.task.output_filenames[0], 'w') as f:
+            f.write('done')
+
+    def display_results(self):
+        self.xlim = None
+        self.ylim = None
+        self.nbins = None
+
+        self._plot_org_hist()
+        plt.close('all')
 
     def _plot_org_hist(self):
         self.append_log('plotting org')
@@ -141,18 +147,14 @@ class OrgPlotter(Analyser):
             plt.figure('combined_expt_z{}'.format(group))
             #plt.title('combined_expt_z{}'.format(group))
             plt.legend(loc='upper right')
-            plt.savefig(self.figpath('z{}_combined.png'.format(group)))
+            plt.savefig(self.file_path('z{}_combined.png'.format(group)))
 
             plt.figure('combined_expt_z{}_log'.format(group))
             plt.legend(loc='upper right')
-            plt.savefig(self.figpath('z{}_combined_log.png'.format(group)))
+            plt.savefig(self.file_path('z{}_combined_log.png'.format(group)))
 
             fig = plt.figure('poster_combined_expt_z{}_log'.format(group))
             fig.set_size_inches(*cm_to_inch(25, 7))
             plt.legend(loc='upper center', ncol=5)
             plt.tight_layout()
-            plt.savefig(self.figpath('poster_z{}_combined_log.png'.format(group)))
-
-    def display_results(self):
-        self._plot_org_hist()
-        plt.close('all')
+            plt.savefig(self.file_path('poster_z{}_combined_log.png'.format(group)))

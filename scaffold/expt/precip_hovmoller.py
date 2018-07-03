@@ -7,11 +7,34 @@ import pylab as plt
 from omnium.analyser import Analyser
 from omnium.utils import get_cube
 
+from scaffold.scaffold_settings import settings
+
 
 class PrecipHovmollerAnalyser(Analyser):
     """Produce a Hovmoller of precipitation."""
     analysis_name = 'precip_hovmoller_analysis'
     single_file = True
+
+    input_dir = 'work/20000101T0000Z'
+    input_filename_glob = '{input_dir}/{expt}_atmos}/atmos.pp1.nc'
+    output_dir = 'omnium_output/{version_dir}/suite'
+    output_filenames = ['{output_dir}/atmos.precip_hovmoller_analysis.dummy']
+
+    settings = settings
+
+    def load(self):
+        self.load_cubes()
+
+    def run(self):
+        self.precip = get_cube(self.cubes, 4, 203)
+
+    def save(self, state, suite):
+        with open(self.task.output_filenames[0], 'w') as f:
+            f.write('done')
+
+    def display_results(self):
+        """Save all results for surf flux analysis."""
+        self._plot()
 
     def _plot(self):
         precip = self.precip
@@ -43,7 +66,7 @@ class PrecipHovmollerAnalyser(Analyser):
         cb.set_label('precip. (mm hr$^{-1}$)')
         plt.xlabel('x (km)')
         plt.ylabel('time (day)')
-        plt.savefig(self.figpath('hovmoller_x.png'))
+        plt.savefig(self.file_path('hovmoller_x.png'))
         plt.clf()
 
         plt.title('{} Hovmöller (y)'.format(self.expt))
@@ -56,13 +79,4 @@ class PrecipHovmollerAnalyser(Analyser):
         cb.set_label('precip. (mm hr$^{-1}$)')
         plt.xlabel('y (km)')
         plt.ylabel('time (day)')
-        plt.savefig(self.figpath('hovmoller_y.png'))
-
-    def run_analysis(self):
-        cubes = self.cubes
-
-        self.precip = get_cube(cubes, 4, 203)
-
-    def display_results(self):
-        """Save all results for surf flux analysis."""
-        self._plot()
+        plt.savefig(self.file_path('hovmoller_y.png'))

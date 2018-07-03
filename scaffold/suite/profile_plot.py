@@ -13,6 +13,7 @@ from omnium.utils import get_cube_from_attr
 
 from scaffold.vertlev import VertLev
 from scaffold.utils import cm_to_inch
+from scaffold.scaffold_settings import settings
 
 logger = getLogger('scaf.prof_plot')
 
@@ -20,10 +21,39 @@ logger = getLogger('scaf.prof_plot')
 class ProfilePlotter(Analyser):
     analysis_name = 'profile_plot'
     multi_expt = True
+
+    input_dir = 'omnium_output/{version_dir}'
+    # TODO: Not sure how this works with multile runids.
+    input_filename_glob = '{input_dir}/{expt}/atmos.???.profile_analysis.nc'
+    output_dir = 'omnium_output/{version_dir}/suite'
+    output_filenames = ['{output_dir}/atmos.profile_plot.dummy']
+
+    settings = settings
+
     base_u_profile = np.array([(0, -2), (1e3, -3), (12e3, 2.5), (14.5e3, 0), (40e3, 0)])
 
-    def run_analysis(self):
+    def load(self):
+        self.load_cubes()
+
+    def run(self):
         pass
+
+    def save(self, state, suite):
+        with open(self.task.output_filenames[0], 'w') as f:
+            f.write('done')
+
+    def display_results(self):
+        rcParams.update({'figure.autolayout': True})
+        self._plot_input_profiles()
+        self._plot_uv_profile()
+        self._plot_thermodynamic_profile()
+        self._plot_mf_profile()
+        self._plot_dz_profile()
+        self._plot_momentum_flux()
+        self._plot_cooling()
+        self._plot_poster_shear_profiles()
+        rcParams.update({'figure.autolayout': False})
+        plt.close('all')
 
     def _plot_poster_shear_profiles(self):
         f, ax1 = plt.subplots(1, 1, sharey=True)
@@ -56,7 +86,7 @@ class ProfilePlotter(Analyser):
 
         #plt.tight_layout()
         #plt.subplots_adjust(wspace=0)
-        plt.savefig(self.figpath('poster_shear_profiles.png'))
+        plt.savefig(self.file_path('poster_shear_profiles.png'))
 
     def _plot_input_profiles(self):
         f, (ax1, ax2, ax3) = plt.subplots(1, 3, sharey=True)
@@ -108,7 +138,7 @@ class ProfilePlotter(Analyser):
 
         #plt.tight_layout()
         #plt.subplots_adjust(wspace=0)
-        plt.savefig(self.figpath('input_profiles.png'))
+        plt.savefig(self.file_path('input_profiles.png'))
 
     def _plot_uv_profile(self):
         fig = plt.figure('uv_profile', figsize=(3.5, 4.5), dpi=1200)
@@ -131,7 +161,7 @@ class ProfilePlotter(Analyser):
         plt.xlabel('u profile (m s$^{-1}$)')
         plt.legend(loc='upper left')
         plt.tight_layout()
-        plt.savefig(self.figpath('uv_profile.png'))
+        plt.savefig(self.file_path('uv_profile.png'))
 
     def _plot_thermodynamic_profile(self):
         plt.figure('thermodynamic_profile')
@@ -193,7 +223,7 @@ class ProfilePlotter(Analyser):
             #ax2.plot(theta_not_cloud_profile.data, height, color=colour, marker='+')
 
         ax2.set_xlabel('hydrometeors (g kg$^{-1}$)')
-        plt.savefig(self.figpath('thermodynamic_profile.png'))
+        plt.savefig(self.file_path('thermodynamic_profile.png'))
 
     def _plot_mf_profile(self):
         plt.figure('mf_profile')
@@ -225,7 +255,7 @@ class ProfilePlotter(Analyser):
         ax3.set_xlim((0, 100))
 
         plt.legend(loc='upper right')
-        plt.savefig(self.figpath('mf_profile.png'))
+        plt.savefig(self.file_path('mf_profile.png'))
 
     def _plot_dz_profile(self):
         try:
@@ -250,7 +280,7 @@ class ProfilePlotter(Analyser):
         plt.plot(dz_theta, z_rho)
         plt.xlabel('$\\Delta z$ theta (m)')
         plt.ylabel('height (m)')
-        plt.savefig(self.figpath('dz_profile.png'))
+        plt.savefig(self.file_path('dz_profile.png'))
 
     def _plot_momentum_flux(self):
         fig = plt.figure('momf_profile', figsize=(3.5, 4.5), dpi=1200)
@@ -267,7 +297,7 @@ class ProfilePlotter(Analyser):
 
         plt.ylim((0, 20))
         plt.legend(loc='upper left')
-        plt.savefig(self.figpath('momentum_flux_profile.png'))
+        plt.savefig(self.file_path('momentum_flux_profile.png'))
 
     def _plot_cooling(self):
         for expt in self.expts:
@@ -291,17 +321,4 @@ class ProfilePlotter(Analyser):
             plt.ylabel('height (km)')
             plt.xlabel('prescribed heating (K day$^{-1}$)')
 
-            plt.savefig(self.figpath('{}.pressure_profile.png'.format(expt)))
-
-    def display_results(self):
-        rcParams.update({'figure.autolayout': True})
-        self._plot_input_profiles()
-        self._plot_uv_profile()
-        self._plot_thermodynamic_profile()
-        self._plot_mf_profile()
-        self._plot_dz_profile()
-        self._plot_momentum_flux()
-        self._plot_cooling()
-        self._plot_poster_shear_profiles()
-        rcParams.update({'figure.autolayout': False})
-        plt.close('all')
+            plt.savefig(self.file_path('{}.pressure_profile.png'.format(expt)))

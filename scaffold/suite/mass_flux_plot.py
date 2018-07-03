@@ -11,6 +11,7 @@ from omnium.analyser import Analyser
 
 from scaffold.utils import cm_to_inch
 from scaffold.suite_settings import dx
+from scaffold.scaffold_settings import settings
 
 
 class MassFluxPlotter(Analyser):
@@ -20,25 +21,33 @@ class MassFluxPlotter(Analyser):
     """
     analysis_name = 'mass_flux_plot'
     multi_expt = True
+    input_dir = 'omnium_output/{version_dir}'
+    input_filename = '{input_dir}/{expt}/atmos.mass_flux_combined.nc'
+    output_dir = 'omnium_output/{version_dir}/suite'
+    output_filenames = ['{output_dir}/atmos.mass_flux_plot.dummy']
+
+    settings = settings
+
     # Input values are in kg m-2 s-1, i.e. MF/cloud is an average over the cloud's area.
     # I want total MF/cloud though: multiply by the area of a grid cell or dx**2
     mass_flux_scaling = 1e8
 
-    def set_config(self, config):
-        super(MassFluxPlotter, self).set_config(config)
-        if 'xlim' in config:
-            self.xlim = [float(v) for v in config['xlim'].split(',')]
-        else:
-            self.xlim = None
+    def load(self):
+        self.load_cubes()
 
-        if 'ylim' in config:
-            self.ylim = [float(v) for v in config['ylim'].split(',')]
-        else:
-            self.ylim = None
-        self.nbins = config.getint('nbins', None)
-
-    def run_analysis(self):
+    def run(self):
         pass
+
+    def save(self, state, suite):
+        with open(self.task.output_filenames[0], 'w') as f:
+            f.write('done')
+
+    def display_results(self):
+        self.xlim = None
+        self.ylim = None
+        self.nbins = None
+        self._plot_mass_flux_hist()
+        plt.close('all')
 
     def _plot_mass_flux_hist(self):
         self.append_log('plotting mass_flux')
@@ -107,12 +116,12 @@ class MassFluxPlotter(Analyser):
                 plt.yscale('linear')
                 if self.ylim:
                     plt.ylim(self.ylim)
-                plt.savefig(self.figpath(name + '.png'))
+                plt.savefig(self.file_path(name + '.png'))
 
                 plt.figure(name + 'mf_wieghted_plot_filename')
                 plt.clf()
                 plt.plot(bin_centers, y2)
-                plt.savefig(self.figpath(name + '.mf_weighted.png'))
+                plt.savefig(self.file_path(name + '.mf_weighted.png'))
 
                 plt.figure('combined_expt_z{}'.format(group))
                 plot = plt.plot(bin_centers, y, label=expt)
@@ -183,21 +192,17 @@ class MassFluxPlotter(Analyser):
             #plt.title('combined_expt_z{}'.format(group))
             plt.legend()
             plt.yscale('log')
-            plt.savefig(self.figpath('z{}_combined.png'.format(group)))
+            plt.savefig(self.file_path('z{}_combined.png'.format(group)))
 
             plt.figure('combined_expt_mf_weighted_z{}'.format(group))
             plt.legend()
-            plt.savefig(self.figpath('z{}_mf_weighted_comb.png'.format(group)))
+            plt.savefig(self.file_path('z{}_mf_weighted_comb.png'.format(group)))
 
             plt.figure('both_z{}'.format(group))
             plt.legend()
-            plt.savefig(self.figpath('z{}_both.png'.format(group)))
+            plt.savefig(self.file_path('z{}_both.png'.format(group)))
 
             plt.figure('poster_z{}'.format(group))
             plt.tight_layout()
             plt.legend()
-            plt.savefig(self.figpath('poster_z{}.png'.format(group)))
-
-    def display_results(self):
-        self._plot_mass_flux_hist()
-        plt.close('all')
+            plt.savefig(self.file_path('poster_z{}.png'.format(group)))

@@ -6,12 +6,34 @@ from matplotlib.colors import LogNorm
 from omnium.analyser import Analyser
 from omnium.utils import get_cube
 
+from scaffold.scaffold_settings import settings
+
 
 class PrecipPlot(Analyser):
     """Pick out precip timesteps and plot."""
     analysis_name = 'precip_plot'
     multi_expt = True
+    input_dir = 'work/20000101T0000Z'
+    input_filename_glob = '{input_dir}/{expt}_atmos}/atmos.pp3.nc'
+    output_dir = 'omnium_output/{version_dir}/suite'
+    output_filenames = ['{output_dir}/atmos.precip_plot.dummy']
+
+    settings = settings
+
     expts_to_plot = ['S0_1km_data_test_6D_32nodes', 'S4_1km_data_test_6D_32nodes']
+
+    def load(self):
+        self.load_cubes()
+
+    def run(self):
+        pass
+
+    def save(self, state, suite):
+        with open(self.task.output_filenames[0], 'w') as f:
+            f.write('done')
+
+    def display_results(self):
+        self._plot()
 
     def _plot(self):
         precips = {}
@@ -63,13 +85,6 @@ class PrecipPlot(Analyser):
             cbar = fig.colorbar(im, cax=cbar_ax)
             cbar.set_label('rainfall (mm hr$^{-1}$)', rotation=270, labelpad=20)
 
-            plt.savefig(self.figpath('time_index{}.png'.format(i)))
+            plt.savefig(self.file_path('time_index{}.png'.format(i)))
             plt.close('all')
         self.save_text('max_precip.csv', '\n'.join(max_precips) + '\n')
-
-    def run_analysis(self):
-        pass
-
-    def display_results(self):
-        """Save all results for surf flux analysis."""
-        self._plot()

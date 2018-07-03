@@ -6,7 +6,10 @@ import iris
 from omnium.analyser import Analyser
 from omnium.utils import is_power_of_two
 
+from scaffold.scaffold_settings import settings
+
 logger = getLogger('scaf.mfssc')
+
 
 class MassFluxSpatialScalesCombined(Analyser):
     """Combines all mass flux spatial scales
@@ -16,13 +19,15 @@ class MassFluxSpatialScalesCombined(Analyser):
     """
     analysis_name = 'mass_flux_spatial_scales_combined'
     multi_file = True
+    input_dir = 'omnium_output/{version_dir}/{expt}'
+    input_filename_glob = '{input_dir}/atmos.???.mass_flux_spatial_scales_analysis.nc'
+    output_dir = 'omnium_output/{version_dir}/{expt}'
+    output_filenames = ['{output_dir}/atmos.org_combined.nc']
+    start_runid = settings.start_runid
 
-    def set_config(self, config):
-        super(MassFluxSpatialScalesCombined, self).set_config(config)
-        self.start_runid = config.getint('start_runid')
+    settings = settings
 
     def load(self):
-        self.append_log('Override load')
         self.spatial_mass_fluxes = defaultdict(list)
         for filename in self.filenames:
             basename = os.path.basename(filename)
@@ -40,9 +45,7 @@ class MassFluxSpatialScalesCombined(Analyser):
             else:
                 logger.debug('skipping runid: {}'.format(runid))
 
-        self.append_log('Override loaded')
-
-    def run_analysis(self):
+    def run(self):
         for key, spatial_mass_flux in self.spatial_mass_fluxes.items():
             (model_level_number, thresh_index, n) = key
 
@@ -56,3 +59,6 @@ class MassFluxSpatialScalesCombined(Analyser):
                                                     units='kg s-1')
             mass_flux_spatial_cube.attributes['mass_flux_spatial_key'] = key
             self.results[smf_cube_id] = mass_flux_spatial_cube
+
+    def save(self, state, suite):
+        self.save_results_cubes(state, suite)
