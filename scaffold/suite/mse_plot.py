@@ -8,8 +8,6 @@ import pylab as plt
 from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr
 
-from scaffold.scaffold_settings import settings
-
 
 class MsePlotter(Analyser):
     """Plots timeseries of MSE."""
@@ -19,8 +17,6 @@ class MsePlotter(Analyser):
     input_filename_glob = '{input_dir}/atmos.mse_combined.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.mse_plot.dummy']
-
-    settings = settings
 
     def load(self):
         self.load_cubes()

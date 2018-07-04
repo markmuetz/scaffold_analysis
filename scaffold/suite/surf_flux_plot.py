@@ -12,8 +12,6 @@ from omnium.utils import get_cube
 from omnium.consts import L
 
 from scaffold.colour import EXPT_COLOUR
-from scaffold.scaffold_settings import settings
-
 logger = getLogger('scaf.prof_an')
 
 
@@ -26,8 +24,6 @@ class SurfFluxPlot(Analyser):
     input_filename_glob = '{input_dir}/atmos.pp1.nc'
     output_dir = 'omnium_output/{version_dir}/suite'
     output_filenames = ['{output_dir}/atmos.surf_flux_plot.dummy']
-
-    settings = settings
 
     def load(self):
         self.load_cubes()

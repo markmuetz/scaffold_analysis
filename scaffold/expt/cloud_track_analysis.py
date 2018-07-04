@@ -8,8 +8,6 @@ from omnium.utils import get_cube_from_attr
 from cloud_tracking import Tracker
 from cloud_tracking.cloud_tracking_analysis import generate_stats, plot_stats, output_stats_to_file
 
-from scaffold.scaffold_settings import settings
-
 logger = getLogger('scaf.cta')
 
 
@@ -25,8 +23,6 @@ class CloudTrackAnalyser(Analyser):
     input_filename_glob = '{input_dir}/atmos.???.cloud_analysis.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.cloud_track_analysis.nc']
-
-    settings = settings
 
     def load(self):
         self.load_cubes()

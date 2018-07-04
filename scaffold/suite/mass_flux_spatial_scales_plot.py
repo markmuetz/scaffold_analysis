@@ -9,8 +9,6 @@ import pylab as plt
 from omnium.analyser import Analyser
 
 from scaffold.utils import cm_to_inch
-from scaffold.scaffold_settings import settings
-
 
 class MassFluxSpatialScalesPlotter(Analyser):
     """Plots histograms of mass flux for each power of 2 (n), and expt."""
@@ -21,8 +19,6 @@ class MassFluxSpatialScalesPlotter(Analyser):
     input_filename = '{input_dir}/atmos.mass_flux_spatial_scales_combined.nc'
     output_dir = 'omnium_output/{version_dir}/suite'
     output_filenames = ['{output_dir}/atmos.mass_flux_spatial_scales_plot.dummy']
-
-    settings = settings
 
     def load(self):
         self.load_cubes()

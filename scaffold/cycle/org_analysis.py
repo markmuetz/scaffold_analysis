@@ -11,7 +11,6 @@ from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr
 
 from scaffold.suite_settings import LX, LY, NX, NY
-from scaffold.scaffold_settings import settings
 
 logger = getLogger('scaf.org_an')
 
@@ -34,8 +33,6 @@ class OrgAnalyser(Analyser):
     input_filename_glob = '{input_dir}/atmos.???.cloud_analysis.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.{runid}.org_analysis.nc']
-
-    settings = settings
 
     def load(self):
         self.load_cubes()

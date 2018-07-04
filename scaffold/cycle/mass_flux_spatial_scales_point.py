@@ -7,8 +7,6 @@ from cloud_tracking.utils import label_clds
 from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr
 
-from scaffold.scaffold_settings import settings
-
 logger = getLogger('scaf.mfssp')
 
 
@@ -19,8 +17,6 @@ class MassFluxSpatialScalesPoint(Analyser):
     input_filename_glob = '{input_dir}/atmos.???.cloud_analysis.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.{runid}.mass_flux_spatial_scales_analysis.nc']
-
-    settings = settings
 
     def load(self):
         self.load_cubes()

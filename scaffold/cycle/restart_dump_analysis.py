@@ -6,8 +6,6 @@ from omnium.analyser import Analyser
 from omnium.consts import Re, L, cp, g
 from omnium.utils import get_cube
 
-from scaffold.scaffold_settings import settings
-
 logger = getLogger('scaf.restart')
 
 
@@ -19,8 +17,6 @@ class RestartDumpAnalyser(Analyser):
     input_filename_glob = 'atmosa_da???'
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.{runid}.restart_dump_analysis.nc']
-
-    settings = settings
 
     def load(self):
         self.load_cubes()

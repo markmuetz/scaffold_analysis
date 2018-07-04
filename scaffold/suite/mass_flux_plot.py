@@ -11,7 +11,6 @@ from omnium.analyser import Analyser
 
 from scaffold.utils import cm_to_inch
 from scaffold.suite_settings import dx
-from scaffold.scaffold_settings import settings
 
 
 class MassFluxPlotter(Analyser):
@@ -25,8 +24,6 @@ class MassFluxPlotter(Analyser):
     input_filename = '{input_dir}/atmos.mass_flux_combined.nc'
     output_dir = 'omnium_output/{version_dir}/suite_{expts}'
     output_filenames = ['{output_dir}/atmos.mass_flux_plot.dummy']
-
-    settings = settings
 
     # Input values are in kg m-2 s-1, i.e. MF/cloud is an average over the cloud's area.
     # I want total MF/cloud though: multiply by the area of a grid cell or dx**2

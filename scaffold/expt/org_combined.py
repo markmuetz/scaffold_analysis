@@ -5,8 +5,6 @@ from logging import getLogger
 import iris
 from omnium.analyser import Analyser
 
-from scaffold.scaffold_settings import settings
-
 logger = getLogger('scaf.oc')
 
 
@@ -20,14 +18,12 @@ class OrgCombined(Analyser):
     output_filenames = ['{output_dir}/atmos.org_combined.nc']
     # TODO: runid
 
-    settings = settings
-
     def load(self):
         self.dists = defaultdict(list)
         for filename in self.filenames:
             basename = os.path.basename(filename)
             runid = int(basename.split('.')[1])
-            if runid >= settings.start_runid:
+            if runid >= self.settings.start_runid:
                 logger.debug('adding runid: {}'.format(runid))
                 cubes = iris.load(filename)
                 for cube in cubes:

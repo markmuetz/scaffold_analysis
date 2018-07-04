@@ -10,8 +10,6 @@ from omnium.utils import get_cube_from_attr
 from scaffold.vertlev import VertLev
 from scaffold.utils import interp_vert_rho2w
 
-from scaffold.scaffold_settings import settings
-
 
 class MassFluxAnalyser(Analyser):
     """Works out the mass flux for each cloud.
@@ -28,8 +26,6 @@ class MassFluxAnalyser(Analyser):
     output_filenames = ['{output_dir}/atmos.{runid:03}.mass_flux_analysis.nc']
     uses_runid = True
     runid_pattern = 'atmos.(?P<runid>\d{3}).cloud_analysis.nc'
-
-    settings = settings
 
     def load(self):
         self.load_cubes()

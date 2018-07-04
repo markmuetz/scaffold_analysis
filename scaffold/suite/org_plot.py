@@ -10,7 +10,6 @@ from omnium.analyser import Analyser
 
 from scaffold.utils import cm_to_inch
 from scaffold.suite_settings import LX, LY
-from scaffold.scaffold_settings import settings
 
 
 class OrgPlotter(Analyser):
@@ -26,8 +25,6 @@ class OrgPlotter(Analyser):
     input_filename = '{input_dir}/atmos.mass_flux_combined.nc'
     output_dir = 'omnium_output/{version_dir}/suite'
     output_filenames = ['{output_dir}/atmos.mass_flux_plot.dummy']
-
-    settings = settings
 
     def load(self):
         self.load_cubes()

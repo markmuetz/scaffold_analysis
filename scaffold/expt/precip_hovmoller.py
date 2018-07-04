@@ -7,8 +7,6 @@ import pylab as plt
 from omnium.analyser import Analyser
 from omnium.utils import get_cube
 
-from scaffold.scaffold_settings import settings
-
 
 class PrecipHovmollerAnalyser(Analyser):
     """Produce a Hovmoller of precipitation."""
@@ -19,8 +17,6 @@ class PrecipHovmollerAnalyser(Analyser):
     input_filename_glob = '{input_dir}/atmos.pp1.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.precip_hovmoller_analysis.dummy']
-
-    settings = settings
 
     def load(self):
         self.load_cubes()

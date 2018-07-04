@@ -6,8 +6,6 @@ import iris
 from omnium.analyser import Analyser
 from omnium.utils import is_power_of_two
 
-from scaffold.scaffold_settings import settings
-
 logger = getLogger('scaf.mfssc')
 
 
@@ -23,16 +21,13 @@ class MassFluxSpatialScalesCombined(Analyser):
     input_filename_glob = '{input_dir}/atmos.???.mass_flux_spatial_scales_analysis.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.org_combined.nc']
-    start_runid = settings.start_runid
-
-    settings = settings
 
     def load(self):
         self.spatial_mass_fluxes = defaultdict(list)
         for filename in self.filenames:
             basename = os.path.basename(filename)
             runid = int(basename.split('.')[1])
-            if runid >= self.start_runid:
+            if runid >= self.settings.start_runid:
                 logger.debug('adding runid: {}'.format(runid))
                 cubes = iris.load(filename)
                 for cube in cubes:

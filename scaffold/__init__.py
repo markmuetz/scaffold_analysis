@@ -1,5 +1,5 @@
 from scaffold.version import VERSION
-from scaffold.scaffold_settings import settings as analysis_settings
+from scaffold.scaffold_settings import production_settings
 
 from scaffold.cycle.cloud_analysis import CloudAnalyser
 from scaffold.cycle.mass_flux_analysis import MassFluxAnalyser
@@ -24,6 +24,11 @@ from scaffold.suite.profile_plot import ProfilePlotter
 from scaffold.suite.surf_flux_plot import SurfFluxPlot
 from scaffold.expt.precip_hovmoller import PrecipHovmollerAnalyser
 
+analysis_settings = {
+    'default': production_settings,
+    'production': production_settings,
+    'test': production_settings,
+}
 
 __version__ = VERSION
 

@@ -13,7 +13,6 @@ from omnium.consts import Re, cp, g
 from cloud_tracking.utils import label_clds
 
 from scaffold.suite_settings import dx
-from scaffold.scaffold_settings import settings
 
 logger = getLogger('scaf.prof_an')
 
@@ -41,8 +40,6 @@ class ProfileAnalyser(Analyser):
     input_filename_glob = '{input_dir}/atmos.???.pp2.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.{runid}.profile_analysis.nc']
-
-    settings = settings
 
     def load(self):
         self.load_cubes()
@@ -81,8 +78,8 @@ class ProfileAnalyser(Analyser):
 
         logger.debug('got cubes of interest')
 
-        w_mask = w.data > settings.w_thresh
-        qcl_mask = qcl.data > settings.qcl_thresh
+        w_mask = w.data > self.settings.w_thresh
+        qcl_mask = qcl.data > self.settings.qcl_thresh
         cloud_mask = w_mask & qcl_mask
 
         self.results['theta_profile'] = theta.collapsed(['time', 'grid_latitude', 'grid_longitude'], iris.analysis.MEAN)
@@ -144,8 +141,8 @@ class ProfileAnalyser(Analyser):
         qcl_rho_grid = (qcl[:, :-1].data + qcl[:, 1:].data) / 2
 
         # Threshold.
-        w_rho_mask = w_rho_grid > settings.w_thresh
-        qcl_rho_mask = qcl_rho_grid > settings.qcl_thresh
+        w_rho_mask = w_rho_grid > self.settings.w_thresh
+        qcl_rho_mask = qcl_rho_grid > self.settings.qcl_thresh
         cloud_rho_mask = w_rho_mask & qcl_rho_mask
 
         # Total mass-flux across domain.

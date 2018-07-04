@@ -4,7 +4,6 @@ from logging import getLogger
 
 import iris
 from omnium.analyser import Analyser
-from scaffold.scaffold_settings import settings
 
 logger = getLogger('scaf.mfc')
 
@@ -20,14 +19,13 @@ class MassFluxCombinedAnalysis(Analyser):
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.mass_flux_combined.nc']
 
-    settings = settings
-
     def load(self):
         self.mass_fluxes = defaultdict(list)
         for filename in self.task.filenames:
             basename = os.path.basename(filename)
             runid = int(basename.split('.')[1])
-            # if runid >= settings.start_runid:
+            # TODO: uncomment.
+            # if runid >= self.settings.start_runid:
             if runid >= 24:
                 logger.debug('adding runid: {}'.format(runid))
                 cubes = iris.load(filename)

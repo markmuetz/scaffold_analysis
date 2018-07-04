@@ -13,7 +13,6 @@ from omnium.utils import get_cube_from_attr
 
 from scaffold.vertlev import VertLev
 from scaffold.utils import cm_to_inch
-from scaffold.scaffold_settings import settings
 
 logger = getLogger('scaf.prof_plot')
 
@@ -27,8 +26,6 @@ class ProfilePlotter(Analyser):
     input_filename_glob = '{input_dir}/atmos.???.profile_analysis.nc'
     output_dir = 'omnium_output/{version_dir}/suite'
     output_filenames = ['{output_dir}/atmos.profile_plot.dummy']
-
-    settings = settings
 
     base_u_profile = np.array([(0, -2), (1e3, -3), (12e3, 2.5), (14.5e3, 0), (40e3, 0)])
 

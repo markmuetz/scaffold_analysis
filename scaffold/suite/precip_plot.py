@@ -6,8 +6,6 @@ from matplotlib.colors import LogNorm
 from omnium.analyser import Analyser
 from omnium.utils import get_cube
 
-from scaffold.scaffold_settings import settings
-
 
 class PrecipPlot(Analyser):
     """Pick out precip timesteps and plot."""
@@ -17,8 +15,6 @@ class PrecipPlot(Analyser):
     input_filename_glob = '{input_dir}/atmos.pp1.nc'
     output_dir = 'omnium_output/{version_dir}/suite'
     output_filenames = ['{output_dir}/atmos.precip_plot.dummy']
-
-    settings = settings
 
     expts_to_plot = None
 

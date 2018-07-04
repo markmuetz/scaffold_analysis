@@ -20,5 +20,5 @@ def test_scaffold_analysis_classes(mock_makedirs, mock_exists):
     task.filenames = ['/a/b/c.txt']
     task.output_filenames = ['/a/b/c.out']
     for analysis_class in scaffold.analysis_classes:
-        analyser = analysis_class(suite, task)
+        analyser = analysis_class(suite, task, None)
         assert analyser

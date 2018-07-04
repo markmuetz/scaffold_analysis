@@ -8,8 +8,6 @@ from omnium.analyser import Analyser
 from omnium.utils import get_cube
 from omnium.consts import L
 
-from scaffold.scaffold_settings import settings
-
 
 class SurfFluxAnalyser(Analyser):
     """Analyse surface fluxes, plot graphs of energy/moisture fluxes."""
@@ -19,8 +17,6 @@ class SurfFluxAnalyser(Analyser):
     input_filename = '{input_dir}/atmos.pp1.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.surf_flux_analysis.nc']
-
-    settings = settings
 
     def load(self):
         self.load_cubes()
