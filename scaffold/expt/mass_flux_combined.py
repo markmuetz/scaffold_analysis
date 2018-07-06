@@ -24,9 +24,7 @@ class MassFluxCombinedAnalysis(Analyser):
         for filename in self.task.filenames:
             basename = os.path.basename(filename)
             runid = int(basename.split('.')[1])
-            # TODO: uncomment.
-            # if runid >= self.settings.start_runid:
-            if runid >= 24:
+            if runid >= self.settings.start_runid:
                 logger.debug('adding runid: {}'.format(runid))
                 cubes = iris.load(filename)
                 for cube in cubes:

@@ -1,5 +1,5 @@
 from scaffold.version import VERSION
-from scaffold.scaffold_settings import production_settings
+from scaffold.scaffold_settings import production_settings, test_settings
 
 from scaffold.cycle.cloud_analysis import CloudAnalyser
 from scaffold.cycle.mass_flux_analysis import MassFluxAnalyser
@@ -30,7 +30,7 @@ __version__ = VERSION
 analysis_settings = {
     'default': production_settings,
     'production': production_settings,
-    'test': production_settings,
+    'test': test_settings,
 }
 
 analysis_settings_filename = 'omnium_output/{version_dir}/settings.json'

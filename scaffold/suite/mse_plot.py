@@ -12,7 +12,7 @@ from omnium.utils import get_cube_from_attr
 class MsePlotter(Analyser):
     """Plots timeseries of MSE."""
     analysis_name = 'mse_plot'
-    single_file = True
+    multi_expt = True
     input_dir = 'omnium_output/{version_dir}/{expt}'
     input_filename_glob = '{input_dir}/atmos.mse_combined.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
@@ -23,7 +23,7 @@ class MsePlotter(Analyser):
 
     def run(self):
         self.expt_mses = OrderedDict()
-        for expt in self.expts:
+        for expt in self.task.expts:
             cubes = self.expt_cubes[expt]
 
             mse_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'mse_profile')
@@ -49,7 +49,7 @@ class MsePlotter(Analyser):
     def _plot_mses(self):
         self.append_log('plotting MSEs')
         plt.figure(self.output_filename + '_mse_timeseries')
-        for expt in self.expts:
+        for expt in self.task.expts:
             mses = self.expt_mses[expt]
             plt.title(self.output_filename + '_mse_timeseries')
             plt.plot(mses, label=expt)
