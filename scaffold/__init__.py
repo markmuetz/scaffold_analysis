@@ -8,6 +8,7 @@ from scaffold.cycle.org_analysis import OrgAnalyser
 from scaffold.cycle.profile_analysis import ProfileAnalyser
 from scaffold.cycle.restart_dump_analysis import RestartDumpAnalyser
 
+from scaffold.expt.expt_converter import ExptConverter
 from scaffold.expt.cloud_track_analysis import CloudTrackAnalyser
 from scaffold.expt.mass_flux_combined import MassFluxCombinedAnalysis
 from scaffold.expt.mass_flux_spatial_scales_combined import MassFluxSpatialScalesCombined
@@ -37,6 +38,7 @@ analysis_settings_filename = 'omnium_output/{version_dir}/settings.json'
 analysis_classes = [
     CloudAnalyser,
     CloudTrackAnalyser,
+    ExptConverter,
     MassFluxAnalyser,
     MassFluxCombinedAnalysis,
     MassFluxPlotter,
