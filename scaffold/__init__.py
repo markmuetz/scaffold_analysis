@@ -24,13 +24,15 @@ from scaffold.suite.profile_plot import ProfilePlotter
 from scaffold.suite.surf_flux_plot import SurfFluxPlot
 from scaffold.expt.precip_hovmoller import PrecipHovmollerAnalyser
 
+__version__ = VERSION
+
 analysis_settings = {
     'default': production_settings,
     'production': production_settings,
     'test': production_settings,
 }
 
-__version__ = VERSION
+analysis_settings_filename = 'omnium_output/{version_dir}/settings.json'
 
 analysis_classes = [
     CloudAnalyser,

@@ -1,9 +1,7 @@
 from omnium import AnalyserSetting
 
-import scaffold
 
-
-production_settings = AnalyserSetting(scaffold, dict(
+production_settings = AnalyserSetting(dict(
     # cloud_analysis
     height_levels = [15, 17, 19],
     qcl_threshs=[4.5e-6,5e-6,5.5e-6],
