@@ -39,7 +39,10 @@ class ProfileAnalyser(Analyser):
     input_dir = 'share/data/history/{expt}'
     input_filename_glob = '{input_dir}/atmos.???.pp2.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
-    output_filenames = ['{output_dir}/atmos.{runid}.profile_analysis.nc']
+    output_filenames = ['{output_dir}/atmos.{runid:03}.profile_analysis.nc']
+
+    uses_runid = True
+    runid_pattern = 'atmos.(?P<runid>\d{3}).pp2.nc'
 
     def load(self):
         self.load_cubes()
@@ -222,7 +225,7 @@ class ProfileAnalyser(Analyser):
         theta_cloud_profile = self.results['theta_cloud_profile']
         theta_not_cloud_profile = self.results['theta_not_cloud_profile']
         height = theta_profile.coord('level_height').points
-        plt.title(self.expt)
+        plt.title(self.task.expt)
         plt.plot(theta_profile.data, height, 'g-', label='theta')
         plt.plot(theta_cloud_profile.data, height, 'g--', label='theta cloud')
         plt.plot(theta_not_cloud_profile.data, height, 'g.', label='theta not_cloud')
@@ -238,7 +241,7 @@ class ProfileAnalyser(Analyser):
         qcl_cloud_profile = self.results['qcl_cloud_profile']
         qcl_not_cloud_profile = self.results['qcl_not_cloud_profile']
         height = qcl_profile.coord('level_height').points
-        plt.title(self.expt)
+        plt.title(self.task.expt)
         plt.plot(qcl_profile.data * 1000, height, 'g-', label='qcl')
         plt.plot(qcl_cloud_profile.data * 1000, height, 'g--', label='qcl cloud')
         plt.plot(qcl_not_cloud_profile.data * 1000, height, 'g.', label='qcl not_cloud')
@@ -250,7 +253,7 @@ class ProfileAnalyser(Analyser):
 
         #plt.figure('qgr')
         qgr_profile = self.results['qgr_profile']
-        plt.title(self.expt)
+        plt.title(self.task.expt)
         plt.plot(qgr_profile.data * 1000, height, 'r-', label='qgr')
         plt.ylim((0, 20000))
         plt.xlabel('qgr (g kg$^{-1}$)')
@@ -260,7 +263,7 @@ class ProfileAnalyser(Analyser):
 
         #plt.figure('qcf')
         qcf_profile = self.results['qcf_profile']
-        plt.title(self.expt)
+        plt.title(self.task.expt)
         plt.plot(qcf_profile.data * 1000, height, 'b-', label='qcf')
         plt.xlim((0, 0.1))
         plt.ylim((0, 20000))
@@ -296,7 +299,7 @@ class ProfileAnalyser(Analyser):
         clouds_qcl_profile = self.results['clouds_qcl_profile']
 
         plt.clf()
-        plt.title(self.expt + ': mf/cloud')
+        plt.title(self.task.expt + ': mf/cloud')
         plt.plot(mf_cloud_profile.data, height, label='cloud mask')
         plt.plot(mf_w_profile.data, height, label='w mask')
         plt.plot(mf_qcl_profile.data, height, label='qcl mask')
@@ -307,7 +310,7 @@ class ProfileAnalyser(Analyser):
         plt.savefig(self.file_path('mfpercloud_profile.png'))
 
         plt.clf()
-        plt.title(self.expt + ': #clouds')
+        plt.title(self.task.expt + ': #clouds')
         plt.plot(clouds_cloud_profile.data, height, label='cloud mask')
         plt.plot(clouds_w_profile.data, height, label='w mask')
         plt.plot(clouds_qcl_profile.data, height, label='qcl mask')
@@ -318,7 +321,7 @@ class ProfileAnalyser(Analyser):
         plt.savefig(self.file_path('numclouds_profile.png'))
 
         plt.clf()
-        plt.title(self.expt + ': total mf')
+        plt.title(self.task.expt + ': total mf')
         plt.plot(clouds_cloud_profile.data * mf_cloud_profile.data, height, label='cloud mask')
         plt.plot(clouds_w_profile.data * mf_w_profile.data, height, label='w mask')
         plt.plot(clouds_qcl_profile.data * mf_qcl_profile.data, height, label='qcl mask')

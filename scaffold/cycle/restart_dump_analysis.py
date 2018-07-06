@@ -14,9 +14,11 @@ class RestartDumpAnalyser(Analyser):
     analysis_name = 'restart_dump_analysis'
     single_file = True
     input_dir = 'share/data/history/{expt}'
-    input_filename_glob = 'atmosa_da???'
+    input_filename_glob = '{input_dir}/atmosa_da???'
     output_dir = 'omnium_output/{version_dir}/{expt}'
-    output_filenames = ['{output_dir}/atmos.{runid}.restart_dump_analysis.nc']
+    output_filenames = ['{output_dir}/atmos.{runid:03}.restart_dump_analysis.nc']
+    uses_runid = True
+    runid_pattern = 'atmosa_da(?P<runid>\d{3})'
 
     def load(self):
         self.load_cubes()
