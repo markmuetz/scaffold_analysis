@@ -22,7 +22,7 @@ class CloudTrackAnalyser(Analyser):
     input_dir = 'omnium_output/{version_dir}/{expt}'
     input_filename_glob = '{input_dir}/atmos.???.cloud_analysis.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
-    output_filenames = ['{output_dir}/atmos.cloud_track_analysis.nc']
+    output_filenames = ['{output_dir}/atmos.cloud_track_analysis.dummy']
 
     def load(self):
         self.load_cubes()
@@ -69,12 +69,13 @@ class CloudTrackAnalyser(Analyser):
                 tracker.track()
                 tracker.group()
 
-                stats = generate_stats(self.expt, tracker)
+                stats = generate_stats(self.task.expt, tracker)
                 self.trackers[(height_level_index, thresh_index)] = tracker
                 self.all_stats[(height_level_index, thresh_index)] = stats
 
     def save(self, state, suite):
-        self.save_results_cubes(state, suite)
+        with open(self.task.output_filenames[0], 'w') as f:
+            f.write('done')
 
     def display_results(self):
         self.append_log('displaying results')
@@ -92,5 +93,5 @@ class CloudTrackAnalyser(Analyser):
 
                 filename = 'atmos.cloud_tracking_z{}_t{}.'.format(height_level_index, thresh_index)
 
-                plot_stats(self.expt, os.path.dirname(figpath), filename, [stats])
-                output_stats_to_file(self.expt, os.path.dirname(figpath), filename + 'txt', tracker, stats)
+                plot_stats(self.task.expt, os.path.dirname(figpath), filename, [stats])
+                output_stats_to_file(self.task.expt, os.path.dirname(figpath), filename + 'txt', tracker, stats)

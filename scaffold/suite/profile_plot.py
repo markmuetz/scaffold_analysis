@@ -22,8 +22,7 @@ class ProfilePlotter(Analyser):
     multi_expt = True
 
     input_dir = 'omnium_output/{version_dir}/{expt}'
-    # TODO: Not sure how this works with multile runids.
-    input_filename_glob = '{input_dir}/atmos.???.profile_analysis.nc'
+    input_filename_glob = '{input_dir}/atmos.096.profile_analysis.nc'
     output_dir = 'omnium_output/{version_dir}/suite'
     output_filenames = ['{output_dir}/atmos.profile_plot.dummy']
 
@@ -62,7 +61,7 @@ class ProfilePlotter(Analyser):
 
         ax1.set_ylim((0, 25))
 
-        for expt in self.expts:
+        for expt in self.task.expts:
             cubes = self.expt_cubes[expt]
             u_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'u_profile')
             # v_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'v_profile')
@@ -95,7 +94,7 @@ class ProfilePlotter(Analyser):
 
         # Cooling profile is very similar in height coords for different expts.
         # Just use first.
-        expt = self.expts[0]
+        expt = self.task.expts[0]
         cubes = self.expt_cubes[expt]
         # in Pa.
         pressure_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'pressure_profile')
@@ -114,7 +113,7 @@ class ProfilePlotter(Analyser):
         ax2.set_xlabel('prescribed heating (K day$^{-1}$)')
         ax2.axvline(x=0, color='k', linestyle='--')
 
-        for expt in self.expts:
+        for expt in self.task.expts:
             cubes = self.expt_cubes[expt]
             u_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'u_profile')
             # v_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'v_profile')
@@ -139,7 +138,7 @@ class ProfilePlotter(Analyser):
 
     def _plot_uv_profile(self):
         fig = plt.figure('uv_profile', figsize=(3.5, 4.5), dpi=1200)
-        for expt in self.expts:
+        for expt in self.task.expts:
             cubes = self.expt_cubes[expt]
             u_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'u_profile')
             # v_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'v_profile')
@@ -163,7 +162,7 @@ class ProfilePlotter(Analyser):
     def _plot_thermodynamic_profile(self):
         plt.figure('thermodynamic_profile')
         f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
-        for expt in self.expts:
+        for expt in self.task.expts:
             cubes = self.expt_cubes[expt]
             theta_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'theta_profile')
             theta_cloud_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'theta_cloud_profile')
@@ -192,7 +191,7 @@ class ProfilePlotter(Analyser):
         ax1.set_ylabel('height (km)')
         ax1.legend(loc='upper left')
 
-        for expt in self.expts:
+        for expt in self.task.expts:
             cubes = self.expt_cubes[expt]
 
             qcl_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'qcl_profile')
@@ -225,7 +224,7 @@ class ProfilePlotter(Analyser):
     def _plot_mf_profile(self):
         plt.figure('mf_profile')
         f, (ax1, ax2, ax3) = plt.subplots(1, 3, sharey=True)
-        for expt in self.expts:
+        for expt in self.task.expts:
             cubes = self.expt_cubes[expt]
 
             mf_cloud_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'mf_cloud_profile')
@@ -281,7 +280,7 @@ class ProfilePlotter(Analyser):
 
     def _plot_momentum_flux(self):
         fig = plt.figure('momf_profile', figsize=(3.5, 4.5), dpi=1200)
-        for expt in self.expts:
+        for expt in self.task.expts:
             cubes = self.expt_cubes[expt]
             u_mom_flux_ts = get_cube_from_attr(cubes, 'omnium_cube_id', 'u_mom_flux_ts')
             v_mom_flux_ts = get_cube_from_attr(cubes, 'omnium_cube_id', 'v_mom_flux_ts')
@@ -297,7 +296,7 @@ class ProfilePlotter(Analyser):
         plt.savefig(self.file_path('momentum_flux_profile.png'))
 
     def _plot_cooling(self):
-        for expt in self.expts:
+        for expt in self.task.expts:
             cubes = self.expt_cubes[expt]
             # in Pa.
             pressure_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'pressure_profile')

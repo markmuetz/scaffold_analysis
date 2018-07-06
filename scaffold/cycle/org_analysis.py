@@ -29,10 +29,12 @@ class OrgAnalyser(Analyser):
     Performs once for each height level, and each pair of low/low, med/med, high/high threshs."""
     analysis_name = 'org_analysis'
     single_file = True
-    input_dir = 'share/data/history/{expt}'
+    input_dir = 'omnium_output/{version_dir}/{expt}'
     input_filename_glob = '{input_dir}/atmos.???.cloud_analysis.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
-    output_filenames = ['{output_dir}/atmos.{runid}.org_analysis.nc']
+    output_filenames = ['{output_dir}/atmos.{runid:03}.org_analysis.nc']
+    uses_runid = True
+    runid_pattern = 'atmos.(?P<runid>\d{3}).cloud_analysis.nc'
 
     def load(self):
         self.load_cubes()

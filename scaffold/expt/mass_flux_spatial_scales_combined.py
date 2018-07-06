@@ -20,7 +20,7 @@ class MassFluxSpatialScalesCombined(Analyser):
     input_dir = 'omnium_output/{version_dir}/{expt}'
     input_filename_glob = '{input_dir}/atmos.???.mass_flux_spatial_scales_analysis.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
-    output_filenames = ['{output_dir}/atmos.org_combined.nc']
+    output_filenames = ['{output_dir}/atmos.mass_flux_spatial_scales_combined.nc']
 
     def load(self):
         self.spatial_mass_fluxes = defaultdict(list)

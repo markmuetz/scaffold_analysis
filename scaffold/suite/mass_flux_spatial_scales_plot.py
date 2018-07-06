@@ -45,7 +45,7 @@ class MassFluxSpatialScalesPlotter(Analyser):
         heights = []
         ns = []
 
-        for expt in self.expts:
+        for expt in self.task.expts:
             cubes = self.expt_cubes[expt]
             sorted_cubes = []
 
@@ -163,7 +163,7 @@ class MassFluxSpatialScalesPlotter(Analyser):
             plt.tight_layout()
             plt.savefig(self.file_path('poster_both_z{}.png'.format(height_index)))
 
-            for expt in self.expts:
+            for expt in self.task.expts:
                 name = '{}.z{}.all_n.hist'.format(expt, height_index)
                 plt.figure(name)
                 plt.title(name)

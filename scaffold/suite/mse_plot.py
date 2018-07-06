@@ -15,7 +15,7 @@ class MsePlotter(Analyser):
     multi_expt = True
     input_dir = 'omnium_output/{version_dir}/{expt}'
     input_filename_glob = '{input_dir}/atmos.mse_combined.nc'
-    output_dir = 'omnium_output/{version_dir}/{expt}'
+    output_dir = 'omnium_output/{version_dir}/suite_{expts}'
     output_filenames = ['{output_dir}/atmos.mse_plot.dummy']
 
     def load(self):

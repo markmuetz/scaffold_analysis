@@ -21,7 +21,7 @@ class SurfFluxPlot(Analyser):
     multi_expt = True
 
     input_dir = 'work/20000101T0000Z/{expt}_atmos'
-    input_filename_glob = '{input_dir}/atmos.pp1.nc'
+    input_filename = '{input_dir}/atmos.pp3.nc'
     output_dir = 'omnium_output/{version_dir}/suite'
     output_filenames = ['{output_dir}/atmos.surf_flux_plot.dummy']
 

@@ -20,7 +20,7 @@ class OrgCombined(Analyser):
 
     def load(self):
         self.dists = defaultdict(list)
-        for filename in self.filenames:
+        for filename in self.task.filenames:
             basename = os.path.basename(filename)
             runid = int(basename.split('.')[1])
             if runid >= self.settings.start_runid:
