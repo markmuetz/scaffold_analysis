@@ -6,8 +6,8 @@ class CycleConverter(FF2NC_Converter):
     single_file = True
     input_dir = 'share/data/history/{expt}'
     input_filename_glob = '{input_dir}/atmos.???.pp1'
-    output_dir = 'work/20000101T0000Z/{expt}_atmos'
-    output_filenames = ['{output_dir}/atmos.pp1.nc']
+    output_dir = 'share/data/history/{expt}'
+    output_filenames = ['{output_dir}/atmos.{runid}.pp1.nc']
 
     uses_runid = True
     runid_pattern = 'atmos.(?P<runid>\d{3}).pp1'
