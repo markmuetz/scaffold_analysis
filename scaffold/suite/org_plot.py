@@ -7,9 +7,9 @@ matplotlib.use('Agg')
 import pylab as plt
 
 from omnium.analyser import Analyser
+from omnium.expt import ExptList
 
 from scaffold.utils import cm_to_inch
-from scaffold.suite_settings import LX, LY
 
 
 class OrgPlotter(Analyser):
@@ -23,7 +23,7 @@ class OrgPlotter(Analyser):
     multi_expt = True
     input_dir = 'omnium_output/{version_dir}/{expt}'
     input_filename = '{input_dir}/atmos.org_combined.nc'
-    output_dir = 'omnium_output/{version_dir}/suite'
+    output_dir = 'omnium_output/{version_dir}/suite_{expts}'
     output_filenames = ['{output_dir}/atmos.org_plot.dummy']
 
     def load(self):
@@ -49,9 +49,13 @@ class OrgPlotter(Analyser):
 
         groups = []
 
+        expts = ExptList(self.suite)
+        expts.find(self.task.expts)
         for expt in self.task.expts:
+            expt_obj = expts.get(expt)
             cubes = self.expt_cubes[expt]
             sorted_cubes = []
+            lx = expt_obj.lx
 
             for cube in cubes:
                 (height_level_index, thresh_index) = cube.attributes['dist_key']
@@ -99,13 +103,13 @@ class OrgPlotter(Analyser):
 
                 # Normalize based on mean density over domain.
                 # WRONG WAY TO DO IT!:
-                # mean = cloud_densities[bins < LX / 2.].mean()
+                # mean = cloud_densities[bins < lx / 2.].mean()
                 # self.plt.plot((bins[:-1] + bins[1:]) / 2, cloud_densities / mean)
                 # calculates the mean of the densities, not the mean density.
 
                 # Correct way to normalize:
                 # Divide the total number in a circle by the circle's area.
-                imax = np.argmax(bins[1:] > (LX / 2))
+                imax = np.argmax(bins[1:] > (lx / 2))
                 mean_density = n[:imax].sum() / (np.pi * bins[imax]**2)
                 xpoints = (bins[:-1] + bins[1:]) / 2
 

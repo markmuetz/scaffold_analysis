@@ -23,7 +23,7 @@ class ProfilePlotter(Analyser):
 
     input_dir = 'omnium_output/{version_dir}/{expt}'
     input_filename_glob = '{input_dir}/atmos.096.profile_analysis.nc'
-    output_dir = 'omnium_output/{version_dir}/suite'
+    output_dir = 'omnium_output/{version_dir}/suite_{expts}'
     output_filenames = ['{output_dir}/atmos.profile_plot.dummy']
 
     base_u_profile = np.array([(0, -2), (1e3, -3), (12e3, 2.5), (14.5e3, 0), (40e3, 0)])

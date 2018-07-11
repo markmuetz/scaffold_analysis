@@ -9,8 +9,7 @@ import iris
 
 from omnium.analyser import Analyser
 from omnium.utils import get_cube_from_attr
-
-from scaffold.suite_settings import LX, LY, NX, NY
+from omnium.expt import ExptList
 
 logger = getLogger('scaf.org_an')
 
@@ -46,6 +45,17 @@ class OrgAnalyser(Analyser):
 
         cloud_mask_id = 'cloud_mask'
         cloud_mask_cube = get_cube_from_attr(cubes, 'omnium_cube_id', cloud_mask_id)
+        lat = cloud_mask_cube.coord('grid_latitude').points
+        lon = cloud_mask_cube.coord('grid_longitude').points
+        dx = lon[1] - lon[0]
+        dy = lat[1] - lat[0]
+        self.NX, self.NY = len(lon), len(lat)
+        self.LX, self.LY = self.NX * dx, self.NY * dy
+        expts = ExptList(self.suite)
+        expts.find([self.task.expt])
+        expt_obj = expts.get(self.task.expt)
+        assert self.LX == expt_obj.lx and self.LY == expt_obj.ly
+        assert self.NX == expt_obj.nx and self.NY == expt_obj.ny
 
         w_thresh_coord = cloud_mask_cube.coord('w_thres')
         qcl_thresh_coord = cloud_mask_cube.coord('qcl_thres')
@@ -117,7 +127,7 @@ class OrgAnalyser(Analyser):
 
         # Correct way to normalize:
         # Divide the total number in a circle by the circle's area.
-        imax = np.argmax(bins[1:] > (LX / 2))
+        imax = np.argmax(bins[1:] > (self.LX / 2))
         mean_density = n[:imax].sum() / (np.pi * bins[imax]**2)
         xpoints = (bins[:-1] + bins[1:]) / 2
         plt.plot(xpoints / 1000, cloud_densities / mean_density)
@@ -134,10 +144,10 @@ class OrgAnalyser(Analyser):
 
     def _get_cloud_pos(self, clouds):
         "For each cloud, calc its centroid."
-        half_dx = LX / (2 * NX)
-        half_dy = LY / (2 * NY)
-        x = np.linspace(half_dx, LX - half_dx, NX)
-        y = np.linspace(half_dy, LY - half_dy, NY)
+        half_dx = self.LX / (2 * self.NX)
+        half_dy = self.LY / (2 * self.NY)
+        x = np.linspace(half_dx, self.LX - half_dx, self.NX)
+        y = np.linspace(half_dy, self.LY - half_dy, self.NY)
         X, Y = np.meshgrid(x, y, indexing='xy')
         cloud_pos = []
         for i in range(1, clouds.max() + 1):
@@ -153,8 +163,8 @@ class OrgAnalyser(Analyser):
         dists = []
         for ii in [-1, 0, 1]:
             for jj in [-1, 0, 1]:
-                x = test_cloud.x + ii * LX
-                y = test_cloud.y + jj * LY
+                x = test_cloud.x + ii * self.LX
+                y = test_cloud.y + jj * self.LY
                 dist = np.sqrt((cloud.x - x)**2 + (cloud.y - y)**2)
                 dists.append(dist)
         return dists

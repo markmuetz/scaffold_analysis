@@ -10,9 +10,8 @@ import iris
 from omnium.analyser import Analyser
 from omnium.utils import get_cube
 from omnium.consts import Re, cp, g
+from omnium.expt import ExptList
 from cloud_tracking.utils import label_clds
-
-from scaffold.suite_settings import dx
 
 logger = getLogger('scaf.prof_an')
 
@@ -50,6 +49,11 @@ class ProfileAnalyser(Analyser):
     def run(self):
         cubes = self.cubes
         logger.debug('cubes: {}'.format(cubes))
+
+        expts = ExptList(self.suite)
+        expts.find([self.task.expt])
+        expt_obj = expts.get(self.task.expt)
+        dx, dy = expt_obj.dx, expt_obj.dy
 
         # u/v profile.
         u = get_cube(cubes, 0, 2)
@@ -170,10 +174,7 @@ class ProfileAnalyser(Analyser):
                 num_clouds = 0
                 for itime in range(mf.shape[0]):
                     num_clouds += label_clds(mask[itime, i], diagonal=True)[0]
-                # TODO: don't hard code!
-                # dx=2e3, dx**2=4e6 = Area of one grid cell.
-                # dx=1e3, dx**2=1e6 = Area of one grid cell.
-                profile_data.append(mf_conv/num_clouds * dx**2)
+                profile_data.append(mf_conv/num_clouds * dx * dy)
                 cloud_data.append(num_clouds)
 
             profile_data = np.array(profile_data)

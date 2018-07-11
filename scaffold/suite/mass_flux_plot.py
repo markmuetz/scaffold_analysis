@@ -8,9 +8,9 @@ import pylab as plt
 from scipy.stats import linregress
 
 from omnium.analyser import Analyser
+from omnium.expt import ExptList
 
 from scaffold.utils import cm_to_inch
-from scaffold.suite_settings import dx
 
 
 class MassFluxPlotter(Analyser):
@@ -53,7 +53,12 @@ class MassFluxPlotter(Analyser):
 
         linregress_details = ['z, expt, m, c, rval, pval, stderr']
 
+        expts = ExptList(self.suite)
+        expts.find(self.task.expts)
         for expt in self.task.expts:
+            expt_obj = expts.get(expt)
+            dx = expt_obj.dx
+            dy = expt_obj.dy
             cubes = self.expt_cubes[expt]
             sorted_cubes = []
 
@@ -75,7 +80,7 @@ class MassFluxPlotter(Analyser):
                 for i, item in enumerate(cubes):
                     cube = item[1]
                     hist_data.append(cube)
-                    dmax = max(cube.data.max() * dx**2 / self.mass_flux_scaling, dmax)
+                    dmax = max(cube.data.max() * dx * dy / self.mass_flux_scaling, dmax)
 
                 assert len(hist_data) == 3
                 name = '{}.z{}.mass_flux_hist'.format(expt, group)
@@ -93,7 +98,7 @@ class MassFluxPlotter(Analyser):
                     hist_kwargs['bins'] = self.nbins
                 #y_min, bin_edges = np.histogram(hist_data[2].data, bins=50, range=(0, dmax))
                 #y_max, bin_edges = np.histogram(hist_data[0].data, bins=50, range=(0, dmax))
-                y, bin_edges = np.histogram(hist_data[1].data * dx**2 / self.mass_flux_scaling,
+                y, bin_edges = np.histogram(hist_data[1].data * dx * dy / self.mass_flux_scaling,
                                             **hist_kwargs)
                 bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
                 y2 = bin_centers * y
