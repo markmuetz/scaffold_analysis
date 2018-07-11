@@ -22,7 +22,7 @@ class ProfilePlotter(Analyser):
     multi_expt = True
 
     input_dir = 'omnium_output/{version_dir}/{expt}'
-    input_filename_glob = '{input_dir}/atmos.096.profile_analysis.nc'
+    input_filename_glob = '{input_dir}/atmos.000.profile_analysis.nc'
     output_dir = 'omnium_output/{version_dir}/suite_{expts}'
     output_filenames = ['{output_dir}/atmos.profile_plot.dummy']
 
@@ -66,7 +66,7 @@ class ProfilePlotter(Analyser):
             u_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'u_profile')
             # v_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'v_profile')
             height = u_profile.coord('level_height').points
-            shear_factor = int(expt[1]) # i.e. 0-5.
+            shear_factor = int(expt[-1]) # i.e. 0-5.
             shear_u_profile = self.base_u_profile.copy()
             shear_u_profile[:, 1] *= shear_factor
             # N.B. convert m->km.
@@ -118,7 +118,7 @@ class ProfilePlotter(Analyser):
             u_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'u_profile')
             # v_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'v_profile')
             height = u_profile.coord('level_height').points
-            shear_factor = int(expt[1]) # i.e. 0-5.
+            shear_factor = int(expt[-1]) # i.e. 0-5, if expt is e.g. S0, or km1_S0.
             shear_u_profile = self.base_u_profile.copy()
             shear_u_profile[:, 1] *= shear_factor
             # N.B. convert m->km.
@@ -143,7 +143,7 @@ class ProfilePlotter(Analyser):
             u_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'u_profile')
             # v_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'v_profile')
             height = u_profile.coord('level_height').points
-            shear_factor = int(expt[1]) # i.e. 0-5.
+            shear_factor = int(expt[-1]) # i.e. 0-5.
             shear_u_profile = self.base_u_profile.copy()
             shear_u_profile[:, 1] *= shear_factor
             # N.B. convert m->km.

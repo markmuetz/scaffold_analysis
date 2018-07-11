@@ -29,5 +29,5 @@ test_settings = AnalyserSetting(dict(
     qcl_thresh=5e-6,
     w_thresh=1.,
     # multiple.
-    start_runid=24,
+    start_runid=0,
 ))

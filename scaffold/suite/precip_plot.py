@@ -50,6 +50,8 @@ class PrecipPlot(Analyser):
                 precip = precips[expt]
                 precip_max = max(precip[i].data.max(), precip_max)
 
+            if len(self.expts_to_plot) == 1:
+                axes = [axes] # Make iterable.
             for ax, expt in zip(axes, self.expts_to_plot):
                 ax.set_title(expt)
                 if expt == self.task.expts[0]:
