@@ -2,12 +2,12 @@ from scaffold.version import VERSION
 from scaffold.scaffold_settings import production_settings, test_settings
 
 from scaffold.cycle.cycle_converter import CycleConverter
-from scaffold.cycle.cloud_analysis import CloudAnalyser
-from scaffold.cycle.mass_flux_analysis import MassFluxAnalyser
-from scaffold.cycle.mass_flux_spatial_scales_analysis import MassFluxSpatialScalesAnalyser
-from scaffold.cycle.org_analysis import OrgAnalyser
-from scaffold.cycle.profile_analysis import ProfileAnalyser
-from scaffold.cycle.restart_dump_analysis import RestartDumpAnalyser
+from scaffold.expt.cloud_analysis import CloudAnalyser
+from scaffold.expt.mass_flux_analysis import MassFluxAnalyser
+from scaffold.expt.mass_flux_spatial_scales_analysis import MassFluxSpatialScalesAnalyser
+from scaffold.expt.org_analysis import OrgAnalyser
+from scaffold.expt.profile_analysis import ProfileAnalyser
+from scaffold.expt.restart_dump_analysis import RestartDumpAnalyser
 
 from scaffold.expt.expt_converter import ExptConverter
 from scaffold.expt.cloud_track_analysis import CloudTrackAnalyser
