@@ -1,0 +1,38 @@
+diff --git a/__init__.py b/__init__.py
+index c8a43c7..ca7dc43 100644
+--- a/__init__.py
++++ b/__init__.py
+@@ -135,6 +135,7 @@ __all__ = ['load', 'load_cube', 'load_cubes', 'load_raw',
+ if iris.config.IMPORT_LOGGER:
+     logging.getLogger(iris.config.IMPORT_LOGGER).info('iris %s' % __version__)
+ 
++HAS_LBHEM_FIX = True
+ 
+ Constraint = iris._constraints.Constraint
+ AttributeConstraint = iris._constraints.AttributeConstraint
+diff --git a/fileformats/_ff.py b/fileformats/_ff.py
+index 99dc556..3f31e04 100644
+--- a/fileformats/_ff.py
++++ b/fileformats/_ff.py
+@@ -27,6 +27,7 @@ import warnings
+ 
+ import numpy as np
+ 
++import iris
+ from iris.exceptions import NotYetImplementedError
+ from iris.fileformats._ff_cross_references import STASH_TRANS
+ from . import pp
+@@ -705,6 +706,13 @@ class FF2PP(object):
+                 if header_longs[0] == _FF_LOOKUP_TABLE_TERMINATE:
+                     # There are no more FF LOOKUP table entries to read.
+                     break
++                if 'fix_lbhem_eq_4' in iris.site_configuration:
++                    assert isinstance(iris.site_configuration['fix_lbhem_eq_4'], int)
++                    loc = pp.PPField2.HEADER_DICT['lbhem'][0]
++                    assert loc < len(header_longs)
++                    if header_longs[loc] == 4:
++                        header_longs[loc] = iris.site_configuration['fix_lbhem_eq_4']
++
+                 header_floats = np.fromfile(
+                     ff_file, dtype='>f{0}'.format(self._word_depth),
+                     count=pp.NUM_FLOAT_HEADERS)
