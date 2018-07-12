@@ -1,7 +1,8 @@
 from scaffold.version import VERSION
 from scaffold.scaffold_settings import production_settings, test_settings
 
-from scaffold.cycle.cycle_converter import CycleConverter
+from scaffold.cycle.cycle_converter import CycleConverter, CycleDumpConverter
+
 from scaffold.expt.cloud_analysis import CloudAnalyser
 from scaffold.expt.mass_flux_analysis import MassFluxAnalyser
 from scaffold.expt.mass_flux_spatial_scales_analysis import MassFluxSpatialScalesAnalyser
@@ -43,6 +44,7 @@ analysis_settings_filename = 'omnium_output/{version_dir}/settings.json'
 
 analysis_classes = [
     CycleConverter,
+    CycleDumpConverter,
     CloudAnalyser,
     CloudTrackAnalyser,
     ExptConverter,

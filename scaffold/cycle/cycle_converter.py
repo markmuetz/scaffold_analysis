@@ -14,3 +14,18 @@ class CycleConverter(FF2NC_Converter):
 
     force = False
     delete = True
+
+
+class CycleDumpConverter(FF2NC_Converter):
+    analysis_name = 'cycle_dump_converter'
+    single_file = True
+    input_dir = 'share/data/history/{expt}'
+    input_filename_glob = '{input_dir}/atmosa_da???'
+    output_dir = 'share/data/history/{expt}'
+    output_filenames = ['{output_dir}/atmosa_da{runid:03}.nc']
+
+    uses_runid = True
+    runid_pattern = 'atmosa_da(?P<runid>\d{3})'
+
+    force = False
+    delete = False
