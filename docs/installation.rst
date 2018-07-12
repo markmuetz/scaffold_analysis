@@ -56,6 +56,8 @@ To fix, patch local copy of iris 1.13.0:
 
     cd ~/work/anaconda3/envs/omnium_env/lib/python3.6/site-packages/iris/
     patch -p1 < ~/work/scaffold_analysis/installation/iris-1.13.0_git_diff.fix_lbhem_eq_4.lib.patch
+    cd ~/work/python3_libs/lib/python3.4/site-packages/Iris-1.13.0-py3.4.egg/iris
+    patch -p1 < ~/work/scaffold_analysis/installation/iris-1.13.0_git_diff.fix_lbhem_eq_4.lib.patch
 
 Testing installation
 ====================
