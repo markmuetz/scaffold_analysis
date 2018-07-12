@@ -26,6 +26,10 @@ from scaffold.suite.precip_plot import PrecipPlot
 from scaffold.suite.profile_plot import ProfilePlotter
 from scaffold.suite.surf_flux_plot import SurfFluxPlot
 
+import iris
+assert iris.HAS_LBHEM_FIX
+iris.site_configuration['fix_lbhem_eq_4'] = 3
+
 __version__ = VERSION
 
 analysis_settings = {
