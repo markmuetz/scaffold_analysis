@@ -17,7 +17,7 @@ class MseCombinedAnalysis(Analyser):
         cubes = self.cubes
 
         mse_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'mse_profile')
-        theta = get_cube_from_attr(cubes, 'omnium_cube_id', 'theta')[0] # Just want z from it.
+        theta = get_cube_from_attr(cubes, 'omnium_cube_id', 'theta')
 
         self.results['mse_profile'] = mse_profile
         self.results['theta'] = theta

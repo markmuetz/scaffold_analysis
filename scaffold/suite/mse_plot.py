@@ -31,11 +31,14 @@ class MsePlotter(Analyser):
             print(mse_profile.name())
             self.results[expt + '_mse_profile'] = mse_profile
             th = get_cube_from_attr(cubes, 'omnium_cube_id', 'theta')
-            # WTF? Why has the name of these coords changed?
+            # Old:
+            # This is from fields file.
             # z = th.coord('level_height').points
-            z = th.coord('atmosphere_hybrid_height_coordinate').points
+            # This is after iris conv to nc.
+            # z = th.coord('atmosphere_hybrid_height_coordinate').points
+            # TODO: check this is right.
+            z = th.coord('altitude').points[:, 0, 0]
             dz = z[1:] - z[:-1]
-
             self.expt_mses[expt] = [(msep.data * dz).sum() for msep in mse_profile.slices_over('time')]
 
     def save(self, state, suite):
