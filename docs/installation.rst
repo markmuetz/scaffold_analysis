@@ -62,21 +62,3 @@ To fix, patch local copy of iris 1.13.0:
     patch -p1 < ~/work/scaffold_analysis/installation/iris-1.13.0_git_diff.fix_lbhem_eq_4.lib.patch
     cd ~/work/python3_libs/lib/python3.4/site-packages/Iris-1.13.0-py3.4.egg/iris
     patch -p1 < ~/work/scaffold_analysis/installation/iris-1.13.0_git_diff.fix_lbhem_eq_4.lib.patch
-
-Testing installation
-====================
-
-::
-
-    # Tell omnium about scaffold
-    source activate omnium_env
-    export OMNIUM_ANALYSER_PKGS=scaffold
-    # If you have the u-an388 data, do this to run realistic analysis tests
-    export SCAFFOLD_SUITE_UAN388_DIR=/home/markmuetz/omnium_test_suites/scaffold_test_suite/u-an388
-
-    # Should show current onmium version
-    omnium version
-    # Should show scaffold analysers
-    omnium ls-analysers
-    # Will run all tests for scaffold.
-    omnium test -a scaffold
