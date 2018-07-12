@@ -12,5 +12,5 @@ class CycleConverter(FF2NC_Converter):
     uses_runid = True
     runid_pattern = 'atmos.(?P<runid>\d{3}).(?P<stream>pp\d)'
 
-    force = True
-    delete = False
+    force = False
+    delete = True

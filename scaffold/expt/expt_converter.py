@@ -9,5 +9,5 @@ class ExptConverter(FF2NC_Converter):
     output_dir = 'work/20000101T0000Z/{expt}_atmos'
     output_filenames = ['{output_dir}/atmos.pp3.nc']
 
-    force = True
+    force = False
     delete = True
