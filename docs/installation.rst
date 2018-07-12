@@ -40,14 +40,22 @@ The fix is as follows:
 > know it's there.
 
 To fix, checkout copy of iris 1.13.0 and patch:
+DOES NOT WORK ON ARCHER.
 
     source activate omnium_env
     conda uninstall iris
     git clone https://github.com/SciTools/iris
     cd iris
     git checkout v1.13.0
+    git checkout -b fix_lbhem_eq_4
     patch -p1 < ../scaffold_analysis/installation/iris-1.13.0_git_diff.fix_lbhem_eq_4.patch
     pip install .
+
+To fix, patch local copy of iris 1.13.0:
+(ARCHER HACK).
+
+    cd ~/work/anaconda3/envs/omnium_env/lib/python3.6/site-packages/iris/
+    patch -p1 < ~/work/scaffold_analysis/installation/iris-1.13.0_git_diff.fix_lbhem_eq_4.lib.patch
 
 Testing installation
 ====================

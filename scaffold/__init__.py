@@ -27,6 +27,7 @@ from scaffold.suite.profile_plot import ProfilePlotter
 from scaffold.suite.surf_flux_plot import SurfFluxPlot
 
 import iris
+# Check and apply LBHEM fix.
 assert iris.HAS_LBHEM_FIX
 iris.site_configuration['fix_lbhem_eq_4'] = 3
 
