@@ -74,12 +74,19 @@ class RestartDumpAnalyser(Analyser):
         returns 3D MSE, stores all working in object.
         """
         self.results['theta'] = th
-        z = th.coord('level_height').points
+        for coord in th.coords():
+            if coord.name() == 'level_height':
+                height_name = 'level_height'
+                break
+            elif coord.name() == 'atmosphere_hybrid_height_coordinate':
+                height_name = 'atmosphere_hybrid_height_coordinate'
+                break
+        z = th.coord(height_name).points
         dz = z[1:] - z[:-1]
         dz_heights = iris.coords.DimCoord((z[:-1] + z[1:]) / 2, long_name='level_height')
         height_delta = iris.cube.Cube(dz, long_name='height_delta', dim_coords_and_dims=[(dz_heights, 0)], units='m')
 
-        Lv_rho_heights = rho.coord('level_height').points
+        Lv_rho_heights = rho.coord(height_name).points
         Lv_rho = Lv_rho_heights.repeat(rho.shape[1] * rho.shape[2]).reshape(rho.shape[0], rho.shape[1], rho.shape[2])
         self.e_t = rho.data * (th[:-1, :, :].data + th[1:, :, :].data) / 2 * ep[:-1].data * cp
         self.e_q = rho.data * (q[:-1, :, :].data + q[1:, :, :].data) / 2 * L
@@ -128,8 +135,19 @@ class RestartDumpAnalyser(Analyser):
         assert rho.ndim == 3
         assert var.ndim == 3
 
-        cube_heights = var.coord('level_height').points
-        rho_heights = rho.coord('level_height').points
+        # In fields file dump:
+        # level_height
+        # In iris converted nc:
+        # atmosphere_hybrid_height_coordinate
+        for coord in var.coords():
+            if coord.name() == 'level_height':
+                height_name = 'level_height'
+                break
+            elif coord.name() == 'atmosphere_hybrid_height_coordinate':
+                height_name = 'atmosphere_hybrid_height_coordinate'
+                break
+        cube_heights = var.coord(height_name).points
+        rho_heights = rho.coord(height_name).points
 
         if len(cube_heights) != len(rho_heights) + 1:
             raise Exception('Cube {} not on theta level'.format(var.name()))
@@ -141,8 +159,8 @@ class RestartDumpAnalyser(Analyser):
 
         # Work out dz, turn into 3d field to be multiplied by data.
         dz = cube_heights[1:] - cube_heights[:-1]
-        dz3d = dz.repeat(var.shape[1] * var.shape[2]) \
-                 .reshape(var.shape[0] - 1, var.shape[1], var.shape[2])
+        # dz3d = dz.repeat(var.shape[1] * var.shape[2]) \
+        #          .reshape(var.shape[0] - 1, var.shape[1], var.shape[2])
         # dz4d = np.tile(dz3d, (var.shape[0], 1, 1, 1))  # pylint: disable=no-member
 
         # Work out variable on rho grid, perform integral.
@@ -157,7 +175,7 @@ class RestartDumpAnalyser(Analyser):
         # Therefore adding and averaging is the same as just taking one of them.
         var_on_rho_grid_data[0] = var.data[0]
         varXrho = var_on_rho_grid_data * rho.data
-        var_col = (dz3d * varXrho).sum(axis=0)
+        var_col = (dz[:, None, None] * varXrho).sum(axis=0) # broadcast dz into varXrho.
 
         # Stuff results into a lovingly crafted cube.
         # Get cube with correct shape (2D horizontal slice).
