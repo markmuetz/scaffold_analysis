@@ -4,7 +4,7 @@ from matplotlib.colors import LogNorm
 import numpy as np
 import pylab as plt
 
-from omnium.analyser import Analyser
+from omnium import Analyser
 from omnium.utils import get_cube
 
 

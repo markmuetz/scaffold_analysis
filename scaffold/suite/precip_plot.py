@@ -3,7 +3,7 @@ matplotlib.use('Agg')
 import pylab as plt
 from matplotlib.colors import LogNorm
 
-from omnium.analyser import Analyser
+from omnium import Analyser
 from omnium.utils import get_cube
 
 

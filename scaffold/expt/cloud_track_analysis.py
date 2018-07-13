@@ -3,7 +3,7 @@ from logging import getLogger
 
 import numpy as np
 
-from omnium.analyser import Analyser
+from omnium import Analyser
 from omnium.utils import get_cube_from_attr
 from cloud_tracking import Tracker
 from cloud_tracking.cloud_tracking_analysis import generate_stats, plot_stats, output_stats_to_file

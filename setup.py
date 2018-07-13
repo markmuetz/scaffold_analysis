@@ -25,7 +25,13 @@ setup(
     author_email='m.muetzelfeldt@pgr.reading.ac.uk',
     maintainer='Mark Muetzelfeldt',
     maintainer_email='m.muetzelfeldt@pgr.reading.ac.uk',
-    packages=['scaffold', ],
+    packages=[
+        'scaffold',
+        'scaffold.cycle',
+        'scaffold.expt',
+        'scaffold.suite',
+        'scaffold.tests'
+    ],
     scripts=[ ],
     python_requires='>=3.6',
     install_requires=[

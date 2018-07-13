@@ -4,7 +4,7 @@ import numpy as np
 matplotlib.use('Agg')
 import iris
 
-from omnium.analyser import Analyser
+from omnium import Analyser
 from omnium.utils import get_cube_from_attr
 
 from scaffold.vertlev import VertLev

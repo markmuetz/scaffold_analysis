@@ -7,8 +7,7 @@ matplotlib.use('Agg')
 import pylab as plt
 from scipy.stats import linregress
 
-from omnium.analyser import Analyser
-from omnium.expt import ExptList
+from omnium import Analyser, ExptList
 
 from scaffold.utils import cm_to_inch
 

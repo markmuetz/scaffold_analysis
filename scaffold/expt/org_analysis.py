@@ -7,9 +7,8 @@ matplotlib.use('Agg')
 import pylab as plt
 import iris
 
-from omnium.analyser import Analyser
+from omnium import Analyser, ExptList
 from omnium.utils import get_cube_from_attr
-from omnium.expt import ExptList
 
 logger = getLogger('scaf.org_an')
 

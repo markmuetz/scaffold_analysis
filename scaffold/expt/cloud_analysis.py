@@ -8,7 +8,7 @@ import iris
 
 from cloud_tracking.utils import label_clds
 
-from omnium.analyser import Analyser
+from omnium import Analyser
 from omnium.utils import get_cube
 from omnium.consts import Re
 

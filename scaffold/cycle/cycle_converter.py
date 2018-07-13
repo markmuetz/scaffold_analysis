@@ -1,4 +1,4 @@
-from omnium.converter import FF2NC_Converter
+from omnium import FF2NC_Converter
 
 
 class CycleConverter(FF2NC_Converter):

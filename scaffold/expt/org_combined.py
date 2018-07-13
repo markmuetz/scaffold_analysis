@@ -3,7 +3,7 @@ from collections import defaultdict
 from logging import getLogger
 
 import iris
-from omnium.analyser import Analyser
+from omnium import Analyser
 
 logger = getLogger('scaf.oc')
 

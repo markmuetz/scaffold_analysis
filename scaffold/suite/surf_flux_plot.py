@@ -7,7 +7,7 @@ import numpy as np
 import pylab as plt
 import iris
 
-from omnium.analyser import Analyser
+from omnium import Analyser
 from omnium.utils import get_cube
 from omnium.consts import L
 
