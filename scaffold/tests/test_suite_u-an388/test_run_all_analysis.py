@@ -30,7 +30,7 @@ def test_00_check_all_analysers_in_use():
             assert enabled_str == 'True'
             analysis_name = ordered_analysis[3:]
             analysis_names.append(analysis_name)
-    scaffold_analysis_names = [a.analysis_name for a in scaffold.analysis_classes]
+    scaffold_analysis_names = [a.analysis_name for a in scaffold.analyser_classes]
     assert set(analysis_names) == set(scaffold_analysis_names)
 
 

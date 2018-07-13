@@ -11,7 +11,7 @@ def test_omnium_version():
 @patch('os.path.exists')
 @patch('os.makedirs')
 def test_scaffold_analysis_classes(mock_makedirs, mock_exists):
-    assert len(scaffold.analysis_classes) > 0
+    assert len(scaffold.analyser_classes) > 0
     setup_logger(debug=True, colour=False)
     mock_exists.return_value = False
     suite = Mock()
@@ -19,6 +19,6 @@ def test_scaffold_analysis_classes(mock_makedirs, mock_exists):
     suite.check_filename_missing.return_value = False
     task.filenames = ['/a/b/c.txt']
     task.output_filenames = ['/a/b/c.out']
-    for analysis_class in scaffold.analysis_classes:
-        analyser = analysis_class(suite, task, None)
+    for analyser_class in scaffold.analyser_classes:
+        analyser = analyser_class(suite, task, None)
         assert analyser

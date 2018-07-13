@@ -1,7 +1,7 @@
-from omnium import AnalyserSetting
+from omnium import AnalysisSettings
 
 
-production_settings = AnalyserSetting(dict(
+production_settings = AnalysisSettings(dict(
     # cloud_analysis
     height_levels = [15, 17, 19],
     qcl_threshs=[4.5e-6,5e-6,5.5e-6],
@@ -16,7 +16,7 @@ production_settings = AnalyserSetting(dict(
     start_runid=120,
 ))
 
-test_settings = AnalyserSetting(dict(
+test_settings = AnalysisSettings(dict(
     version = 1,
     # cloud_analysis
     height_levels = [15, 17, 19],

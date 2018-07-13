@@ -42,7 +42,7 @@ analysis_settings = {
 
 analysis_settings_filename = 'omnium_output/{version_dir}/settings.json'
 
-analysis_classes = [
+analyser_classes = [
     CycleConverter,
     CycleDumpConverter,
     CloudAnalyser,
