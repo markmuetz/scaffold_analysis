@@ -2,11 +2,11 @@ import os
 from logging import getLogger
 
 import numpy as np
+from cloud_tracking import Tracker
+from cloud_tracking.cloud_tracking_analysis import generate_stats, plot_stats, output_stats_to_file
 
 from omnium import Analyser
 from omnium.utils import get_cube_from_attr
-from cloud_tracking import Tracker
-from cloud_tracking.cloud_tracking_analysis import generate_stats, plot_stats, output_stats_to_file
 
 logger = getLogger('scaf.cta')
 

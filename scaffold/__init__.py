@@ -1,24 +1,21 @@
-from scaffold.version import VERSION
-from scaffold.scaffold_settings import production_settings, test_settings
+import iris
 
 from scaffold.cycle.cycle_converter import CycleConverter, CycleDumpConverter
-
 from scaffold.expt.cloud_analysis import CloudAnalyser
-from scaffold.expt.mass_flux_analysis import MassFluxAnalyser
-from scaffold.expt.mass_flux_spatial_scales_analysis import MassFluxSpatialScalesAnalyser
-from scaffold.expt.org_analysis import OrgAnalyser
-from scaffold.expt.profile_analysis import ProfileAnalyser
-from scaffold.expt.restart_dump_analysis import RestartDumpAnalyser
-
-from scaffold.expt.expt_converter import ExptConverter
 from scaffold.expt.cloud_track_analysis import CloudTrackAnalyser
+from scaffold.expt.expt_converter import ExptConverter
+from scaffold.expt.mass_flux_analysis import MassFluxAnalyser
 from scaffold.expt.mass_flux_combined import MassFluxCombinedAnalysis
+from scaffold.expt.mass_flux_spatial_scales_analysis import MassFluxSpatialScalesAnalyser
 from scaffold.expt.mass_flux_spatial_scales_combined import MassFluxSpatialScalesCombined
 from scaffold.expt.mse_combined import MseCombinedAnalysis
+from scaffold.expt.org_analysis import OrgAnalyser
 from scaffold.expt.org_combined import OrgCombined
-from scaffold.expt.surf_flux_analysis import SurfFluxAnalyser
 from scaffold.expt.precip_hovmoller import PrecipHovmollerAnalyser
-
+from scaffold.expt.profile_analysis import ProfileAnalyser
+from scaffold.expt.restart_dump_analysis import RestartDumpAnalyser
+from scaffold.expt.surf_flux_analysis import SurfFluxAnalyser
+from scaffold.scaffold_settings import production_settings, test_settings
 from scaffold.suite.mass_flux_plot import MassFluxPlotter
 from scaffold.suite.mass_flux_spatial_scales_plot import MassFluxSpatialScalesPlotter
 from scaffold.suite.mse_plot import MsePlotter
@@ -26,8 +23,8 @@ from scaffold.suite.org_plot import OrgPlotter
 from scaffold.suite.precip_plot import PrecipPlot
 from scaffold.suite.profile_plot import ProfilePlotter
 from scaffold.suite.surf_flux_plot import SurfFluxPlot
+from scaffold.version import VERSION
 
-import iris
 # Check and apply LBHEM fix.
 assert iris.HAS_LBHEM_FIX
 iris.site_configuration['fix_lbhem_eq_4'] = 3

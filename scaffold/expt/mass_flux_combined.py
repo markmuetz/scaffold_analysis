@@ -3,6 +3,7 @@ from collections import defaultdict
 from logging import getLogger
 
 import iris
+
 from omnium import Analyser
 
 logger = getLogger('scaf.mfc')

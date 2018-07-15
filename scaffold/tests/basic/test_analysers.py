@@ -1,8 +1,8 @@
 from mock import Mock, patch
 
 import omnium
-from omnium.setup_logging import setup_logger
 import scaffold
+from omnium.setup_logging import setup_logger
 
 
 def test_omnium_version():

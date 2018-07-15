@@ -3,6 +3,7 @@ from collections import defaultdict
 from logging import getLogger
 
 import iris
+
 from omnium import Analyser
 from omnium.utils import is_power_of_two
 

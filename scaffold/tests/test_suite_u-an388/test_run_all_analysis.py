@@ -1,6 +1,7 @@
 import os
-import shutil
 from configparser import ConfigParser
+
+import shutil
 
 import omnium
 import scaffold

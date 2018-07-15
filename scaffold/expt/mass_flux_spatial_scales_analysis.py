@@ -6,9 +6,8 @@ import numpy as np
 
 from omnium import Analyser
 from omnium.utils import get_cube_from_attr, coarse_grain
-
-from scaffold.vertlev import VertLev
 from scaffold.utils import interp_vert_rho2w
+from scaffold.vertlev import VertLev
 
 logger = getLogger('scaf.mfssa')
 
