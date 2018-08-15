@@ -13,7 +13,7 @@ class SurfFluxAnalyser(Analyser):
     """Analyse surface fluxes, plot graphs of energy/moisture fluxes."""
     analysis_name = 'surf_flux_analysis'
     single_file = True
-    input_dir = 'work/20000101T0000Z/{expt}_atmos'
+    input_dir = 'work/19700101T0000Z/{expt}_atmos'
     input_filename = '{input_dir}/atmos.pp3.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.surf_flux_analysis.nc']
