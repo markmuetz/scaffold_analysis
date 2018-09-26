@@ -19,7 +19,7 @@ class DumpSliceAnalyser(Analyser):
     input_dir = 'share/data/history/{expt}'
     input_filename_glob = '{input_dir}/atmosa_da4??.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
-    output_filenames = ['{output_dir}/atmos.precip_hovmoller_analysis.dummy']
+    output_filenames = ['{output_dir}/atmos.dump_slice_analysis.dummy']
     uses_runid = True
     runid_pattern = 'atmosa_da(?P<runid>\d{3}).nc'
 
@@ -27,7 +27,6 @@ class DumpSliceAnalyser(Analyser):
         self.load_cubes()
 
     def run(self):
-        """Get useful cubes from self.dump, perform sanity chacks and calc MSE, TCW."""
         dump = self.cubes
         self.rho = get_cube(dump, 0, 253) / Re ** 2
         self.rho_d = get_cube(dump, 0, 389)
@@ -42,16 +41,16 @@ class DumpSliceAnalyser(Analyser):
         self.qgraup = get_cube(dump, 0, 273)
 
     def display_results(self):
-        """Save all results for surf flux analysis."""
         self._plot(self.task.expt)
 
     def _plot(self, expt):
         vertlevs = VertLev(self.suite.suite_dir)
-        print(expt)
         fig, ax = plt.subplots(dpi=100)
         data = self.qcl.data
+        # Coords are time, y, x or time, lat, lon
+        import ipdb; ipdb.set_trace()
         data_mean = data.mean(axis=1)
-        Nx = 128
+        Nx = data.shape[2]
         data_rbs = scipy.interpolate.RectBivariateSpline(vertlevs.z_theta, np.arange(Nx),
                                                          data_mean)
         data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Nx - 1, Nx))
