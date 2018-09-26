@@ -146,8 +146,9 @@ class DumpSliceAnalyser(Analyser):
         ucube = self.u
         z = ucube.coord('atmosphere_hybrid_height_coordinate').points / 1000
 
-        height_level = 18
-        mean_wind = ucube.data[height_level].mean()
+
+        mean_wind_min_index = ucube.mean(axis=(1, 2)).argmin()
+        mean_wind = ucube.data[mean_wind_min_index].mean()
 
         for i in range(ucube.shape[0]):
             fig, ax = plt.subplots(dpi=100)
@@ -156,9 +157,9 @@ class DumpSliceAnalyser(Analyser):
             norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
             im = ax.imshow(data, norm=norm, origin='lower', cmap='bwr')
 
-            ax.set_title('u - u_mean={:.2f} m/s at z={:.2f} xy slice at z={:.2f} km'.format(mean_wind,
-                                                                                            z[height_level],
-                                                                                            z[i]))
+            ax.set_title('u - u_mean={:.2f} m/s at z={:.2f} km xy slice at z={:.2f} km'.format(mean_wind,
+                                                                                               z[mean_wind_min_index],
+                                                                                               z[i]))
             ax.set_xlabel('x (km)')
             ax.set_ylabel('y (km)')
             plt.colorbar(im)
@@ -178,9 +179,9 @@ class DumpSliceAnalyser(Analyser):
             norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
             im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr', aspect=0.1)
 
-            ax.set_title('u - u_mean={:.2f} at z={:.2f} xz slice at y={} gridbox'.format(mean_wind,
-                                                                                         z[height_level],
-                                                                                         i))
+            ax.set_title('u - u_mean={:.2f} at z={:.2f} km xz slice at y={} gridbox'.format(mean_wind,
+                                                                                            z[mean_wind_min_index],
+                                                                                            i))
             ax.set_xlabel('x (km)')
             ax.set_ylabel('height (100 m)')
             plt.colorbar(im)
