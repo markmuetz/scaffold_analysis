@@ -74,9 +74,11 @@ class DumpSliceAnalyser(Analyser):
         self._plot(self.task.expt)
 
     def _plot(self, expt):
-        self._w_slices_plots(expt)
-        self._w_mean_y_plots(expt)
-        self._qvar_mean_y_plots(expt)
+        # self._w_slices_plots(expt)
+        # self._w_mean_y_plots(expt)
+        self._th_slices_plots(expt)
+        self._u_slices_plots(expt)
+        # self._qvar_mean_y_plots(expt)
 
     def _w_slices_plots(self, expt):
         wcube = self.w
@@ -136,6 +138,74 @@ class DumpSliceAnalyser(Analyser):
             plt.savefig(self.file_path('/yz/{}_{}_w_slice_{}.png'.format(expt,
                                                                          self.task.runid,
                                                                          i)))
+            plt.close('all')
+
+    def _u_slices_plots(self, expt):
+        ucube = self.u
+        z = ucube.coord('atmosphere_hybrid_height_coordinate').points / 1000
+
+        height_level = 18
+        mean_wind = ucube.data[height_level].mean()
+
+        for i in range(ucube.shape[0]):
+            fig, ax = plt.subplots(dpi=100)
+            data = ucube.data[i] - mean_wind
+            # Coords are model_level, y, x or model_level, lat, lon
+            norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
+            im = ax.imshow(data, norm=norm, origin='lower', cmap='bwr')
+
+            ax.set_title('u - u_mean={:.2f} m/s at z={:.2f} xy slice at z={:.2f} km'.format(mean_wind,
+                                                                                            z[height_level],
+                                                                                            z[i]))
+            ax.set_xlabel('x (km)')
+            ax.set_ylabel('y (km)')
+            plt.colorbar(im)
+            plt.savefig(self.file_path('/xy/{}_{}_u_slice_{}.png'.format(expt,
+                                                                         self.task.runid,
+                                                                         i)))
+            plt.close('all')
+
+        for i in range(ucube.shape[1]):
+            fig, ax = plt.subplots(dpi=100)
+            data = ucube.data[:, i] - mean_wind
+            # Coords are model_level, y, x or model_level, lat, lon
+            Nx = ucube.shape[2]
+            data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(Nx),
+                                                             data)
+            data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Nx - 1, Nx))
+            norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
+            im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr', aspect=0.1)
+
+            ax.set_title('u - u_mean={:.2f} at z={:.2f} xz slice at y={} gridbox'.format(mean_wind,
+                                                                                         z[height_level],
+                                                                                         i))
+            ax.set_xlabel('x (km)')
+            ax.set_ylabel('height (100 m)')
+            plt.colorbar(im)
+            plt.savefig(self.file_path('/xz/{}_{}_u_slice_{}.png'.format(expt,
+                                                                         self.task.runid,
+                                                                         i)))
+            plt.close('all')
+
+    def _th_slices_plots(self, expt):
+        thcube = self.th
+        z = thcube.coord('atmosphere_hybrid_height_coordinate').points / 1000
+
+        for i in range(thcube.shape[0]):
+            fig, ax = plt.subplots(dpi=100)
+            # N.B. subtract mean.
+            data = thcube.data[i] - thcube.data[i].mean()
+            # Coords are model_level, y, x or model_level, lat, lon
+            norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
+            im = ax.imshow(data, norm=norm, origin='lower', cmap='bwr')
+
+            ax.set_title('theta xy slice at z={:.2f} km'.format(z[i]))
+            ax.set_xlabel('x (km)')
+            ax.set_ylabel('y (km)')
+            plt.colorbar(im)
+            plt.savefig(self.file_path('/xy/{}_{}_theta_slice_{}.png'.format(expt,
+                                                                             self.task.runid,
+                                                                             i)))
             plt.close('all')
 
     def _w_mean_y_plots(self, expt):
