@@ -4,6 +4,7 @@ from logging import getLogger
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
+from matplotlib import colors
 
 from omnium import Analyser, OmniumError
 from omnium.consts import Re, L, cp, g
@@ -12,6 +13,23 @@ from omnium.utils import get_cube
 from scaffold.vertlev import VertLev
 
 logger = getLogger('scaf.dump_slice')
+
+# set the colormap and centre the colorbar
+class MidpointNormalize(colors.Normalize):
+    """
+    Normalise the colorbar so that diverging bars work there way either side from a prescribed midpoint value)
+
+    e.g. im=ax1.imshow(array, norm=MidpointNormalize(midpoint=0.,vmin=-100, vmax=100))
+    """
+    def __init__(self, vmin=None, vmax=None, midpoint=None, clip=False):
+        self.midpoint = midpoint
+        colors.Normalize.__init__(self, vmin, vmax, clip)
+
+    def __call__(self, value, clip=None):
+        # I'm ignoring masked values and all kinds of edge cases to make a
+        # simple example...
+        x, y = [self.vmin, self.midpoint, self.vmax], [0, 0.5, 1]
+        return np.ma.masked_array(np.interp(value, x, y), np.isnan(value))
 
 
 class DumpSliceAnalyser(Analyser):
@@ -40,6 +58,8 @@ class DumpSliceAnalyser(Analyser):
         self.qcf = get_cube(dump, 0, 12)
         self.qrain = get_cube(dump, 0, 272)
         self.qgraup = get_cube(dump, 0, 273)
+        self.w = get_cube(dump, 0, 150)
+
         try:
             qcf2 = get_cube(dump, 0, 271)
             self.qcf2 = qcf2
@@ -55,6 +75,32 @@ class DumpSliceAnalyser(Analyser):
 
     def _plot(self, expt):
         self._qvar_plots(expt)
+        self._w_plots(expt)
+
+    def _w_plots(self, expt):
+        wcube = self.w
+        fig, ax = plt.subplots(dpi=100)
+        data = wcube.data
+        # Coords are model_level, y, x or model_level, lat, lon
+        data_mean = data.mean(axis=1)
+        Nx = data.shape[2]
+        data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(Nx),
+                                                         data_mean)
+        data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Nx - 1, Nx))
+        # Only go up to 20 km and use aspect ratio to plot equal aspect
+        # (allowing for diff in coords).
+        norm = MidpointNormalize(midpoint=0,
+                                 vmin=data_interp.min(),
+                                 vmax=data_interp.max())
+        im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr', aspect=0.2)
+
+        ax.set_title('w mean over y')
+        ax.set_xlabel('x (km)')
+        ax.set_ylabel('height (100 m)')
+        plt.colorbar(im)
+        plt.savefig(self.file_path('/xz/{}_{}_w_mean_over_y.png'.format(expt,
+                                                                        self.task.runid)))
+        plt.close('all')
 
     def _qvar_plots(self, expt):
         qvars = ['qcl', 'qcf', 'qrain', 'qgraup']
