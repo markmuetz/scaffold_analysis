@@ -80,10 +80,10 @@ class DumpSliceAnalyser(Analyser):
 
     def _w_slices_plots(self, expt):
         wcube = self.w
-        fig, ax = plt.subplots(dpi=100)
         z = wcube.coord('atmosphere_hybrid_height_coordinate').points / 1000
 
         for i in range(wcube.shape[0]):
+            fig, ax = plt.subplots(dpi=100)
             data = wcube.data[i]
             # Coords are model_level, y, x or model_level, lat, lon
             norm = MidpointNormalize(midpoint=0,
@@ -101,6 +101,7 @@ class DumpSliceAnalyser(Analyser):
             plt.close('all')
 
         for i in range(wcube.shape[1]):
+            fig, ax = plt.subplots(dpi=100)
             data = wcube.data[:, i]
             # Coords are model_level, y, x or model_level, lat, lon
             Nx = wcube.shape[2]
@@ -119,6 +120,7 @@ class DumpSliceAnalyser(Analyser):
             plt.close('all')
 
         for i in range(wcube.shape[2]):
+            fig, ax = plt.subplots(dpi=100)
             data = wcube.data[:, :, i]
             # Coords are model_level, y, x or model_level, lat, lon
             Ny = wcube.shape[1]
