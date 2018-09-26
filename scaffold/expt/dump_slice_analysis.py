@@ -95,15 +95,15 @@ class DumpSliceAnalyser(Analyser):
             ax.set_xlabel('x (km)')
             ax.set_ylabel('y (km)')
             plt.colorbar(im)
-            plt.savefig(self.file_path('/xy/{}_{}_w_slice_{}km.png'.format(expt,
-                                                                           self.task.runid,
-                                                                           z[i])))
+            plt.savefig(self.file_path('/xy/{}_{}_w_slice_{}.png'.format(expt,
+                                                                         self.task.runid,
+                                                                         i)))
             plt.close('all')
 
         for i in range(wcube.shape[1]):
             data = wcube.data[:, i]
             # Coords are model_level, y, x or model_level, lat, lon
-            Nx = data.shape[2]
+            Nx = wcube.shape[2]
             data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(Nx),
                                                              data)
             data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Nx - 1, Nx))
@@ -121,7 +121,7 @@ class DumpSliceAnalyser(Analyser):
         for i in range(wcube.shape[2]):
             data = wcube.data[:, :, i]
             # Coords are model_level, y, x or model_level, lat, lon
-            Ny = data.shape[1]
+            Ny = wcube.shape[1]
             data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(Ny),
                                                              data)
             data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Ny - 1, Ny))
