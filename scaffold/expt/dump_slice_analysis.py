@@ -146,8 +146,7 @@ class DumpSliceAnalyser(Analyser):
         ucube = self.u
         z = ucube.coord('atmosphere_hybrid_height_coordinate').points / 1000
 
-
-        mean_wind_min_index = ucube.mean(axis=(1, 2)).argmin()
+        mean_wind_min_index = ucube.data.mean(axis=(1, 2)).argmin()
         mean_wind = ucube.data[mean_wind_min_index].mean()
 
         for i in range(ucube.shape[0]):
@@ -173,6 +172,7 @@ class DumpSliceAnalyser(Analyser):
             data = ucube.data[:, i] - mean_wind
             # Coords are model_level, y, x or model_level, lat, lon
             Nx = ucube.shape[2]
+            import ipdb; ipdb.set_trace()
             data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(Nx),
                                                              data)
             data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Nx - 1, Nx))
