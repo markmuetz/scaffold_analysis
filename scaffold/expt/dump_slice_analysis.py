@@ -86,9 +86,7 @@ class DumpSliceAnalyser(Analyser):
             fig, ax = plt.subplots(dpi=100)
             data = wcube.data[i]
             # Coords are model_level, y, x or model_level, lat, lon
-            norm = MidpointNormalize(midpoint=0,
-                                     vmin=data.min(),
-                                     vmax=data.max())
+            norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
             im = ax.imshow(data, norm=norm, origin='lower', cmap='bwr')
 
             ax.set_title('w xy slice at z={} km'.format(z[i]))
@@ -108,6 +106,7 @@ class DumpSliceAnalyser(Analyser):
             data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(Nx),
                                                              data)
             data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Nx - 1, Nx))
+            norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
             im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr', aspect=0.1)
 
             ax.set_title('w xz slice at y={} gridbox'.format(i))
@@ -127,6 +126,7 @@ class DumpSliceAnalyser(Analyser):
             data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(Ny),
                                                              data)
             data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Ny - 1, Ny))
+            norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
             im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr', aspect=0.1)
 
             ax.set_title('w yz slice at x={} gridbox'.format(i))
