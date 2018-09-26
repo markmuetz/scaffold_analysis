@@ -92,7 +92,7 @@ class DumpSliceAnalyser(Analyser):
         norm = MidpointNormalize(midpoint=0,
                                  vmin=data_interp.min(),
                                  vmax=data_interp.max())
-        im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr', aspect=0.2)
+        im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr', aspect=0.1)
 
         ax.set_title('w mean over y')
         ax.set_xlabel('x (km)')
