@@ -172,8 +172,7 @@ class DumpSliceAnalyser(Analyser):
             data = ucube.data[:, i] - mean_wind
             # Coords are model_level, y, x or model_level, lat, lon
             Nx = ucube.shape[2]
-            import ipdb; ipdb.set_trace()
-            data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(Nx),
+            data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_rho, np.arange(Nx),
                                                              data)
             data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Nx - 1, Nx))
             norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
