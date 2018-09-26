@@ -36,7 +36,7 @@ class DumpSliceAnalyser(Analyser):
     analysis_name = 'dump_slice_analysis'
     single_file = True
     input_dir = 'share/data/history/{expt}'
-    input_filename_glob = '{input_dir}/atmosa_da4??.nc'
+    input_filename_glob = '{input_dir}/atmosa_da240.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.dump_slice_analysis.dummy']
     uses_runid = True
@@ -74,10 +74,69 @@ class DumpSliceAnalyser(Analyser):
         self._plot(self.task.expt)
 
     def _plot(self, expt):
-        self._qvar_plots(expt)
-        self._w_plots(expt)
+        self._w_slices_plots(expt)
+        self._w_mean_y_plots(expt)
+        self._qvar_mean_y_plots(expt)
 
-    def _w_plots(self, expt):
+    def _w_slices_plots(self, expt):
+        wcube = self.w
+        fig, ax = plt.subplots(dpi=100)
+        z = wcube.coord('atmosphere_hybrid_height_coordinate').points / 1000
+
+        for i in range(wcube.shape[0]):
+            data = wcube.data[i]
+            # Coords are model_level, y, x or model_level, lat, lon
+            norm = MidpointNormalize(midpoint=0,
+                                     vmin=data.min(),
+                                     vmax=data.max())
+            im = ax.imshow(data, norm=norm, origin='lower', cmap='bwr')
+
+            ax.set_title('w xy slice at z={} km'.format(z[i]))
+            ax.set_xlabel('x (km)')
+            ax.set_ylabel('y (km)')
+            plt.colorbar(im)
+            plt.savefig(self.file_path('/xy/{}_{}_w_slice_{}km.png'.format(expt,
+                                                                           self.task.runid,
+                                                                           z[i])))
+            plt.close('all')
+
+        for i in range(wcube.shape[1]):
+            data = wcube.data[:, i]
+            # Coords are model_level, y, x or model_level, lat, lon
+            Nx = data.shape[2]
+            data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(Nx),
+                                                             data)
+            data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Nx - 1, Nx))
+            im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr', aspect=0.1)
+
+            ax.set_title('w xz slice at y={} gridbox'.format(i))
+            ax.set_xlabel('x (km)')
+            ax.set_ylabel('height (100 m)')
+            plt.colorbar(im)
+            plt.savefig(self.file_path('/xz/{}_{}_w_slice_{}.png'.format(expt,
+                                                                         self.task.runid,
+                                                                         i)))
+            plt.close('all')
+
+        for i in range(wcube.shape[2]):
+            data = wcube.data[:, :, i]
+            # Coords are model_level, y, x or model_level, lat, lon
+            Ny = data.shape[1]
+            data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(Ny),
+                                                             data)
+            data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Ny - 1, Ny))
+            im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr', aspect=0.1)
+
+            ax.set_title('w yz slice at x={} gridbox'.format(i))
+            ax.set_xlabel('y (km)')
+            ax.set_ylabel('height (100 m)')
+            plt.colorbar(im)
+            plt.savefig(self.file_path('/yz/{}_{}_w_slice_{}.png'.format(expt,
+                                                                         self.task.runid,
+                                                                         i)))
+            plt.close('all')
+
+    def _w_mean_y_plots(self, expt):
         wcube = self.w
         fig, ax = plt.subplots(dpi=100)
         data = wcube.data
@@ -102,7 +161,7 @@ class DumpSliceAnalyser(Analyser):
                                                                         self.task.runid)))
         plt.close('all')
 
-    def _qvar_plots(self, expt):
+    def _qvar_mean_y_plots(self, expt):
         qvars = ['qcl', 'qcf', 'qrain', 'qgraup']
         for qvar in qvars:
             if not hasattr(self, qvar):
