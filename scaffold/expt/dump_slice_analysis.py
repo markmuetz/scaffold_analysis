@@ -47,9 +47,9 @@ class DumpSliceAnalyser(Analyser):
             logger.info('dump has no qcf2')
 
     def display_results(self):
-        os.makedirs(self.file_path('/xy'), exists_ok=True)
-        os.makedirs(self.file_path('/xz'), exists_ok=True)
-        os.makedirs(self.file_path('/yz'), exists_ok=True)
+        os.makedirs(self.file_path('/xy'), exist_ok=True)
+        os.makedirs(self.file_path('/xz'), exist_ok=True)
+        os.makedirs(self.file_path('/yz'), exist_ok=True)
         self.vertlevs = VertLev(self.suite.suite_dir)
         self._plot(self.task.expt)
 
