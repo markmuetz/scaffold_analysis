@@ -49,7 +49,8 @@ class DumpSliceAnalyser(Analyser):
         vertlevs = VertLev(self.suite.suite_dir)
         print(expt)
         fig, ax = plt.subplots(dpi=100)
-        data_mean = self.qcl.mean(axis=1)
+        data = self.qcl.data
+        data_mean = data.mean(axis=1)
         Nx = 128
         data_rbs = scipy.interpolate.RectBivariateSpline(vertlevs.z_theta, np.arange(Nx),
                                                          data_mean)
