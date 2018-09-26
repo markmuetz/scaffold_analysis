@@ -15,7 +15,7 @@ class RestartDumpAnalyser(Analyser):
     analysis_name = 'restart_dump_analysis'
     single_file = True
     input_dir = 'share/data/history/{expt}'
-    input_filename_glob = '{input_dir}/atmosa_da???.nc'
+    input_filename_glob = '{input_dir}/atmosa_da4??.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.{runid:03}.restart_dump_analysis.nc']
     uses_runid = True

@@ -14,7 +14,7 @@ class DumpSliceAnalyser(Analyser):
     analysis_name = 'dump_slice_analysis'
     single_file = True
     input_dir = 'share/data/history/{expt}'
-    input_filename_glob = '{input_dir}/atmosa_da???.nc'
+    input_filename_glob = '{input_dir}/atmosa_da4??.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.precip_hovmoller_analysis.dummy']
     uses_runid = True
