@@ -60,7 +60,7 @@ class DumpSliceAnalyser(Analyser):
         ax.set_xlabel('x (km)')
         ax.set_ylabel('height (100 m)')
         plt.colorbar(im)
-        plt.savefig(self.file_path(expt + '_slice_mean_over_y.png'))
+        plt.savefig(self.file_path('{}_{}_slice_mean_over_y.png'.format(expt, self.task.runid)))
         plt.close('all')
 
     def save(self, state, suite):
