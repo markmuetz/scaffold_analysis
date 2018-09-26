@@ -47,14 +47,14 @@ class DumpSliceAnalyser(Analyser):
         vertlevs = VertLev(self.suite.suite_dir)
         fig, ax = plt.subplots(dpi=100)
         data = self.qcl.data
-        # Coords are time, y, x or time, lat, lon
-        import ipdb; ipdb.set_trace()
+        # Coords are model_level, y, x or model_level, lat, lon
         data_mean = data.mean(axis=1)
         Nx = data.shape[2]
         data_rbs = scipy.interpolate.RectBivariateSpline(vertlevs.z_theta, np.arange(Nx),
                                                          data_mean)
         data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Nx - 1, Nx))
-        im = ax.imshow(data_interp[:200], origin='lower', cmap='Blues', aspect=0.2)
+        # Only go up to 20 km and use aspect ratio to plot equal aspect (allowing for diff in coords).
+        im = ax.imshow(data_interp[:200], origin='lower', cmap='Blues', aspect=0.1)
 
         ax.set_title('')
         ax.set_xlabel('x (km)')
@@ -62,7 +62,6 @@ class DumpSliceAnalyser(Analyser):
         plt.colorbar(im)
         plt.savefig(self.file_path(expt + '_slice_mean_over_y.png'))
         plt.close('all')
-
 
     def save(self, state, suite):
         with open(self.task.output_filenames[0], 'w') as f:
