@@ -1,11 +1,14 @@
 from logging import getLogger
 
-import iris
 import numpy as np
+import scipy
+import matplotlib.pyplot as plt
 
 from omnium import Analyser
 from omnium.consts import Re, L, cp, g
 from omnium.utils import get_cube
+
+from scaffold.vertlev import VertLev
 
 logger = getLogger('scaf.dump_slice')
 
@@ -43,7 +46,23 @@ class DumpSliceAnalyser(Analyser):
         self._plot(self.task.expt)
 
     def _plot(self, expt):
-        pass
+        vertlevs = VertLev(self.suite.suite_dir)
+        print(expt)
+        fig, ax = plt.subplots(dpi=100)
+        data_mean = self.qcl.mean(axis=1)
+        Nx = 128
+        data_rbs = scipy.interpolate.RectBivariateSpline(vertlevs.z_theta, np.arange(Nx),
+                                                         data_mean)
+        data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Nx - 1, Nx))
+        im = ax.imshow(data_interp[:200], origin='lower', cmap='Blues', aspect=0.2)
+
+        ax.set_title('')
+        ax.set_xlabel('x (km)')
+        ax.set_ylabel('height (100 m)')
+        plt.colorbar(im)
+        plt.savefig(self.file_path(expt + '_slice_mean_over_y.png'))
+        plt.close('all')
+
 
     def save(self, state, suite):
         with open(self.task.output_filenames[0], 'w') as f:
