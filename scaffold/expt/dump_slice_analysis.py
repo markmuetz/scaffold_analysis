@@ -36,7 +36,7 @@ class DumpSliceAnalyser(Analyser):
     analysis_name = 'dump_slice_analysis'
     single_file = True
     input_dir = 'share/data/history/{expt}'
-    input_filename_glob = '{input_dir}/atmosa_da240.nc'
+    input_filename_glob = '{input_dir}/atmosa_da???.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.dump_slice_analysis.dummy']
     uses_runid = True
@@ -89,7 +89,7 @@ class DumpSliceAnalyser(Analyser):
             norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
             im = ax.imshow(data, norm=norm, origin='lower', cmap='bwr')
 
-            ax.set_title('w xy slice at z={} km'.format(z[i]))
+            ax.set_title('w xy slice at z={:.2f} km'.format(z[i]))
             ax.set_xlabel('x (km)')
             ax.set_ylabel('y (km)')
             plt.colorbar(im)
