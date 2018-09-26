@@ -58,6 +58,8 @@ class DumpSliceAnalyser(Analyser):
         self.qcf = get_cube(dump, 0, 12)
         self.qrain = get_cube(dump, 0, 272)
         self.qgraup = get_cube(dump, 0, 273)
+
+        self.u = get_cube(dump, 0, 2)
         self.w = get_cube(dump, 0, 150)
 
         try:
