@@ -1,3 +1,4 @@
+import os
 from logging import getLogger
 import configparser as cp
 
@@ -20,7 +21,6 @@ class DumpExtractState(Analyser):
     runid_pattern = 'atmosa_da(?P<runid>\d{3}).nc'
 
     def load(self):
-        import ipdb; ipdb.set_trace()
         filenames = self.task.filenames
         theta = []
         mv = []
@@ -28,6 +28,7 @@ class DumpExtractState(Analyser):
             if self.suite.check_filename_missing(dump_filename):
                 logger.debug('filename {} missing, skipping', dump_filename)
                 continue
+            logger.debug('loading filename {}', dump_filename)
             da = iris.load(dump_filename)
             da_theta = get_cube(da, 0, 4)
             da_mv = get_cube(da, 0, 391)
@@ -61,8 +62,11 @@ class DumpExtractState(Analyser):
         opt.set('namelist:idealised', 'theta_relax_time', '0')
         opt.set('namelist:idealised', 'theta_relax_timescale', '25600.0')
 
-        opt.write(sys.stdout)
-        with open('rose-app-S0_relax.conf', 'w') as f:
+        dirname = os.path.join(self.suite.suite_dir, 'local_conf')
+        if not os.path.exists(dirname):
+            os.makedirs(dirname, exist_ok=True)
+        filename = os.path.join(dirname, 'rose-app-relax_to_{}.conf'.format(self.task.expt))
+        with open(filename, 'w') as f:
             opt.write(f)
 
     def save(self, state, suite):
