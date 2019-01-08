@@ -34,8 +34,8 @@ class DumpExtractState(Analyser):
             theta.append(da_theta)
             mv.append(da_mv)
 
-        self.theta = iris.cube.CubeList.merge(theta)
-        self.mv = iris.cube.CubeList.merge(mv)
+        self.theta = iris.cube.CubeList.merge(theta)[0]
+        self.mv = iris.cube.CubeList.merge(mv)[0]
         self.z = self.theta.coord('atmosphere_hybrid_height_coordinate').points
 
     def run(self):
