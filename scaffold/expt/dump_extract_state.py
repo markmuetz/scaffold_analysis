@@ -66,6 +66,7 @@ class DumpExtractState(Analyser):
         if not os.path.exists(dirname):
             os.makedirs(dirname, exist_ok=True)
         filename = os.path.join(dirname, 'rose-app-relax_to_{}.conf'.format(self.task.expt))
+        logger.debug('Saving to: {}'.format(filename))
         with open(filename, 'w') as f:
             opt.write(f)
 
