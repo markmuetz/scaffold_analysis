@@ -29,7 +29,7 @@ class DumpExtractState(Analyser):
             if self.suite.check_filename_missing(dump_filename):
                 logger.debug('filename {} missing, skipping', dump_filename)
                 continue
-            runid = DumpExtractState.get_runid_filename_vars(dump_filename)
+            runid, _ = DumpExtractState.get_runid_filename_vars(dump_filename)
             if runid < self.min_runid:
                 logger.debug('filename {} runid too low, skipping', dump_filename)
                 continue
