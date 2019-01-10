@@ -38,7 +38,7 @@ class DumpSliceAnalyser(Analyser):
     input_dir = 'share/data/history/{expt}'
     input_filename_glob = '{input_dir}/atmosa_da???.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
-    output_filenames = ['{output_dir}/atmos.dump_slice_analysis.dummy']
+    output_filenames = ['{output_dir}/atmos.{runid:03}.dump_slice_analysis.dummy']
     uses_runid = True
     runid_pattern = 'atmosa_da(?P<runid>\d{3}).nc'
 
