@@ -69,18 +69,18 @@ class SurfFluxPlot(Analyser):
                 precip_ts_smoothed = np.convolve(precip_ts.data, np.ones((96, )) / 96., mode='same')
                 plt.plot(times[96:-96], precip_ts_smoothed[96:-96] * L, color=colour, linestyle='--')
 
-            day20index = int(len(precip_ts.data) / 2)
-            mean_pfe = precip_ts.data[day20index:].mean() * L
-            mean_lhf = lhf_ts.data[day20index:].mean()
-            mean_shf = shf_ts.data[day20index:].mean()
+            half_way_index = int(len(precip_ts.data) / 2)
+            mean_pfe = precip_ts.data[half_way_index:].mean() * L
+            mean_lhf = lhf_ts.data[half_way_index:].mean()
+            mean_shf = shf_ts.data[half_way_index:].mean()
             lines.append('{},{},{},{}'.format(expt, mean_pfe, mean_lhf, mean_shf))
 
         self.save_text('energy_flux.csv', '\n'.join(lines) + '\n')
         plt.ylim((-50, 300))
-        plt.xlim((0, 40))
+        plt.xlim((0, 20))
         plt.legend()
 
         plt.ylabel('flux (W m$^{-2}$)')
         plt.xlabel('time (day)')
-        plt.axvline(x=20, linestyle='--', color='k')
+        plt.axvline(x=10, linestyle='--', color='k')
         plt.savefig(self.file_path('energy_fluxes.png'))
