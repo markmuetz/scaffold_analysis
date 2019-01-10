@@ -18,6 +18,7 @@ class DumpExtractState(Analyser):
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.dump_extract_state.dummy']
     uses_runid = True
+    min_runid = 264
     runid_pattern = 'atmosa_da(?P<runid>\d{3}).nc'
 
     def load(self):
@@ -28,6 +29,11 @@ class DumpExtractState(Analyser):
             if self.suite.check_filename_missing(dump_filename):
                 logger.debug('filename {} missing, skipping', dump_filename)
                 continue
+            runid = Analyser.get_runid_filename_vars(dump_filename)
+            if runid < self.min_runid:
+                logger.debug('filename {} runid too low, skipping', dump_filename)
+                continue
+
             logger.debug('loading filename {}', dump_filename)
             da = iris.load(dump_filename)
             da_theta = get_cube(da, 0, 4)
