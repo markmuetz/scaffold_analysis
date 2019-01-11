@@ -41,7 +41,7 @@ class MassFluxPlotter(Analyser):
     def display_results(self):
         self.xlim = (0, 4)
         self.ylim = None
-        self.nbins = 50
+        self.nbins = 150
         self._plot_mass_flux_hist()
         plt.close('all')
 
