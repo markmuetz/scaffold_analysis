@@ -181,9 +181,12 @@ class MassFluxPlotter(Analyser):
                 plot = ax1.plot(bin_centers, y, label=expt)
                 colour = plot[0].get_color()
                 ax1.plot(x, np.exp(m * x + c), color=colour, linestyle='--')
+
                 ax2.plot(bin_centers, y2, label=expt)
 
                 ax1_p.plot(bin_centers, y, color=colour, label=expt)
+                ax1_p.plot(bin_centers, y + np.sqrt(y), color=colour)
+                ax1_p.plot(bin_centers, y - np.sqrt(y), color=colour)
                 ax1_p.plot(x, np.exp(m * x + c), color=colour, linestyle='--')
 
         self.save_text('mf_linregress.csv', '\n'.join(linregress_details) + '\n')
