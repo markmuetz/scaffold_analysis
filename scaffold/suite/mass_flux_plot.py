@@ -184,10 +184,11 @@ class MassFluxPlotter(Analyser):
 
                 ax2.plot(bin_centers, y2, label=expt)
 
-                ax1_p.plot(bin_centers, y, color=colour, label=expt)
-                ax1_p.fill_between(bin_centers, y + np.sqrt(y), y - np.sqrt(y),
+                y_hist = y / width
+                ax1_p.plot(bin_centers, y_hist, color=colour, label=expt)
+                ax1_p.fill_between(bin_centers, y_hist + np.sqrt(y_hist), y_hist - np.sqrt(y_hist),
                                    color=colour, alpha=0.3)
-                ax1_p.plot(x, np.exp(m * x + c), color=colour, linestyle='--')
+                # ax1_p.plot(x, np.exp(m * x + c), color=colour, linestyle='--')
 
         self.save_text('mf_linregress.csv', '\n'.join(linregress_details) + '\n')
 
