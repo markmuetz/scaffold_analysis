@@ -191,7 +191,7 @@ class MassFluxPlotter(Analyser):
                 ax2.plot(bin_centers, y2, label=expt)
 
                 # y_hist = y / width
-                ax1_p.plot(bin_centers, y_density, color=colour, label=expt)
+                ax1_p.plot(bin_centers, y_density * width, color=colour, label=expt)
                 logger.debug('Sum y_density={}'.format((y_density * width).sum()))
                 # ax1_p.fill_between(bin_centers, y_hist + np.sqrt(y_hist), y_hist - np.sqrt(y_hist),
                                    # color=colour, alpha=0.3)
