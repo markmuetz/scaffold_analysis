@@ -1,6 +1,9 @@
 import os
 
-import f90nml
+try:
+    import f90nml
+except ImportError:
+    pass
 import numpy as np
 
 
