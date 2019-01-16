@@ -181,7 +181,7 @@ class MassFluxPlotter(Analyser):
                     if self.ylim:
                         ax1_p.set_ylim(self.ylim)
                     ax1_p.set_yscale('log')
-                    ax1_p.set_ylabel('Number of clouds')
+                    ax1_p.set_ylabel('Cloud number probability density')
                     ax1_p.set_xlabel('Mass flux per cloud ($\\times 10^8$ kg s$^{-1}$)')
 
                 plot = ax1.plot(bin_centers, y, label=expt)
