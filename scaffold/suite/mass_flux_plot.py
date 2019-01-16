@@ -6,7 +6,8 @@ import numpy as np
 
 matplotlib.use('Agg')
 import pylab as plt
-from scipy.stats import linregress, optimize
+from scipy.stats import linregress
+from scipy import optimize
 
 from omnium import Analyser, ExptList
 
