@@ -6,7 +6,7 @@ import numpy as np
 
 matplotlib.use('Agg')
 import pylab as plt
-from scipy.stats import linregress
+from scipy.stats import linregress, optimize
 
 from omnium import Analyser, ExptList
 
@@ -189,6 +189,11 @@ class MassFluxPlotter(Analyser):
                 ax1.plot(x, np.exp(m * x + c), color=colour, linestyle='--')
 
                 ax2.plot(bin_centers, y2, label=expt)
+
+                def exp_dn(x, lmbda):
+                    return lmbda * np.exp(lmbda * x)
+                popt, pcov = optimize.curve_fit(exp_dn, bin_centers, y_density * width, p0=(1,))
+                plt.plot(bin_centers, exp_dn(bin_centers, *popt), color=colour, linestyle='--')
 
                 # y_hist = y / width
                 ax1_p.plot(bin_centers, y_density * width,
