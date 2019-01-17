@@ -201,7 +201,7 @@ class MassFluxPlotter(Analyser):
                 logger.debug('popt: {}', popt)
                 logger.debug('Sum y_density={}'.format((y_density * width).sum()))
                 plt.plot(bin_centers, exp_dn(bin_centers, lmbda_guess) * width, color=colour, linestyle=':')
-                # plt.plot(bin_centers, exp_dn(bin_centers, *popt) * width, color=colour, linestyle='--')
+                plt.plot(bin_centers, exp_dn(bin_centers, *popt) * width, color=colour, linestyle='--')
 
                 ax1_p.set_ylim((1e-4, 1))
 
