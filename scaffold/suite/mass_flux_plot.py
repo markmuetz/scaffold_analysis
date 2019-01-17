@@ -193,8 +193,13 @@ class MassFluxPlotter(Analyser):
 
                 def exp_dn(x, lmbda):
                     return lmbda * np.exp(lmbda * x)
-                popt, pcov = optimize.curve_fit(exp_dn, bin_centers, y_density * width, p0=(1,))
-                # plt.plot(bin_centers, exp_dn(bin_centers, *popt), color=colour, linestyle='--')
+
+                mu = (bin_centers * y_density * width).sum()
+                lmbda_guess = 1 / mu
+                logger.debug('lambda guess: {}', lmbda_guess)
+                popt, pcov = optimize.curve_fit(exp_dn, bin_centers, y_density * width, p0=(lmbda_guess,))
+                logger.debug('popt: {}', popt)
+                plt.plot(bin_centers, exp_dn(bin_centers, *popt), color=colour, linestyle='--')
 
                 # y_hist = y / width
                 ax1_p.plot(bin_centers, y_density * width,
