@@ -35,21 +35,128 @@ class MassFluxPlotter(Analyser):
     def load(self):
         self.load_cubes()
 
+    def _make_groups(self):
+        self.groups = {}
+
+        expts = ExptList(self.suite)
+        expts.find(self.task.expts)
+        for expt in self.task.expts:
+            expt_obj = expts.get(expt)
+            cubes = self.expt_cubes[expt]
+            sorted_cubes = []
+
+            for cube in cubes:
+                (height_level_index, thresh_index) = cube.attributes['mass_flux_key']
+                mf_key = (height_level_index, thresh_index)
+                sorted_cubes.append((mf_key, cube))
+
+            # Each element is a tuple like: ((1, 3), cube)
+            # Sorting will put in correct order, sorting on initial tuple.
+            sorted_cubes.sort()
+
+            # Group on first element of tuple, i.e. on 1 for ((1, 3), cube)
+            for group, cubes in groupby(sorted_cubes, lambda x: x[0][0]):
+                if group not in self.groups:
+                    group_data = {'cubes': cubes, 'expt_obj': expt_obj}
+                    self.groups[group] = group_data
+
+    def _calc_histograms(self):
+        for group, group_data in self.groups.items():
+            cubes = group_data['cubes']
+            expt_obj = group_data['expt_obj']
+            dx, dy = expt_obj.dx, expt_obj.dy
+
+            hist_data = []
+            dmax = 0
+            for i, item in enumerate(cubes):
+                cube = item[1]
+                hist_data.append(cube)
+                dmax = max(cube.data.max() * dx * dy / self.mass_flux_scaling, dmax)
+
+            assert len(hist_data) == 3
+
+            hist_kwargs = {}
+            if self.xlim:
+                hist_kwargs['range'] = self.xlim
+            else:
+                hist_kwargs['range'] = (0, dmax)
+
+            if self.nbins:
+                hist_kwargs['bins'] = self.nbins
+
+            #y_min, bin_edges = np.histogram(hist_data[2].data, bins=50, range=(0, dmax))
+            #y_max, bin_edges = np.histogram(hist_data[0].data, bins=50, range=(0, dmax))
+
+            y, bin_edges = np.histogram(hist_data[1].data * dx * dy / self.mass_flux_scaling,
+                                        **hist_kwargs)
+            y_density, bin_edges = np.histogram(hist_data[1].data * dx * dy / self.mass_flux_scaling,
+                                                density=True,
+                                                **hist_kwargs)
+            bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
+            width = bin_edges[1:] - bin_edges[:-1]
+            y2 = bin_centers * y
+
+            group_data['y'] = y
+            group_data['y_density'] = y_density
+            group_data['y2'] = y2
+            group_data['bin_centers'] = bin_centers
+            group_data['width'] = width
+
+    def _calc_fit_linregress(self):
+        for group, group_data in self.groups.items():
+            y = group_data['y']
+            bin_centers = group_data['bin_centers']
+
+            # Only calc. logarithm where y > 10.
+            log_y = np.log(y[y > 10])
+            x = bin_centers[:len(log_y)]
+
+            m, c, rval, pval, stderr = linregress(x[1:], log_y[1:])
+            group_data['linregress'] = (m, c, rval, pval, stderr)
+
+    def _calc_fit_expt(self):
+        for group, group_data in self.groups.items():
+            y_density = group_data['y_density']
+            bin_centers = group_data['bin_centers']
+            width = group_data['width']
+
+            def exp_dn(x, lmbda):
+                return lmbda * np.exp(-lmbda * x)
+
+            beta = (bin_centers * y_density * width).sum()
+            lmbda_guess = 1 / beta
+            logger.debug('lambda guess: {}', lmbda_guess)
+            popt, pcov = optimize.curve_fit(exp_dn, bin_centers, y_density, p0=(lmbda_guess,))
+            group_data['lambda_guess'] = lmbda_guess
+            group_data['lambda_fit'] = popt[0]
+
     def run(self):
-        pass
+        self.xlim = (0, 3)
+        self.ylim = None
+        self.nbins = 100
+
+        self._make_groups()
+        self._calc_histograms()
+        self._calc_fit_linregress()
+        self._calc_fit_expt()
 
     def save(self, state, suite):
         with open(self.task.output_filenames[0], 'w') as f:
             f.write('done')
 
     def display_results(self):
-        self.xlim = (0, 3)
-        self.ylim = None
-        self.nbins = 100
         self._plot_mass_flux_hist()
         plt.close('all')
 
     def _plot_mass_flux_hist(self):
+        for group, group_data in self.groups.items():
+            expt = group_data['expt_obj'].name
+            name = '{}.z{}.mass_flux_hist'.format(expt, group)
+            plt.figure(name)
+
+    def _plot_mass_flux_hist_old(self):
+        # TODO: this code is *ugly*.
+        # TODO: refactor, suggestions: do analysis in run, plot each individual fig in sep method.
         self.append_log('plotting mass_flux')
 
         groups = []
@@ -126,7 +233,7 @@ class MassFluxPlotter(Analyser):
                     plt.ylim(self.ylim)
                 plt.savefig(self.file_path(name + '.png'))
 
-                plt.figure(name + 'mf_wieghted_plot_filename')
+                plt.figure(name + 'mf_weighted_plot_filename')
                 plt.clf()
                 plt.plot(bin_centers, y2)
                 plt.savefig(self.file_path(name + '.mf_weighted.png'))
