@@ -199,7 +199,7 @@ class MassFluxPlotter(Analyser):
                 logger.debug('lambda guess: {}', lmbda_guess)
                 popt, pcov = optimize.curve_fit(exp_dn, bin_centers, y_density * width, p0=(lmbda_guess,))
                 logger.debug('popt: {}', popt)
-                plt.plot(bin_centers, exp_dn(bin_centers, lmbda_guess), color=colour, linestyle='.')
+                plt.plot(bin_centers, exp_dn(bin_centers, lmbda_guess), color=colour, linestyle='..')
                 plt.plot(bin_centers, exp_dn(bin_centers, *popt), color=colour, linestyle='--')
 
                 # y_hist = y / width
