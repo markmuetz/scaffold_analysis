@@ -192,7 +192,7 @@ class MassFluxPlotter(Analyser):
                 ax2.plot(bin_centers, y2, label=expt)
 
                 def exp_dn(x, lmbda):
-                    return lmbda * np.exp(lmbda * x)
+                    return lmbda * np.exp(-lmbda * x)
 
                 mu = (bin_centers * y_density * width).sum()
                 lmbda_guess = 1 / mu
