@@ -203,6 +203,8 @@ class MassFluxPlotter(Analyser):
                 plt.plot(bin_centers, exp_dn(bin_centers, lmbda_guess) * width, color=colour, linestyle=':')
                 plt.plot(bin_centers, exp_dn(bin_centers, *popt), color=colour, linestyle='--')
 
+                ax1_p.set_ylim((1e-4, 1))
+
                 # y_hist = y / width
                 ax1_p.plot(bin_centers, y_density * width,
                            color=colour, label='{} - {} clouds'.format(expt, len(hist_data[1].data)))
