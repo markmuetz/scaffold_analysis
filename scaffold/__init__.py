@@ -24,6 +24,7 @@ from scaffold.suite.mse_plot import MsePlotter
 from scaffold.suite.org_plot import OrgPlotter
 from scaffold.suite.precip_plot import PrecipPlot
 from scaffold.suite.profile_plot import ProfilePlotter
+from scaffold.suite.relaxation_plot import RelaxationPlot
 from scaffold.suite.surf_flux_plot import SurfFluxPlot
 from scaffold.version import VERSION
 
@@ -64,6 +65,7 @@ analyser_classes = [
     PrecipHovmollerAnalyser,
     ProfileAnalyser,
     ProfilePlotter,
+    RelaxationPlot,
     RestartDumpAnalyser,
     SurfFluxAnalyser,
     SurfFluxPlot,
