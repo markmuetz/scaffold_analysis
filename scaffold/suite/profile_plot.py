@@ -23,7 +23,7 @@ class ProfilePlotter(Analyser):
     multi_expt = True
 
     input_dir = 'omnium_output/{version_dir}/{expt}'
-    input_filename_glob = '{input_dir}/atmos.000.profile_analysis.nc'
+    input_filename_glob = '{input_dir}/atmos.456.profile_analysis.nc'
     output_dir = 'omnium_output/{version_dir}/suite_{expts}'
     output_filenames = ['{output_dir}/atmos.profile_plot.dummy']
 
