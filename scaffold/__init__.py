@@ -18,6 +18,7 @@ from scaffold.expt.profile_analysis import ProfileAnalyser
 from scaffold.expt.restart_dump_analysis import RestartDumpAnalyser
 from scaffold.expt.surf_flux_analysis import SurfFluxAnalyser
 from scaffold.scaffold_settings import production_settings, test_settings
+from scaffold.suite.dump_profile_plot import DumpProfilePlotter
 from scaffold.suite.mass_flux_plot import MassFluxPlotter
 from scaffold.suite.mass_flux_spatial_scales_plot import MassFluxSpatialScalesPlotter
 from scaffold.suite.mse_plot import MsePlotter
@@ -48,6 +49,7 @@ analyser_classes = [
     CloudAnalyser,
     CloudTrackAnalyser,
     DumpExtractState,
+    DumpProfilePlotter,
     DumpSliceAnalyser,
     ExptConverter,
     MassFluxAnalyser,
