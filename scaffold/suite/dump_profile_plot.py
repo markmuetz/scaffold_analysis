@@ -25,6 +25,15 @@ VARS = [
     ('qrn', (0, 272), (0, 76), 'k'),
 ]
 
+def find_intersections(c1, c2):
+    signs = np.ones_like(c1)
+    diff = c1 - c2
+    signs[diff < 0] = -1
+    signs[diff == 0] = 0
+    indices = np.where((np.abs(np.roll(signs, -1) - signs) == 2) | (signs == 0))[0]
+    weights = np.array([1 / ((np.abs(diff[i + 1] / diff[i])) + 1) for i in indices])
+    return indices, weights
+
 
 def plot_hydrometeor_profile(da, expt, ax1, ax2):
     for var in VARS:
@@ -97,6 +106,7 @@ class DumpProfilePlotter(Analyser):
     def display_results(self):
         self._plot_hydrometeors()
         self._plot_skewT()
+        self._plot_theta_profiles()
         plt.close('all')
 
     def _plot_hydrometeors(self):
@@ -166,3 +176,66 @@ class DumpProfilePlotter(Analyser):
                        T.mean(axis=(1, 2)),
                        Td.mean(axis=(1, 2)))
             plt.savefig(self.file_path('skewT_{}.png'.format(expt)))
+
+    def _plot_theta_profiles(self):
+        for i, expt in enumerate(self.task.expts):
+            logger.debug('plot thetas for {}', expt)
+            da = self.expt_cubes[expt]
+
+            theta_cube = get_cube(da, 0, 4)
+            pi_cube = get_cube(da, 0, 255)
+            q_cube = get_cube(da, 0, 10)
+            q = q_cube.data
+
+            theta = theta_cube.data
+            p = pi_cube.data**(1 / kappa) * (p_ref / 100)
+            T = theta * pi_cube.data
+
+            z = theta_cube.coord('atmosphere_hybrid_height_coordinate').points
+
+            Td = mpcalc.dewpoint_from_specific_humidity(q * units('kg/kg'), T * units.degK, p * units('hPa'))
+            theta_e = mpcalc.equivalent_potential_temperature(p * units('hPa'), T * units.degK, Td)
+            theta_es = mpcalc.saturation_equivalent_potential_temperature(p * units('hPa'), T * units.degK)
+            title = 'thetas_' + expt
+
+            plt.figure(title)
+            plt.clf()
+            plt.title(title)
+
+            theta_profile = theta.mean(axis=(1, 2))
+            theta_e_profile = theta_e.mean(axis=(1, 2))
+            theta_es_profile = theta_es.mean(axis=(1, 2))
+            p_profile = p.mean(axis=(1, 2))
+
+            plt.plot(theta_profile, z, 'r-', label='$\\theta$')
+            plt.plot(theta_e_profile, z, 'g-', label='$\\theta_{e}$')
+            plt.plot(theta_es_profile, z, 'b-', label='$\\theta_{es}$')
+            plt.axvline(x=theta_e_profile[0], linestyle='--', color='k', label='parcel ascent')
+
+            indices, weights = find_intersections(theta_es_profile.magnitude,
+                                                  np.ones_like(theta_e_profile) * theta_e_profile[0].magnitude)
+
+            i, w = indices[0], weights[0]
+            z_lfc = z[i] + w * (z[i + 1] - z[i])
+            p_lfc = p_profile[i] + w * (p_profile[i + 1] - p_profile[i])
+            plt.plot((theta_e_profile.magnitude[0] - 2, theta_e_profile.magnitude[0] + 2),
+                     (z_lfc, z_lfc),
+                     linestyle='--', color='grey', label='LFC ({:.0f} m)'.format(z_lfc))
+
+            i, w = indices[1], weights[1]
+            z_lnb = z[i] + w * (z[i + 1] - z[i])
+            p_lnb = p_profile[i] + w * (p_profile[i + 1] - p_profile[i])
+            plt.plot((theta_e_profile.magnitude[0] - 2, theta_e_profile.magnitude[0] + 2),
+                     (z_lnb, z_lnb),
+                     linestyle='--', color='brown', label='LNB ({:.0f} m)'.format(z_lnb))
+
+
+            logger.debug('LFC: {:.0f} m, {:.0f} hPa'.format(z_lfc, p_lfc))
+            logger.debug('LNB: {:.0f} m, {:.0f} hPa'.format(z_lnb, p_lnb))
+
+            plt.legend()
+
+            plt.ylabel('height (m)')
+            plt.xlim((290, 360))
+            plt.ylim((0, 15000))
+            plt.savefig(self.file_path(title))
