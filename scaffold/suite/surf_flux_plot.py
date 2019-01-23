@@ -12,7 +12,7 @@ from omnium.utils import get_cube
 from omnium.consts import L
 
 from scaffold.colour import EXPT_COLOUR
-logger = getLogger('scaf.prof_an')
+logger = getLogger('scaf.sfp')
 
 
 class SurfFluxPlot(Analyser):
