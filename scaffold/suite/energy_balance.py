@@ -51,9 +51,13 @@ class EnergyBalance(Analyser):
         for expt in self.task.expts:
             sf_row = self.surf_flux[expt]
             rel_row = self.rel[expt]
+            # LHF + SHF
             energy_in = sf_row[1] + sf_row[2]
+            # TrelFE + QrelFR
             energy_out = rel_row[0] + rel_row[1]  # -ve
+            # SHF
             moisture_in = sf_row[1]
+            # PFE + QrelFE, N.B. PFE is +ve
             moisture_out = -sf_row[0] + rel_row[1]  # -ve
             logger.info('Energy imbalance for {} [W m-2]: {:.3f} ({:.2f} %)',
                         expt, energy_in + energy_out,
