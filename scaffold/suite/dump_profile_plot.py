@@ -6,15 +6,23 @@ import numpy as np
 matplotlib.use('Agg')
 import pylab as plt
 
-import metpy.calc as mpcalc
-from metpy.plots import SkewT
-from metpy.units import units
+has_metpy = False
+try:
+    import metpy
+    import metpy.calc as mpcalc
+    from metpy.plots import SkewT
+    from metpy.units import units
+    has_metpy = True
+except ImportError:
+    pass
 
 from omnium import Analyser
 from omnium.utils import get_cube
 from omnium.consts import p_ref, kappa
 
 logger = getLogger('scaf.dump_prof_plot')
+if not has_metpy:
+    logger.warning('metpy not available')
 
 # name, specific density, number conc., colour.
 VARS = [
