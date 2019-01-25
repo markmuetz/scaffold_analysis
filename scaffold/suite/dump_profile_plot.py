@@ -89,8 +89,8 @@ def plot_skewT(fig, name, p_profile, T_profile, Td_profile):
         skew.ax.set_title('CAPE = {:.2f} J kg$^{{-1}}$\n'
                           'CIN = {:.2f} J kg$^{{-1}}$'
                           .format(cape.magnitude, cin.magnitude))
-    except:
-        pass
+    except Exception as e:
+        logger.debug(e)
 
 class DumpProfilePlotter(Analyser):
     analysis_name = 'dump_profile_plot'
