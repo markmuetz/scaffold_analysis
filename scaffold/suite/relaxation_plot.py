@@ -62,7 +62,8 @@ class RelaxationPlot(Analyser):
             logger.debug('{} - T_inc flux equiv: {} W m-2', expt, T_inc_fe)
             logger.debug('{} - q_inc flux equiv: {} W m-2', expt, q_inc_fe)
             total_heating.append('{},{},{}'.format(expt, T_inc_fe.mean(), q_inc_fe.mean()))
-        self.save_text('relaxation_energy_flux.csv', '\n'.join(total_heating) + '\n')
+        self.save_text('final_day_relaxation_energy_flux.csv', '\n'.join(total_heating) + '\n')
+        self.save_text('final_day_relaxation_energy_flux.csv.done', 'done')
 
     def _plot_theta_mv_incs(self):
         plt.clf()
