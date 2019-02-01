@@ -23,6 +23,11 @@ class CloudTrackAnalyser(Analyser):
     input_filename_glob = '{input_dir}/atmos.???.cloud_analysis.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.cloud_track_analysis.dummy']
+    uses_runid = True
+    runid_pattern = 'atmos.(?P<runid>\d{3}).cloud_analysis.nc'
+    min_runid = 480
+    # No max.
+    # max_runid = 308
 
     def load(self):
         self.load_cubes()
