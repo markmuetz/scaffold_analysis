@@ -48,6 +48,8 @@ class RelaxationPlot(Analyser):
 
             # N.B. this is the correct way round if you want the right signs.
             # TODO: this calculation is not exact. Midpoints of rho levels are not on theta
+            # TODO: this calculation also assumes hydrostatic equilibrium - this is not right
+            # TODO: this calculation also doesn't take into account theta-level 0 - not sure about?
             # levels so, working out dp should take this into account.
             dp = (p[:, :-1] - p[:, 1:])
 

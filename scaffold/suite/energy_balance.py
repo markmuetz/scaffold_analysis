@@ -12,8 +12,8 @@ class EnergyBalance(Analyser):
 
     input_dir = 'omnium_output/{version_dir}/suite_{expts}'
     input_filenames = [
-        '{input_dir}/surf_flux_plot_energy_flux.csv',
-        '{input_dir}/relaxation_plot_relaxation_energy_flux.csv',
+        '{input_dir}/surf_flux_plot_final_day_energy_flux.csv',
+        '{input_dir}/relaxation_plot_final_day_relaxation_energy_flux.csv',
     ]
     output_dir = 'omnium_output/{version_dir}/suite_{expts}'
     output_filenames = ['{output_dir}/atmos.energy_balance.dummy']
