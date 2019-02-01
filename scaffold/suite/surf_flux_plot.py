@@ -41,7 +41,8 @@ class SurfFluxPlot(Analyser):
         self._plot()
 
     def _plot(self):
-        lines = ['Expt,PFE [W m-2],LHF [W m-2],SHF [W m-2]']
+        half_sim_fluxes = ['Expt,PFE [W m-2],LHF [W m-2],SHF [W m-2]']
+        final_day_fluxes = ['Expt,PFE [W m-2],LHF [W m-2],SHF [W m-2]']
         for expt in self.task.expts:
             cubes = self.expt_cubes[expt]
 
@@ -70,12 +71,29 @@ class SurfFluxPlot(Analyser):
                 plt.plot(times[96:-96], precip_ts_smoothed[96:-96] * L, color=colour, linestyle='--')
 
             half_way_index = int(len(precip_ts.data) / 2)
-            mean_pfe = precip_ts.data[half_way_index:].mean() * L
-            mean_lhf = lhf_ts.data[half_way_index:].mean()
-            mean_shf = shf_ts.data[half_way_index:].mean()
-            lines.append('{},{},{},{}'.format(expt, mean_pfe, mean_lhf, mean_shf))
+            half_sim_mean_pfe = precip_ts.data[half_way_index:].mean() * L
+            half_sim_mean_lhf = lhf_ts.data[half_way_index:].mean()
+            half_sim_mean_shf = shf_ts.data[half_way_index:].mean()
 
-        self.save_text('energy_flux.csv', '\n'.join(lines) + '\n')
+            final_day_mean_pfe = precip_ts.data[-96:].mean() * L
+            final_day_mean_lhf = lhf_ts.data[-96:].mean()
+            final_day_mean_shf = shf_ts.data[-96:].mean()
+
+            half_sim_fluxes.append('{},{},{},{}'.format(expt,
+                                                        half_sim_mean_pfe,
+                                                        half_sim_mean_lhf,
+                                                        half_sim_mean_shf))
+            final_day_fluxes.append('{},{},{},{}'.format(expt,
+                                                         final_day_mean_pfe,
+                                                         final_day_mean_lhf,
+                                                         final_day_mean_shf))
+
+        self.save_text('half_sim_energy_flux.csv', '\n'.join(half_sim_fluxes) + '\n')
+        self.save_text('half_sim_energy_flux.csv.done', 'done')
+
+        self.save_text('final_day_energy_flux.csv', '\n'.join(final_day_fluxes) + '\n')
+        self.save_text('final_day_energy_flux.csv.done', 'done')
+
         plt.ylim((-50, 300))
         plt.xlim((0, 20))
         plt.legend()
