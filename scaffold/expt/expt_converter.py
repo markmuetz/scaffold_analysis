@@ -11,4 +11,4 @@ class ExptConverter(FF2NC_Converter):
     output_filenames = ['{output_dir}/atmos.pp3.nc']
 
     force = False
-    delete = True
+    delete = False
