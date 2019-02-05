@@ -186,7 +186,6 @@ def output_rwp_rose_confs():
 
 if __name__ == '__main__':
     write_readme()
-    sys.exit()
     try:
         p_profiles
         zs
