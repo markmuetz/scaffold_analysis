@@ -164,10 +164,16 @@ def output_rwp_rose_confs():
 
     for i in range(10):
         fmt_dict = {}
-        fmt_dict['num_heights'] = len(z)
+        # Add on a value at 40 km.
+        fmt_dict['num_heights'] = len(z) + 1
         fmt_dict['heights'] = ','.join(['{:.3f}'.format(zv) for zv in z[::-1]])
+        fmt_dict['heights'] += ',40000'
+
         fmt_dict['u_data'] = ','.join(['{:.3f}'.format(u) for u in height_rwps_u.values[i][::-1]])
+        fmt_dict['u_data'] += ',{:.3f}'.format(height_rwps_u.values[i][0])
+
         fmt_dict['v_data'] = ','.join(['{:.3f}'.format(v) for v in height_rwps_v.values[i][::-1]])
+        fmt_dict['v_data'] += ',{:.3f}'.format(height_rwps_v.values[i][0])
 
         fn = 'rose-app-RWP_C{}.conf'.format(i + 1)
         with open(os.path.join(OUTPUT_DIR, fn), 'w') as f:
