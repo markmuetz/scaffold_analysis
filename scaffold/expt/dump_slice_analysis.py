@@ -6,8 +6,17 @@ import scipy
 import matplotlib.pyplot as plt
 from matplotlib import colors
 
+has_metpy = False
+try:
+    import metpy
+    import metpy.calc as mpcalc
+    from metpy.units import units
+    has_metpy = True
+except ImportError:
+    pass
+
 from omnium import Analyser, OmniumError
-from omnium.consts import Re, L, cp, g
+from omnium.consts import Re, p_ref, kappa
 from omnium.utils import get_cube
 
 from scaffold.vertlev import VertLev
@@ -76,11 +85,13 @@ class DumpSliceAnalyser(Analyser):
         self._plot(self.task.expt)
 
     def _plot(self, expt):
-        # self._w_slices_plots(expt)
-        # self._w_mean_y_plots(expt)
+        self._w_slices_plots(expt)
+        self._w_mean_y_plots(expt)
         self._th_slices_plots(expt)
         self._u_slices_plots(expt)
-        # self._qvar_mean_y_plots(expt)
+        self._qvar_slices_y_plots(expt)
+        self._qvar_mean_y_plots(expt)
+        self._th_e_slices_plots(expt)
 
     def _w_slices_plots(self, expt):
         wcube = self.w
@@ -111,11 +122,16 @@ class DumpSliceAnalyser(Analyser):
                                                              data)
             data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Nx - 1, Nx))
             norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
-            im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr', aspect=0.1)
+            # Use for equal aspect ratio.
+            # im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr', aspect=0.1)
+            im = ax.imshow(data_interp[:200],
+                           norm=norm, origin='lower', cmap='bwr',
+                           aspect=10,
+                           extent=(0, 256, 0, 20))
 
             ax.set_title('w xz slice at y={} gridbox'.format(i))
             ax.set_xlabel('x (km)')
-            ax.set_ylabel('height (100 m)')
+            ax.set_ylabel('height (km)')
             plt.colorbar(im)
             plt.savefig(self.file_path('/xz/{}_{}_w_slice_{}.png'.format(expt,
                                                                          self.task.runid,
@@ -210,6 +226,68 @@ class DumpSliceAnalyser(Analyser):
                                                                              i)))
             plt.close('all')
 
+    def _th_e_slices_plots(self, expt):
+        thcube = self.th
+        z = thcube.coord('atmosphere_hybrid_height_coordinate').points / 1000
+
+        exnerp = self.ep
+        theta = self.th
+
+        qvdata = get_cube(self.cubes, 0, 10).data
+        Tdata = theta.data * exnerp.data
+        pdata = exnerp.data ** (1 / kappa) * p_ref
+
+        p = pdata * units('Pa')
+        qv = qvdata * units('kg/kg')
+        T = Tdata * units('K')
+        Td = mpcalc.dewpoint_from_specific_humidity(qv, T, p)
+        theta_e = mpcalc.equivalent_potential_temperature(p, T, Td)
+
+        for i in range(theta_e.shape[0]):
+            fig, ax = plt.subplots(dpi=100)
+            # N.B. subtract mean.
+            data = theta_e[i] - theta_e[i].mean()
+            # Coords are model_level, y, x or model_level, lat, lon
+            norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
+            im = ax.imshow(data, norm=norm, origin='lower', cmap='bwr')
+
+            ax.set_title('theta xy slice at z={:.2f} km'.format(z[i]))
+            ax.set_xlabel('x (km)')
+            ax.set_ylabel('y (km)')
+            plt.colorbar(im)
+            plt.savefig(self.file_path('/xy/{}_{}_theta_e_slice_{}.png'.format(expt,
+                                                                               self.task.runid,
+                                                                               i)))
+            plt.close('all')
+
+        for i in range(theta_e.shape[1]):
+            fig, ax = plt.subplots(dpi=100)
+            data = theta_e[:, i]
+            data[np.isnan(data)] = 273 * units('K')
+            # Coords are model_level, y, x or model_level, lat, lon
+            Nx = theta_e.shape[2]
+            data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(Nx),
+                                                             data)
+            data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Nx - 1, Nx))
+            # norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
+            # Use for equal aspect ratio.
+            # im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr', aspect=0.1)
+            im = ax.imshow(data_interp[:200],
+                           origin='lower', cmap='RdBu_r',
+                           aspect=10,
+                           vmin=325, vmax=370,
+                           extent=(0, 256, 0, 20))
+
+            ax.set_title('theta_e xz slice at y={} gridbox'.format(i))
+            ax.set_xlabel('x (km)')
+            ax.set_ylabel('height (km)')
+            plt.colorbar(im)
+            plt.savefig(self.file_path('/xz/{}_{}_theta_e_slice_{}.png'.format(expt,
+                                                                               self.task.runid,
+                                                                               i)))
+            plt.close('all')
+
+
     def _w_mean_y_plots(self, expt):
         wcube = self.w
         fig, ax = plt.subplots(dpi=100)
@@ -225,22 +303,73 @@ class DumpSliceAnalyser(Analyser):
         norm = MidpointNormalize(midpoint=0,
                                  vmin=data_interp.min(),
                                  vmax=data_interp.max())
-        im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr', aspect=0.1)
+        im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr',
+                       extent=(0, 256, 0, 20), aspect=10)
 
         ax.set_title('w mean over y')
         ax.set_xlabel('x (km)')
-        ax.set_ylabel('height (100 m)')
+        ax.set_ylabel('height (km)')
         plt.colorbar(im)
         plt.savefig(self.file_path('/xz/{}_{}_w_mean_over_y.png'.format(expt,
                                                                         self.task.runid)))
         plt.close('all')
 
-    def _qvar_mean_y_plots(self, expt):
-        qvars = ['qcl', 'qcf', 'qrain', 'qgraup']
+    def _qvar_slices_y_plots(self, expt):
+        qvars = ['qcl', 'qcf', 'qcf2', 'qrain', 'qgraup']
         for qvar in qvars:
             if not hasattr(self, qvar):
                 continue
             qcube = getattr(self, qvar)
+            z = qcube.coord('atmosphere_hybrid_height_coordinate').points / 1000
+
+            for i in range(qcube.shape[0]):
+                fig, ax = plt.subplots(dpi=100)
+                data = qcube.data[i]
+                # Coords are model_level, y, x or model_level, lat, lon
+                im = ax.imshow(data, origin='lower', cmap='Blues')
+
+                ax.set_title('q xy slice at z={:.2f} km'.format(z[i]))
+                ax.set_xlabel('x (km)')
+                ax.set_ylabel('y (km)')
+                plt.colorbar(im)
+                plt.savefig(self.file_path('/xy/{}_{}_{}_slice_{}.png'.format(expt,
+                                                                              self.task.runid,
+                                                                              qvar,
+                                                                              i)))
+                plt.close('all')
+
+            for i in range(qcube.shape[1]):
+                fig, ax = plt.subplots(dpi=100)
+                data = qcube.data[:, i]
+                # Coords are model_level, y, x or model_level, lat, lon
+                Nx = qcube.shape[2]
+                data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(Nx),
+                                                                 data)
+                data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Nx - 1, Nx))
+                # Use for equal aspect ratio.
+                # im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr', aspect=0.1)
+                im = ax.imshow(data_interp[:200],
+                               origin='lower', cmap='Blues',
+                               aspect=10,
+                               extent=(0, 256, 0, 20))
+
+                ax.set_title('q xz slice at y={} gridbox'.format(i))
+                ax.set_xlabel('x (km)')
+                ax.set_ylabel('height (km)')
+                plt.colorbar(im)
+                plt.savefig(self.file_path('/xz/{}_{}_{}_slice_{}.png'.format(expt,
+                                                                              self.task.runid,
+                                                                              qvar,
+                                                                              i)))
+                plt.close('all')
+
+    def _qvar_mean_y_plots(self, expt):
+        qvars = ['qcl', 'qcf', 'qcf2', 'qrain', 'qgraup']
+        for qvar in qvars:
+            if not hasattr(self, qvar):
+                continue
+            qcube = getattr(self, qvar)
+            z = qcube.coord('atmosphere_hybrid_height_coordinate').points / 1000
 
             fig, ax = plt.subplots(dpi=100)
             data = qcube.data
@@ -252,11 +381,12 @@ class DumpSliceAnalyser(Analyser):
             data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Nx - 1, Nx))
             # Only go up to 20 km and use aspect ratio to plot equal aspect
             # (allowing for diff in coords).
-            im = ax.imshow(data_interp[:200], origin='lower', cmap='Blues', aspect=0.1)
+            im = ax.imshow(data_interp[:200], origin='lower', cmap='Blues',
+                           extent=(0, 256, 0, 20), aspect=10)
 
             ax.set_title('{} mean over y'.format(qvar))
             ax.set_xlabel('x (km)')
-            ax.set_ylabel('height (100 m)')
+            ax.set_ylabel('height (km)')
             plt.colorbar(im)
             plt.savefig(self.file_path('/xz/{}_{}_{}_mean_over_y.png'.format(expt,
                                                                              self.task.runid,
