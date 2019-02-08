@@ -107,16 +107,17 @@ class DumpSliceAnalyser(Analyser):
         plt.savefig(full_filename)
 
     def _plot(self, expt):
-        # self._plot_slices(expt, 'u', use_norm=True, anomaly=True, vlev='rho')
-        # self._plot_slices(expt, 'u', use_norm=True, use_mean_wind=True, vlev='rho')
-        # self._plot_slices(expt, 'w', use_norm=True)
-        # self._plot_slices(expt, 'theta', use_norm=True, anomaly=True)
-        # self._plot_slices(expt, 'theta_e', cmap='RdBu_r')
-        # qvars = ['qcl', 'qcf', 'qcf2', 'qrain', 'qgraup']
-        # for qvar in qvars:
-        #     if not hasattr(self, qvar):
-        #         continue
-        #     self._plot_slices(expt, qvar, cmap='Blues')
+        self._plot_slices(expt, 'u', use_norm=True, anomaly=True, vlev='rho')
+        self._plot_slices(expt, 'u', use_norm=True, use_mean_wind=True, vlev='rho')
+        self._plot_slices(expt, 'w', use_norm=True)
+        self._plot_slices(expt, 'theta', use_norm=True, anomaly=True)
+        self._plot_slices(expt, 'theta_e', cmap='RdBu_r')
+
+        qvars = ['qcl', 'qcf', 'qcf2', 'qrain', 'qgraup']
+        for qvar in qvars:
+            if not hasattr(self, qvar):
+                continue
+            self._plot_slices(expt, qvar, cmap='Blues')
 
         expt_slices = {
             'S0W0Forced': {480: [
