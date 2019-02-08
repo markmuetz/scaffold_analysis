@@ -5,7 +5,6 @@ import numpy as np
 import scipy
 import matplotlib.pyplot as plt
 from matplotlib import colors
-import iris
 
 has_metpy = False
 try:
@@ -23,6 +22,7 @@ from omnium.utils import get_cube
 from scaffold.vertlev import VertLev
 
 logger = getLogger('scaf.dump_slice')
+
 
 # set the colormap and centre the colorbar
 class MidpointNormalize(colors.Normalize):
@@ -107,59 +107,230 @@ class DumpSliceAnalyser(Analyser):
         plt.savefig(full_filename)
 
     def _plot(self, expt):
-        # self._w_slices_plots(expt)
-        # self._w_mean_y_plots(expt)
-        # self._th_slices_plots(expt)
-        # self._u_slices_plots(expt)
-        # self._qvar_slices_y_plots(expt)
-        # self._qvar_mean_y_plots(expt)
-        # self._th_e_slices_plots(expt)
-#
-        self._plot_slices(expt, 'w', use_norm=True)
-        self._plot_slices(expt, 'theta', use_norm=True, anomaly=True)
-        self._plot_slices(expt, 'theta_e', use_norm=True, anomaly=True, cmap='RdBu_r')
-        qvars = ['qcl', 'qcf', 'qcf2', 'qrain', 'qgraup']
-        for qvar in qvars:
-            if not hasattr(self, qvar):
-                continue
-            self._plot_slices(expt, qvar, cmap='Blues')
+        # self._plot_slices(expt, 'u', use_norm=True, anomaly=True, vlev='rho')
+        # self._plot_slices(expt, 'u', use_norm=True, use_mean_wind=True, vlev='rho')
+        # self._plot_slices(expt, 'w', use_norm=True)
+        # self._plot_slices(expt, 'theta', use_norm=True, anomaly=True)
+        # self._plot_slices(expt, 'theta_e', cmap='RdBu_r')
+        # qvars = ['qcl', 'qcf', 'qcf2', 'qrain', 'qgraup']
+        # for qvar in qvars:
+        #     if not hasattr(self, qvar):
+        #         continue
+        #     self._plot_slices(expt, qvar, cmap='Blues')
+
+        expt_slices = {
+            'S0W0Forced': {480: [
+                (self._plot_indiv_cross_sections, (expt, 'w', 10, 125, 50), {'use_norm': True}),
+                (self._plot_indiv_cross_sections, (expt, 'qcl', 10, 125, 50), {'cmap': 'Blues'}),
+                (self._plot_indiv_cross_sections, (expt, 'qcf', 10, 125, 50), {'cmap': 'Blues'}),
+                (self._plot_indiv_cross_sections, (expt, 'theta_e', 10, 125, 50),
+                 {'cmap': 'RdBu_r'}),
+                (self._plot_zoom, (expt, 'w', 10, 5, 15, 125, 120, 130, [50]), {'use_norm': True}),
+                (self._plot_zoom, (expt, 'theta_e', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'RdBu_r'}),
+                (self._plot_zoom, (expt, 'qcl', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
+                (self._plot_zoom, (expt, 'qcf', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
+                (self._plot_zoom, (expt, 'qcf2', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
+                (self._plot_zoom, (expt, 'qrain', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
+                (self._plot_zoom, (expt, 'qgraup', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
+            ]},
+            'S4W5rel2_S4W5Forced': {480: [
+                (self._plot_zoom, (expt, 'w', 0, 100, 185, 225, [25, 50]),
+                 {'use_norm': True, 'aspect':4}),
+                (self._plot_zoom, (expt, 'qcl', 0, 100, 185, 225, [25, 50]),
+                 {'cmap': 'Blues', 'aspect':4}),
+                (self._plot_zoom, (expt, 'qcf', 0, 100, 185, 225, [25, 50]),
+                 {'cmap': 'Blues', 'aspect':4}),
+                (self._plot_zoom, (expt, 'qcf2', 0, 100, 185, 225, [25, 50]),
+                 {'cmap': 'Blues', 'aspect':4}),
+                (self._plot_zoom, (expt, 'qrain', 0, 100, 185, 225, [25, 50]),
+                 {'cmap': 'Blues', 'aspect':4}),
+                (self._plot_zoom, (expt, 'qgraup', 0, 100, 185, 225, [25, 50]),
+                 {'cmap': 'Blues', 'aspect':4}),
+                (self._plot_zoom, (expt, 'theta', 0, 100, 185, 225, [25, 50]),
+                 {'use_norm': True, 'anomaly': True, 'aspect':4}),
+            ]},
+        }
+        if expt in expt_slices:
+            if self.task.runid in expt_slices[expt]:
+                for fn, args, kwargs in expt_slices[expt][self.task.runid]:
+                    fn(*args, **kwargs)
+
+    def _plot_zoom(self, expt, var, i, imin, imax, j, jmin, jmax, ks, **kwargs):
+        extent = (imin, imax, jmin, jmax)
+
+        for k in ks:
+            # self._plot_zoom_hor_slice(expt, var, imin, imax, jmin, jmax, k, **kwargs)
+            self._plot_indiv_hor_slice(expt, var, i, j, k, mode='zoom', extent=extent, **kwargs)
+        self._plot_indiv_vert_slice(expt, var, 'xz', i, j, None, mode='zoom', extent=extent, **kwargs)
+        self._plot_indiv_vert_slice(expt, var, 'yz', i, j, None, mode='zoom', extent=extent, **kwargs)
+
+
+    def _plot_indiv_cross_sections(self, expt, var, i, j, k, **kwargs):
+        self._plot_indiv_hor_slice(expt, var, i, j, k, mode='indiv', **kwargs)
+        self._plot_indiv_vert_slice(expt, var, 'xz', i, j, k, mode='indiv', **kwargs)
+        self._plot_indiv_vert_slice(expt, var, 'yz', i, j, k, mode='indiv', **kwargs)
+
+    def _plot_zoom_vert_slice(self, expt, var, plane, imin, imax, jmin, jmax, ks,
+                              use_norm=False, cmap='bwr', anomaly=False, aspect=1):
+        cube = getattr(self, var)
+        z = cube.coord('atmosphere_hybrid_height_coordinate').points / 1000
+        # Coords are model_level, y, x or model_level, lat, lon
+        if plane == 'xz':
+            N = imax - imin
+            index = int((jmax + jmin) / 2)
+            #vline_index = i
+        elif plane == 'yz':
+            N = jmax - jmin
+            index = int((imax + imin) / 2)
+            #vline_index = j
+        else:
+            raise ValueError('plane=[xz|yz]')
+
+        if anomaly:
+            var = var + '_anom'
+
+        fig, ax = plt.subplots(dpi=100)
+        ax.set_ylabel('height (km)')
+        filename = ('/{2}/{0}/zoom_{3}/{1}_{2}_{3}_slice_{4}.png'
+                    .format(plane, expt, self.task.runid, var, index))
+        if plane == 'xz':
+            ax.set_xlabel('x (km)')
+            title = '{} xz slice at y={} gridbox'.format(var, index)
+            data = cube.data[:, index, imin:imax]
+            extent = (imin, imax, 0, 20)
+        elif plane == 'yz':
+            ax.set_xlabel('y (km)')
+            title = '{} yz slice at x={} gridbox'.format(var, index)
+            data = cube.data[:, jmin:jmax, index]
+            extent = (jmin, jmax, 0, 20)
+        if anomaly:
+            data = data - data.mean(axis=1)[:, None]
+        ax.set_title(title)
+
+        self._plot_vert_slice(ax, data, N, use_norm, cmap, extent=extent, aspect=aspect)
+        self._create_dir_savefig(filename)
+        plt.close('all')
+
+    def _plot_indiv_hor_slice(self, expt, var, i, j, k, use_norm=False, cmap='bwr',
+                              anomaly=False, use_mean_wind=False, mode='', extent=None,
+                              **kwargs):
+        cube = getattr(self, var)
+        z = cube.coord('atmosphere_hybrid_height_coordinate').points / 1000
+        if anomaly:
+            var = var + '_anom'
+        if use_mean_wind:
+            var = var + '_mean_wind'
+            mean_wind_min_index = cube.data.mean(axis=(1, 2)).argmin()
+            mean_wind = cube.data[mean_wind_min_index].mean()
+        if mode:
+            var = mode + '_' + var
+
+        fig, ax = plt.subplots(dpi=100)
+        data = cube.data[k]
+        title = '{} xy slice at z={:.2f} km'.format(var, z[k])
+        if anomaly:
+            data = data - data.mean()
+        if use_mean_wind:
+            data = data - mean_wind
+        if extent is None:
+            extent = (0, 256, 0, 256)
+        else:
+            imin, imax, jmin, jmax = extent
+            data = data[imin:imax, jmin:jmax]
+
+        ax.set_title(title)
+        # Coords are model_level, y, x or model_level, lat, lon
+        kwargs = {}
+        if use_norm:
+            kwargs['norm'] = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
+        if cmap:
+            kwargs['cmap'] = cmap
+        im = ax.imshow(data, origin='lower', extent=extent, **kwargs)
+
+        ax.set_xlabel('x (km)')
+        ax.set_ylabel('y (km)')
+        plt.colorbar(im)
+        if i:
+            ax.vlines(x=i, ymin=0, ymax=256, color='k', linestyles='--')
+        if j:
+            ax.hlines(y=j, xmin=0, xmax=256, color='k', linestyles='--')
+        self._create_dir_savefig('/{1}/xy/{2}/{0}_{1}_{2}_slice_{3}.png'
+                                 .format(expt, self.task.runid, var, k))
+        plt.close('all')
+
+    def _plot_indiv_vert_slice(self, expt, var, plane, i, j, k, extent=None,
+                               use_norm=False, cmap='bwr', anomaly=False, use_mean_wind=False,
+                               vlev='theta', mode=''):
+        cube = getattr(self, var)
+        z = cube.coord('atmosphere_hybrid_height_coordinate').points / 1000
+        # Coords are model_level, y, x or model_level, lat, lon
+        if plane == 'xz':
+            N = cube.shape[1]
+            index = j
+            vline_index = i
+        elif plane == 'yz':
+            N = cube.shape[2]
+            index = i
+            vline_index = j
+        else:
+            raise ValueError('plane=[xz|yz]')
+
+        if anomaly:
+            var = var + '_anom'
+        if use_mean_wind:
+            var = var + '_mean_wind'
+            mean_wind_min_index = cube.data.mean(axis=(1, 2)).argmin()
+            mean_wind = cube.data[mean_wind_min_index].mean()
+        if mode:
+            var = mode + '_' + var
+
+        fig, ax = plt.subplots(dpi=100)
+        ax.set_ylabel('height (km)')
+        filename = ('/{2}/{0}/{3}/{1}_{2}_{3}_slice_{4}.png'
+                    .format(plane, expt, self.task.runid, var, index))
+        if plane == 'xz':
+            ax.set_xlabel('x (km)')
+            title = '{} xz slice at y={} gridbox'.format(var, index)
+            data = cube.data[:, index]
+        elif plane == 'yz':
+            ax.set_xlabel('y (km)')
+            title = '{} yz slice at x={} gridbox'.format(var, index)
+            data = cube.data[:, :, index]
+        if anomaly:
+            data = data - data.mean(axis=1)[:, None]
+        if use_mean_wind:
+            data = data - mean_wind
+
+        if extent is None:
+            extent = (0, 256, 0, 20)
+        else:
+            imin, imax, _, _ = extent
+            data = data[:, imin:imax]
+            N = imax - imin
+
+        ax.set_title(title)
+
+        self._plot_vert_slice(ax, data, N, use_norm, cmap, vlev=vlev, extent=extent)
+        if vline_index:
+            ax.vlines(x=vline_index, ymin=0, ymax=20, color='k', linestyles='--')
+        if k:
+            ax.hlines(y=z[k], xmin=0, xmax=256, color='k', linestyles='--')
+        self._create_dir_savefig(filename)
+        plt.close('all')
 
     def _plot_slices(self, expt, var, **kwargs):
         cube = getattr(self, var)
-        z = cube.coord('atmosphere_hybrid_height_coordinate').points / 1000
-        self._plot_xy_slices(expt, var, cube, z, **kwargs)
+        self._plot_xy_slices(expt, var, cube, **kwargs)
         self._plot_vert_slices(expt, var, cube, 'xz', **kwargs)
         self._plot_vert_slices(expt, var, cube, 'yz', **kwargs)
 
         self._plot_vert_mean_slice(expt, var, cube, 'xz', **kwargs)
 
-    def _plot_xy_slices(self, expt, var, cube, z, use_norm=False, cmap='bwr',
-                        anomaly=False):
-        for i in range(cube.shape[0]):
-            fig, ax = plt.subplots(dpi=100)
-            data = cube.data[i]
-            title = '{} xy slice at z={:.2f} km'.format(var, z[i])
-            if anomaly:
-                data = data - data.mean()
-                title = 'anom ' + title
-            ax.set_title(title)
-            # Coords are model_level, y, x or model_level, lat, lon
-            kwargs = {}
-            if use_norm:
-                kwargs['norm'] = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
-            if cmap:
-                kwargs['cmap'] = cmap
-            im = ax.imshow(data, origin='lower', **kwargs)
+    def _plot_xy_slices(self, expt, var, cube, **kwargs):
+        for k in range(cube.shape[0]):
+            self._plot_indiv_hor_slice(expt, var, None, None, k, **kwargs)
 
-            ax.set_xlabel('x (km)')
-            ax.set_ylabel('y (km)')
-            plt.colorbar(im)
-            self._create_dir_savefig('/xy/{2}/{0}_{1}_{2}_slice_{3}.png'
-                                     .format(expt, self.task.runid, var, i))
-            plt.close('all')
-
-    def _plot_vert_slices(self, expt, var, cube, plane='xy', use_norm=False, cmap='bwr',
-                          anomaly=False):
+    def _plot_vert_slices(self, expt, var, cube, plane, **kwargs):
         # Coords are model_level, y, x or model_level, lat, lon
         if plane == 'xz':
             N = cube.shape[1]
@@ -169,44 +340,35 @@ class DumpSliceAnalyser(Analyser):
             raise ValueError('plane=[xz|yz]')
 
         for i in range(N):
-            fig, ax = plt.subplots(dpi=100)
-            ax.set_ylabel('height (km)')
-            filename = ('/{0}/{3}/{1}_{2}_{3}_slice_{4}.png'
-                        .format(plane, expt, self.task.runid, var, i))
             if plane == 'xz':
-                ax.set_xlabel('x (km)')
-                title = '{} xz slice at y={} gridbox'.format(var, i)
-                data = cube.data[:, i]
+                self._plot_indiv_vert_slice(expt, var, plane, None, i, None, **kwargs)
             elif plane == 'yz':
-                ax.set_xlabel('y (km)')
-                title = '{} yz slice at x={} gridbox'.format(var, i)
-                data = cube.data[:, :, i]
-            if anomaly:
-                data = data - data.mean(axis=1)[:, None]
-                title = 'anom ' + title
-            ax.set_title(title)
+                self._plot_indiv_vert_slice(expt, var, plane, i, None, None, **kwargs)
 
-            self._plot_vert_slice(ax, data, N, use_norm, cmap)
-            self._create_dir_savefig(filename)
-            plt.close('all')
-
-    def _plot_vert_slice(self, ax, data, N, use_norm, cmap='bwr'):
-        data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(N),
-                                                         data)
+    def _plot_vert_slice(self, ax, data, N, use_norm, cmap='bwr',
+                         extent=(0, 256, 0, 20), aspect=10, vlev='theta'):
+        if vlev == 'theta':
+            data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(N),
+                                                             data)
+        elif vlev == 'rho':
+            data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_rho, np.arange(N),
+                                                             data)
         data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, N - 1, N))
         kwargs = {}
         if use_norm:
-            kwargs['norm'] = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
+            kwargs['norm'] = MidpointNormalize(midpoint=0,
+                                               vmin=data_interp[:200].min(),
+                                               vmax=data_interp[:200].max())
         if cmap:
             kwargs['cmap'] = cmap
 
-        im = ax.imshow(data_interp[:200], origin='lower', aspect=10, extent=(0, 256, 0, 20),
+        im = ax.imshow(data_interp[:200], origin='lower', aspect=aspect, extent=extent,
                        **kwargs)
 
         plt.colorbar(im)
 
-    def _plot_vert_mean_slice(self, expt, var, cube, plane='xy', use_norm=False, cmap='',
-                              anomaly=False):
+    def _plot_vert_mean_slice(self, expt, var, cube, plane='xy', use_norm=False, cmap='bwr',
+                              anomaly=False, use_mean_wind=False, vlev='theta'):
         # Coords are model_level, y, x or model_level, lat, lon
         if plane == 'xz':
             cube_index = 1
@@ -215,10 +377,16 @@ class DumpSliceAnalyser(Analyser):
         else:
             raise ValueError('plane=[xz|yz]')
         N = cube.shape[cube_index]
+        if anomaly:
+            var = var + '_anom'
+        if use_mean_wind:
+            var = var + '_mean_wind'
+            mean_wind_min_index = cube.data.mean(axis=(1, 2)).argmin()
+            mean_wind = cube.data[mean_wind_min_index].mean()
 
         fig, ax = plt.subplots(dpi=100)
         ax.set_ylabel('height (km)')
-        filename = ('/{0}/{3}/{1}_{2}_{3}_mean.png'
+        filename = ('/{2}/{0}/{3}/{1}_{2}_{3}_mean.png'
                     .format(plane, expt, self.task.runid, var))
         data = cube.data.mean(axis=cube_index)
         if plane == 'xz':
@@ -229,313 +397,14 @@ class DumpSliceAnalyser(Analyser):
             title = '{} yz mean'.format(var)
         if anomaly:
             data = data - data.mean(axis=1)[:, None]
-            title = 'anom ' + title
+        if use_mean_wind:
+            data = data - mean_wind
         ax.set_title(title)
 
         # Coords are model_level, y, x or model_level, lat, lon
-        self._plot_vert_slice(ax, data, N, use_norm, cmap)
+        self._plot_vert_slice(ax, data, N, use_norm, cmap, vlev=vlev)
         self._create_dir_savefig(filename)
         plt.close('all')
-
-    def _w_slices_plots(self, expt):
-        wcube = self.w
-        z = wcube.coord('atmosphere_hybrid_height_coordinate').points / 1000
-
-        for i in range(wcube.shape[0]):
-            fig, ax = plt.subplots(dpi=100)
-            data = wcube.data[i]
-            # Coords are model_level, y, x or model_level, lat, lon
-            norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
-            im = ax.imshow(data, norm=norm, origin='lower', cmap='bwr')
-
-            ax.set_title('w xy slice at z={:.2f} km'.format(z[i]))
-            ax.set_xlabel('x (km)')
-            ax.set_ylabel('y (km)')
-            plt.colorbar(im)
-            plt.savefig(self.file_path('/xy/{}_{}_w_slice_{}.png'.format(expt,
-                                                                         self.task.runid,
-                                                                         i)))
-            plt.close('all')
-
-        for i in range(wcube.shape[1]):
-            fig, ax = plt.subplots(dpi=100)
-            data = wcube.data[:, i]
-            # Coords are model_level, y, x or model_level, lat, lon
-            Nx = wcube.shape[2]
-            data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(Nx),
-                                                             data)
-            data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Nx - 1, Nx))
-            norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
-            # Use for equal aspect ratio.
-            # im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr', aspect=0.1)
-            im = ax.imshow(data_interp[:200],
-                           norm=norm, origin='lower', cmap='bwr',
-                           aspect=10,
-                           extent=(0, 256, 0, 20))
-
-            ax.set_title('w xz slice at y={} gridbox'.format(i))
-            ax.set_xlabel('x (km)')
-            ax.set_ylabel('height (km)')
-            plt.colorbar(im)
-            plt.savefig(self.file_path('/xz/{}_{}_w_slice_{}.png'.format(expt,
-                                                                         self.task.runid,
-                                                                         i)))
-            plt.close('all')
-
-        for i in range(wcube.shape[2]):
-            fig, ax = plt.subplots(dpi=100)
-            data = wcube.data[:, :, i]
-            # Coords are model_level, y, x or model_level, lat, lon
-            Ny = wcube.shape[1]
-            data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(Ny),
-                                                             data)
-            data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Ny - 1, Ny))
-            norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
-            im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr', aspect=0.1)
-
-            ax.set_title('w yz slice at x={} gridbox'.format(i))
-            ax.set_xlabel('y (km)')
-            ax.set_ylabel('height (100 m)')
-            plt.colorbar(im)
-            plt.savefig(self.file_path('/yz/{}_{}_w_slice_{}.png'.format(expt,
-                                                                         self.task.runid,
-                                                                         i)))
-            plt.close('all')
-
-    def _u_slices_plots(self, expt):
-        ucube = self.u
-        z = ucube.coord('atmosphere_hybrid_height_coordinate').points / 1000
-
-        mean_wind_min_index = ucube.data.mean(axis=(1, 2)).argmin()
-        mean_wind = ucube.data[mean_wind_min_index].mean()
-
-        for i in range(ucube.shape[0]):
-            fig, ax = plt.subplots(dpi=100)
-            data = ucube.data[i] - mean_wind
-            # Coords are model_level, y, x or model_level, lat, lon
-            norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
-            im = ax.imshow(data, norm=norm, origin='lower', cmap='bwr')
-
-            ax.set_title('u - u_mean={:.2f} m/s at z={:.2f} km xy slice at z={:.2f} km'.format(mean_wind,
-                                                                                               z[mean_wind_min_index],
-                                                                                               z[i]))
-            ax.set_xlabel('x (km)')
-            ax.set_ylabel('y (km)')
-            plt.colorbar(im)
-            plt.savefig(self.file_path('/xy/{}_{}_u_slice_{}.png'.format(expt,
-                                                                         self.task.runid,
-                                                                         i)))
-            plt.close('all')
-
-        for i in range(ucube.shape[1]):
-            fig, ax = plt.subplots(dpi=100)
-            data = ucube.data[:, i] - mean_wind
-            # Coords are model_level, y, x or model_level, lat, lon
-            Nx = ucube.shape[2]
-            data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_rho, np.arange(Nx),
-                                                             data)
-            data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Nx - 1, Nx))
-            norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
-            im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr', aspect=0.1)
-
-            ax.set_title('u - u_mean={:.2f} at z={:.2f} km xz slice at y={} gridbox'.format(mean_wind,
-                                                                                            z[mean_wind_min_index],
-                                                                                            i))
-            ax.set_xlabel('x (km)')
-            ax.set_ylabel('height (100 m)')
-            plt.colorbar(im)
-            plt.savefig(self.file_path('/xz/{}_{}_u_slice_{}.png'.format(expt,
-                                                                         self.task.runid,
-                                                                         i)))
-            plt.close('all')
-
-    def _th_slices_plots(self, expt):
-        thcube = self.th
-        z = thcube.coord('atmosphere_hybrid_height_coordinate').points / 1000
-
-        for i in range(thcube.shape[0]):
-            fig, ax = plt.subplots(dpi=100)
-            # N.B. subtract mean.
-            data = thcube.data[i] - thcube.data[i].mean()
-            # Coords are model_level, y, x or model_level, lat, lon
-            norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
-            im = ax.imshow(data, norm=norm, origin='lower', cmap='bwr')
-
-            ax.set_title('theta xy slice at z={:.2f} km'.format(z[i]))
-            ax.set_xlabel('x (km)')
-            ax.set_ylabel('y (km)')
-            plt.colorbar(im)
-            plt.savefig(self.file_path('/xy/{}_{}_theta_slice_{}.png'.format(expt,
-                                                                             self.task.runid,
-                                                                             i)))
-            plt.close('all')
-
-    def _th_e_slices_plots(self, expt):
-        thcube = self.th
-        z = thcube.coord('atmosphere_hybrid_height_coordinate').points / 1000
-
-        exnerp = self.ep
-        theta = self.th
-
-        qvdata = get_cube(self.cubes, 0, 10).data
-        Tdata = theta.data * exnerp.data
-        pdata = exnerp.data ** (1 / kappa) * p_ref
-
-        p = pdata * units('Pa')
-        qv = qvdata * units('kg/kg')
-        T = Tdata * units('K')
-        Td = mpcalc.dewpoint_from_specific_humidity(qv, T, p)
-        theta_e = mpcalc.equivalent_potential_temperature(p, T, Td)
-
-        for i in range(theta_e.shape[0]):
-            fig, ax = plt.subplots(dpi=100)
-            # N.B. subtract mean.
-            data = theta_e[i] - theta_e[i].mean()
-            # Coords are model_level, y, x or model_level, lat, lon
-            norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
-            im = ax.imshow(data, norm=norm, origin='lower', cmap='bwr')
-
-            ax.set_title('theta xy slice at z={:.2f} km'.format(z[i]))
-            ax.set_xlabel('x (km)')
-            ax.set_ylabel('y (km)')
-            plt.colorbar(im)
-            plt.savefig(self.file_path('/xy/{}_{}_theta_e_slice_{}.png'.format(expt,
-                                                                               self.task.runid,
-                                                                               i)))
-            plt.close('all')
-
-        for i in range(theta_e.shape[1]):
-            fig, ax = plt.subplots(dpi=100)
-            data = theta_e[:, i]
-            data[np.isnan(data)] = 273 * units('K')
-            # Coords are model_level, y, x or model_level, lat, lon
-            Nx = theta_e.shape[2]
-            data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(Nx),
-                                                             data)
-            data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Nx - 1, Nx))
-            # norm = MidpointNormalize(midpoint=0, vmin=data.min(), vmax=data.max())
-            # Use for equal aspect ratio.
-            # im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr', aspect=0.1)
-            im = ax.imshow(data_interp[:200],
-                           origin='lower', cmap='RdBu_r',
-                           aspect=10,
-                           vmin=325, vmax=370,
-                           extent=(0, 256, 0, 20))
-
-            ax.set_title('theta_e xz slice at y={} gridbox'.format(i))
-            ax.set_xlabel('x (km)')
-            ax.set_ylabel('height (km)')
-            plt.colorbar(im)
-            plt.savefig(self.file_path('/xz/{}_{}_theta_e_slice_{}.png'.format(expt,
-                                                                               self.task.runid,
-                                                                               i)))
-            plt.close('all')
-
-
-    def _w_mean_y_plots(self, expt):
-        wcube = self.w
-        fig, ax = plt.subplots(dpi=100)
-        data = wcube.data
-        # Coords are model_level, y, x or model_level, lat, lon
-        data_mean = data.mean(axis=1)
-        Nx = data.shape[2]
-        data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(Nx),
-                                                         data_mean)
-        data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Nx - 1, Nx))
-        # Only go up to 20 km and use aspect ratio to plot equal aspect
-        # (allowing for diff in coords).
-        norm = MidpointNormalize(midpoint=0,
-                                 vmin=data_interp.min(),
-                                 vmax=data_interp.max())
-        im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr',
-                       extent=(0, 256, 0, 20), aspect=10)
-
-        ax.set_title('w mean over y')
-        ax.set_xlabel('x (km)')
-        ax.set_ylabel('height (km)')
-        plt.colorbar(im)
-        plt.savefig(self.file_path('/xz/{}_{}_w_mean_over_y.png'.format(expt,
-                                                                        self.task.runid)))
-        plt.close('all')
-
-    def _qvar_slices_y_plots(self, expt):
-        qvars = ['qcl', 'qcf', 'qcf2', 'qrain', 'qgraup']
-        for qvar in qvars:
-            if not hasattr(self, qvar):
-                continue
-            qcube = getattr(self, qvar)
-            z = qcube.coord('atmosphere_hybrid_height_coordinate').points / 1000
-
-            for i in range(qcube.shape[0]):
-                fig, ax = plt.subplots(dpi=100)
-                data = qcube.data[i]
-                # Coords are model_level, y, x or model_level, lat, lon
-                im = ax.imshow(data, origin='lower', cmap='Blues')
-
-                ax.set_title('q xy slice at z={:.2f} km'.format(z[i]))
-                ax.set_xlabel('x (km)')
-                ax.set_ylabel('y (km)')
-                plt.colorbar(im)
-                plt.savefig(self.file_path('/xy/{}_{}_{}_slice_{}.png'.format(expt,
-                                                                              self.task.runid,
-                                                                              qvar,
-                                                                              i)))
-                plt.close('all')
-
-            for i in range(qcube.shape[1]):
-                fig, ax = plt.subplots(dpi=100)
-                data = qcube.data[:, i]
-                # Coords are model_level, y, x or model_level, lat, lon
-                Nx = qcube.shape[2]
-                data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(Nx),
-                                                                 data)
-                data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Nx - 1, Nx))
-                # Use for equal aspect ratio.
-                # im = ax.imshow(data_interp[:200], norm=norm, origin='lower', cmap='bwr', aspect=0.1)
-                im = ax.imshow(data_interp[:200],
-                               origin='lower', cmap='Blues',
-                               aspect=10,
-                               extent=(0, 256, 0, 20))
-
-                ax.set_title('q xz slice at y={} gridbox'.format(i))
-                ax.set_xlabel('x (km)')
-                ax.set_ylabel('height (km)')
-                plt.colorbar(im)
-                plt.savefig(self.file_path('/xz/{}_{}_{}_slice_{}.png'.format(expt,
-                                                                              self.task.runid,
-                                                                              qvar,
-                                                                              i)))
-                plt.close('all')
-
-    def _qvar_mean_y_plots(self, expt):
-        qvars = ['qcl', 'qcf', 'qcf2', 'qrain', 'qgraup']
-        for qvar in qvars:
-            if not hasattr(self, qvar):
-                continue
-            qcube = getattr(self, qvar)
-            z = qcube.coord('atmosphere_hybrid_height_coordinate').points / 1000
-
-            fig, ax = plt.subplots(dpi=100)
-            data = qcube.data
-            # Coords are model_level, y, x or model_level, lat, lon
-            data_mean = data.mean(axis=1)
-            Nx = data.shape[2]
-            data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(Nx),
-                                                             data_mean)
-            data_interp = data_rbs(np.linspace(0, 40000, 400), np.linspace(0, Nx - 1, Nx))
-            # Only go up to 20 km and use aspect ratio to plot equal aspect
-            # (allowing for diff in coords).
-            im = ax.imshow(data_interp[:200], origin='lower', cmap='Blues',
-                           extent=(0, 256, 0, 20), aspect=10)
-
-            ax.set_title('{} mean over y'.format(qvar))
-            ax.set_xlabel('x (km)')
-            ax.set_ylabel('height (km)')
-            plt.colorbar(im)
-            plt.savefig(self.file_path('/xz/{}_{}_{}_mean_over_y.png'.format(expt,
-                                                                             self.task.runid,
-                                                                             qvar)))
-            plt.close('all')
 
     def save(self, state, suite):
         with open(self.task.output_filenames[0], 'w') as f:
