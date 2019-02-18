@@ -9,6 +9,7 @@ import pylab as plt
 from omnium import Analyser, ExptList
 
 from scaffold.utils import cm_to_inch
+from scaffold.colour import EXPT_DETAILS
 
 
 class OrgPlotter(Analyser):
@@ -38,7 +39,7 @@ class OrgPlotter(Analyser):
     def display_results(self):
         self.xlim = None
         self.ylim = None
-        self.nbins = None
+        self.nbins = 128
 
         self._plot_org_hist()
         plt.close('all')
@@ -55,6 +56,10 @@ class OrgPlotter(Analyser):
             cubes = self.expt_cubes[expt]
             sorted_cubes = []
             lx = expt_obj.lx
+
+            ucp_kwargs = {}
+            if expt in EXPT_DETAILS:
+                ucp_kwargs = dict(zip(['label', 'color', 'linestyle'], EXPT_DETAILS[expt]))
 
             for cube in cubes:
                 (height_level_index, thresh_index) = cube.attributes['dist_key']
@@ -94,7 +99,7 @@ class OrgPlotter(Analyser):
 
                 #n, bins = np.histogram(hist_data[1].data, **hist_kwargs)
                 plt.figure('Not_used')
-                n, bins, patch = plt.hist(hist_data[1].data, 700)
+                n, bins, patch = plt.hist(hist_data[1].data, **hist_kwargs)
                 plt.figure('combined_expt_z{}'.format(group))
 
                 areas = np.pi * (bins[1:]**2 - bins[:-1]**2)
@@ -116,7 +121,7 @@ class OrgPlotter(Analyser):
                 plt.plot(xpoints / 1000, cloud_densities / mean_density, label=expt)
                 plt.xlabel('Distance (km)')
                 plt.ylabel('Normalized cloud number density')
-                plt.axhline(y=1, ls='--')
+                plt.axhline(y=1, color='k', ls='--')
                 #print(bins[:21] / 1000)
                 #print(n[:20])
                 #print(cloud_densities[:20])
@@ -143,6 +148,16 @@ class OrgPlotter(Analyser):
                 plt.xlim((0, 256))
                 plt.ylim((1e-1, 2e1))
 
+                plt.figure('UCP_poster_combined_expt_z{}_log'.format(group))
+                plt.plot(xpoints / 1000, cloud_densities / mean_density, **ucp_kwargs)
+                plt.yscale('log')
+                plt.xlabel('Distance (km)')
+                plt.ylabel('Normalized cloud\nnumber density')
+                plt.axhline(y=1, ls='--')
+
+                plt.xlim((0, 100))
+                plt.ylim((6e-1, 1e1))
+
         for group in groups:
             plt.figure('combined_expt_z{}'.format(group))
             #plt.title('combined_expt_z{}'.format(group))
@@ -158,3 +173,11 @@ class OrgPlotter(Analyser):
             plt.legend(loc='upper center', ncol=5)
             plt.tight_layout()
             plt.savefig(self.file_path('poster_z{}_combined_log.png'.format(group)))
+
+            fig = plt.figure('UCP_poster_combined_expt_z{}_log'.format(group))
+            fig.set_size_inches(*cm_to_inch(12, 7))
+            plt.legend(loc='upper right', ncol=2)
+            plt.tight_layout()
+            plt.savefig(self.file_path('UCP_poster_z{}_combined_log.png'.format(group)))
+
+

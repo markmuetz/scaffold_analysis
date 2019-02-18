@@ -8,6 +8,8 @@ from omnium import Analyser
 from omnium.utils import get_cube
 from omnium.consts import p_ref, kappa, L, cp, g
 
+from scaffold.colour import EXPT_DETAILS
+
 logger = getLogger('scaf.rel_plot')
 
 
@@ -31,6 +33,7 @@ class RelaxationPlot(Analyser):
 
     def display_results(self):
         self._plot_theta_mv_incs()
+        self._plot_UCP_theta_mv_incs()
         self._calc_total_heating()
 
     def _calc_total_heating(self):
@@ -111,4 +114,40 @@ class RelaxationPlot(Analyser):
         plt.legend()
         plt.savefig(self.file_path('mv_incs.png'))
 
+    def _plot_UCP_theta_mv_incs(self):
+        plt.clf()
+        plt.xlabel('T_inc (K day$^{-1}$)')
+        plt.ylabel('height (km)')
+        for expt in self.task.expts:
+            ucp_kwargs = {}
+            if expt in EXPT_DETAILS:
+                ucp_kwargs = dict(zip(['label', 'color', 'linestyle'], EXPT_DETAILS[expt]))
+            T_inc = get_cube(self.expt_cubes[expt], 53, 181)
 
+            z = T_inc.coord('level_height').points
+
+            # 2880 steps_per_perdiodm: converts to K/day
+            T_inc_profile = T_inc.data.mean(axis=(0, 2, 3)) * 2880
+            plt.plot(T_inc_profile, z / 1000, **ucp_kwargs)
+
+        plt.zlim((0, 15))
+        plt.legend()
+        plt.savefig(self.file_path('UCP_T_incs.png'))
+
+        plt.clf()
+        plt.xlabel('mv_inc (g kg$^{-1}$ day$^{-1}$)')
+        plt.ylabel('height (km)')
+        for expt in self.task.expts:
+            ucp_kwargs = {}
+            if expt in EXPT_DETAILS:
+                ucp_kwargs = dict(zip(['label', 'color', 'linestyle'], EXPT_DETAILS[expt]))
+            mv_inc = get_cube(self.expt_cubes[expt], 53, 182)
+            z = mv_inc.coord('level_height').points
+
+            # 2880 steps_per_perdiodm: converts to g/kg/day
+            mv_inc_profile = mv_inc.data.mean(axis=(0, 2, 3)) * 2880 * 1000
+            plt.plot(mv_inc_profile, z / 1000, **ucp_kwargs)
+
+        plt.zlim((0, 15))
+        plt.legend()
+        plt.savefig(self.file_path('UCP_mv_incs.png'))

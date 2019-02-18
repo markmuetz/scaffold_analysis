@@ -12,6 +12,7 @@ from scipy import optimize
 from omnium import Analyser, ExptList
 
 from scaffold.utils import cm_to_inch
+from scaffold.colour import EXPT_DETAILS
 
 logger = getLogger('scaf.mfp')
 
@@ -75,6 +76,40 @@ class PlotDensityPoster:
 
     def finish(self, filename):
         self.ax1.legend()
+        self.fig.savefig(filename)
+
+
+class PlotUcpDensityPoster:
+    """Plots large fig of density for all heights/expts."""
+    def __init__(self, height_level_index, xlim, ylim):
+        fig, ax1 = plt.subplots(1, 1, num='UCP_poster_z{}'.format(height_level_index))
+        fig.set_size_inches(*cm_to_inch(12, 7))
+        if xlim:
+            ax1.set_xlim(xlim)
+        if ylim:
+            ax1.set_ylim(ylim)
+        ax1.set_yscale('log')
+        ax1.set_ylabel('Cloud number probability density')
+        ax1.set_xlabel('Mass flux per cloud ($\\times 10^8$ kg s$^{-1}$)')
+        ax1.set_ylim((1e-4, 1))
+
+        self.fig, self.ax1 = fig, ax1
+
+    def plot(self, expt_obj, bin_centers, width, y_density, num_clds, **kwargs):
+        ucp_kwargs = {}
+        if expt_obj.name in EXPT_DETAILS:
+            ucp_kwargs = dict(zip(['short_name', 'color', 'linestyle'], EXPT_DETAILS[expt_obj.name]))
+            ucp_kwargs['label'] = '{} - {} clouds'.format(ucp_kwargs.pop('short_name'), num_clds)
+
+        self.ax1.plot(bin_centers, y_density * width, **ucp_kwargs)
+        logger.debug('Sum y_density={}'.format((y_density * width).sum()))
+        # ax1_p.fill_between(bin_centers, y_hist + np.sqrt(y_hist), y_hist - np.sqrt(y_hist),
+        # color=colour, alpha=0.3)
+        # ax1_p.plot(x, np.exp(m * x + c), color=colour, linestyle='--')
+
+    def finish(self, filename):
+        self.ax1.legend()
+        self.fig.tight_layout()
         self.fig.savefig(filename)
 
 
@@ -248,6 +283,8 @@ class MassFluxPlotter(Analyser):
                                                            self.mass_flux_scaling),
                 'density_poster': PlotDensityPoster(height_level_index,
                                                     self.xlim, self.ylim),
+                'ucp_density_poster': PlotUcpDensityPoster(height_level_index,
+                                                           self.xlim, self.ylim),
             }
 
         for expt_data in self.all_expt_data:
@@ -260,6 +297,7 @@ class MassFluxPlotter(Analyser):
             # Do multiple plots - expt_data dict deref'ed into keyword args.
             combined_plotters[height_level_index]['density_mf_contrib'].plot(**expt_data)
             combined_plotters[height_level_index]['density_poster'].plot(**expt_data)
+            combined_plotters[height_level_index]['ucp_density_poster'].plot(**expt_data)
 
         for height_level_index in self.height_levels:
             # Finish up (save and add legends) for multiple plots.
@@ -267,6 +305,8 @@ class MassFluxPlotter(Analyser):
             combined_plotters[height_level_index]['density_mf_contrib'].finish(filepath)
             filepath = self.file_path('density_poster_z{}'.format(height_level_index))
             combined_plotters[height_level_index]['density_poster'].finish(filepath)
+            filepath = self.file_path('UCP_density_poster_z{}'.format(height_level_index))
+            combined_plotters[height_level_index]['ucp_density_poster'].finish(filepath)
 
     def _plot_indiv_mass_flux(self, expt_obj, height_level_index, bin_centers, width, y, **kwargs):
         name = '{}.z{}.mass_flux_hist'.format(expt_obj.name, height_level_index)
