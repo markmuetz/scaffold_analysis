@@ -14,6 +14,7 @@ from omnium.utils import get_cube_from_attr
 
 from scaffold.vertlev import VertLev
 from scaffold.utils import cm_to_inch
+from scaffold.colour import EXPT_DETAILS
 
 logger = getLogger('scaf.prof_plot')
 
@@ -49,6 +50,7 @@ class ProfilePlotter(Analyser):
         self._plot_momentum_flux()
         self._plot_cooling()
         self._plot_poster_shear_profiles()
+        self._plot_ucp_shear_profiles()
         rcParams.update({'figure.autolayout': False})
         plt.close('all')
 
@@ -85,6 +87,47 @@ class ProfilePlotter(Analyser):
         #plt.tight_layout()
         #plt.subplots_adjust(wspace=0)
         plt.savefig(self.file_path('poster_shear_profiles.png'))
+
+    def _plot_ucp_shear_profiles(self):
+        f, ax1 = plt.subplots(1, 1, sharey=True)
+        f.set_size_inches(*cm_to_inch(8, 12))
+        vertlev = VertLev(self.suite.suite_dir)
+        ax1.plot(vertlev.dz_theta, vertlev.z_rho / 1e3)
+        ax1.set_xlabel('$\\Delta z$ (m)')
+        ax1.set_ylabel('height (km)')
+
+        ax1.set_ylim((0, 25))
+
+        for expt in self.task.expts:
+            ucp_kwargs = {}
+            if expt in EXPT_DETAILS:
+                ucp_kwargs = dict(zip(['label', 'color', 'linestyle'], EXPT_DETAILS[expt]))
+                ucp_kwargs.pop('linestyle')
+            cubes = self.expt_cubes[expt]
+            u_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'u_profile')
+            # v_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'v_profile')
+            height = u_profile.coord('level_height').points
+            # shear_factor = int(expt[-1]) # i.e. 0-5.
+            shear_factor = int(re.search('S(?P<shear_factor>\d)', expt).group('shear_factor'))
+            shear_u_profile = self.base_u_profile.copy()
+            shear_u_profile[:, 1] *= shear_factor
+            # Offset to 0 wind at z=0.
+            shear_u_profile[:, 1] -= shear_u_profile[0, 1]
+            # N.B. convert m->km.
+            ax1.plot(shear_u_profile[:, 1], shear_u_profile[:, 0] / 1e3,
+                     color=ucp_kwargs['color'], linestyle='-', label=ucp_kwargs['label'][:-1])
+            #import ipdb; ipdb.set_trace()
+            ax1.plot(u_profile.data, height / 1e3, color=ucp_kwargs['color'], linestyle='--',
+                     label=ucp_kwargs['label'])
+
+        ax1.set_xlim((-10, 20))
+        ax1.set_ylim((0, 15))
+        ax1.set_xlabel('u profile (m s$^{-1}$)')
+        ax1.legend(bbox_to_anchor=(1.05, 1.05))
+
+        #plt.tight_layout()
+        #plt.subplots_adjust(wspace=0)
+        plt.savefig(self.file_path('UCP_shear_profiles.png'))
 
     def _plot_input_profiles(self):
         f, (ax1, ax2, ax3) = plt.subplots(1, 3, sharey=True)
