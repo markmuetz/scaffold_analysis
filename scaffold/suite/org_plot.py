@@ -153,7 +153,7 @@ class OrgPlotter(Analyser):
                 plt.yscale('log')
                 plt.xlabel('Distance (km)')
                 plt.ylabel('Normalized cloud\nnumber density')
-                plt.axhline(y=1, ls='--')
+                plt.axhline(y=1, ls='--', color='k')
 
                 plt.xlim((0, 100))
                 plt.ylim((6e-1, 1e1))
