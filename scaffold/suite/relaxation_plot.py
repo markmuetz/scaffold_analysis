@@ -130,7 +130,7 @@ class RelaxationPlot(Analyser):
             T_inc_profile = T_inc.data.mean(axis=(0, 2, 3)) * 2880
             plt.plot(T_inc_profile, z / 1000, **ucp_kwargs)
 
-        plt.zlim((0, 15))
+        plt.ylim((0, 15))
         plt.legend()
         plt.savefig(self.file_path('UCP_T_incs.png'))
 
@@ -148,6 +148,6 @@ class RelaxationPlot(Analyser):
             mv_inc_profile = mv_inc.data.mean(axis=(0, 2, 3)) * 2880 * 1000
             plt.plot(mv_inc_profile, z / 1000, **ucp_kwargs)
 
-        plt.zlim((0, 15))
+        plt.ylim((0, 15))
         plt.legend()
         plt.savefig(self.file_path('UCP_mv_incs.png'))
