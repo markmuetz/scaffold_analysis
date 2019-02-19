@@ -6,6 +6,8 @@ from matplotlib.colors import LogNorm
 from omnium import Analyser
 from omnium.utils import get_cube
 
+from scaffold.colour import EXPT_DETAILS
+
 
 class PrecipPlot(Analyser):
     """Pick out precip timesteps and plot."""
@@ -53,7 +55,11 @@ class PrecipPlot(Analyser):
             if len(self.expts_to_plot) == 1:
                 axes = [axes] # Make iterable.
             for ax, expt in zip(axes, self.expts_to_plot):
-                ax.set_title(expt)
+                if expt in EXPT_DETAILS:
+                    ucp_kwargs = dict(zip(['label', 'color', 'linestyle'], EXPT_DETAILS[expt]))
+                    ax.set_title(ucp_kwargs['label'])
+                else:
+                    ax.set_title(expt)
                 if expt == self.task.expts[0]:
                     ax.set_ylabel('y (km)')
                 else:
