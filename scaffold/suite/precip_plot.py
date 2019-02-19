@@ -92,6 +92,10 @@ class PrecipPlot(Analyser):
             cbar = fig.colorbar(im, cax=cbar_ax)
             cbar.set_label('rainfall (mm hr$^{-1}$)', rotation=270, labelpad=20)
 
-            plt.savefig(self.file_path('time_index{}.png'.format(i)))
+            if i == 1849:
+                # UCP figure!
+                plt.savefig(self.file_path('UCP_time_index{}.png'.format(i)))
+            else:
+                plt.savefig(self.file_path('time_index{}.png'.format(i)))
             plt.close('all')
         self.save_text('max_precip.csv', '\n'.join(max_precips) + '\n')
