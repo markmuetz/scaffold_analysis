@@ -20,6 +20,9 @@ from omnium import Analyser
 from omnium.utils import get_cube
 from omnium.consts import p_ref, kappa
 
+from scaffold.utils import cm_to_inch
+from scaffold.colour import EXPT_DETAILS
+
 logger = getLogger('scaf.dump_prof_plot')
 if not has_metpy:
     logger.warning('metpy not available')
@@ -67,17 +70,19 @@ def plot_hydrometeor_profile(da, expt, ax1, ax2):
         ax2.set_xlim((10e-1, 10e8))
 
 def plot_skewT(fig, name, p_profile, T_profile, Td_profile):
-    skew = SkewT(fig, rotation=45)
+    skew = SkewT(fig, rotation=55)
 
     skew.plot(p_profile.to('hPa'), T_profile.to('degC'), 'r-')
     skew.plot(p_profile.to('hPa'), Td_profile.to('degC'), 'r--')
 
-    skew.plot_dry_adiabats()
-    skew.plot_moist_adiabats()
-    skew.plot_mixing_lines()
-
     skew.ax.set_ylim(1000, 100)
-    skew.ax.set_xlim(-30, 40)
+    skew.ax.set_xlim(-30, 30)
+
+    # skew.plot_dry_adiabats(t0=np.linspace(253.15, 303.15, 6) * units('K'))
+    t0 = np.linspace(-30, 30, 7) * units('degC')
+    skew.plot_dry_adiabats(t0=t0)
+    skew.plot_moist_adiabats(t0=t0)
+    skew.plot_mixing_lines()
 
     Tparcel_profile = mpcalc.parcel_profile(p_profile, T_profile[0], Td_profile[0]).to('degC')
     skew.plot(p_profile.to('hPa'), Tparcel_profile, 'k-')
@@ -86,11 +91,16 @@ def plot_skewT(fig, name, p_profile, T_profile, Td_profile):
 
     try:
         cape, cin = mpcalc.surface_based_cape_cin(p_profile, T_profile, Td_profile)
-        skew.ax.set_title('CAPE = {:.2f} J kg$^{{-1}}$\n'
+        skew.ax.set_title('{}\n' 
+                          'CAPE = {:.2f} J kg$^{{-1}}$\n'
                           'CIN = {:.2f} J kg$^{{-1}}$'
-                          .format(cape.magnitude, cin.magnitude))
+                          .format(name, cape.magnitude, cin.magnitude))
     except Exception as e:
         logger.debug(e)
+    skew.ax.set_xlabel('temperature ($^\circ$C)')
+    skew.ax.set_ylabel('pressure (hPa)')
+
+    fig.tight_layout()
 
 class DumpProfilePlotter(Analyser):
     analysis_name = 'dump_profile_plot'
@@ -112,7 +122,7 @@ class DumpProfilePlotter(Analyser):
             f.write('done')
 
     def display_results(self):
-        self._plot_hydrometeors()
+        # self._plot_hydrometeors()
         self._plot_skewT()
         self._plot_theta_profiles()
         plt.close('all')
@@ -177,13 +187,23 @@ class DumpProfilePlotter(Analyser):
             T = Tdata * units('K')
             Td = mpcalc.dewpoint_from_specific_humidity(qv, T, p)
 
-            fig = plt.figure(dpi=100, figsize=(10, 10))
+            fig = plt.figure(dpi=100, figsize=cm_to_inch(10, 12))
 
             plot_skewT(fig, expt,
                        p.mean(axis=(1, 2)),
                        T.mean(axis=(1, 2)),
                        Td.mean(axis=(1, 2)))
             plt.savefig(self.file_path('skewT_{}.png'.format(expt)))
+
+            fig = plt.figure(dpi=100, figsize=cm_to_inch(10, 12))
+
+            if expt in EXPT_DETAILS:
+                ucp_kwargs = dict(zip(['label', 'color', 'linestyle'], EXPT_DETAILS[expt]))
+                plot_skewT(fig, ucp_kwargs['label'],
+                           p.mean(axis=(1, 2)),
+                           T.mean(axis=(1, 2)),
+                           Td.mean(axis=(1, 2)))
+                plt.savefig(self.file_path('UCP_skewT_{}.png'.format(expt)))
 
     def _plot_theta_profiles(self):
         for i, expt in enumerate(self.task.expts):
