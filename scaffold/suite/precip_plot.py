@@ -94,6 +94,7 @@ class PrecipPlot(Analyser):
 
             if i == 1849:
                 # UCP figure!
+                plt.tight_layout()
                 plt.savefig(self.file_path('UCP_time_index{}.png'.format(i)))
             else:
                 plt.savefig(self.file_path('time_index{}.png'.format(i)))
