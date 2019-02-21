@@ -89,19 +89,3 @@ class CloudTrackAnalyser(Analyser):
             tracker.cld_field_iter = None
         with open(self.task.output_filenames[1], 'wb') as f:
             pickle.dump(self.trackers, f)
-        # with open(self.task.output_filenames[0], 'w') as f:
-            # f.write('done')
-
-    def display_results(self):
-        self.append_log('displaying results')
-        figpath = self.file_path('cloud_tracking')
-
-        for tracker_key in self.trackers.keys():
-            height_level_index, thresh_index = tracker_key
-            stats = self.all_stats[tracker_key]
-            tracker = self.trackers[tracker_key]
-            filename = 'atmos.cloud_tracking_z{}_t{}.'.format(height_level_index, thresh_index)
-
-            plot_stats(self.task.expt, os.path.dirname(figpath), filename, [stats])
-            output_stats_to_file(self.task.expt, os.path.dirname(figpath), filename + 'txt',
-                                 tracker, stats)
