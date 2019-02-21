@@ -31,7 +31,6 @@ class CloudTrackAnalyser(Analyser):
     min_runid = 480
     # No max.
     # max_runid = 308
-    max_runid = 480
 
     def load(self):
         self.load_cubes()
