@@ -1,5 +1,6 @@
 import os
 from logging import getLogger
+import pickle
 
 import numpy as np
 from cloud_tracking import Tracker
@@ -22,12 +23,15 @@ class CloudTrackAnalyser(Analyser):
     input_dir = 'omnium_output/{version_dir}/{expt}'
     input_filename_glob = '{input_dir}/atmos.???.cloud_analysis.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
-    output_filenames = ['{output_dir}/atmos.cloud_track_analysis.dummy']
+    output_filenames = ['{output_dir}/atmos.cloud_track_analysis.all_stats.pkl',
+                        '{output_dir}/atmos.cloud_track_analysis.trackers.pkl',
+                        ]
     uses_runid = True
     runid_pattern = 'atmos.(?P<runid>\d{3}).cloud_analysis.nc'
     min_runid = 480
     # No max.
     # max_runid = 308
+    max_runid = 480
 
     def load(self):
         self.load_cubes()
@@ -79,24 +83,26 @@ class CloudTrackAnalyser(Analyser):
                 self.all_stats[(height_level_index, thresh_index)] = stats
 
     def save(self, state, suite):
-        with open(self.task.output_filenames[0], 'w') as f:
-            f.write('done')
+        with open(self.task.output_filenames[0], 'wb') as f:
+            pickle.dump(self.all_stats, f)
+        for tracker in self.trackers.values():
+            # Cannot be pickled.
+            tracker.cld_field_iter = None
+        with open(self.task.output_filenames[1], 'wb') as f:
+            pickle.dump(self.trackers, f)
+        # with open(self.task.output_filenames[0], 'w') as f:
+            # f.write('done')
 
     def display_results(self):
         self.append_log('displaying results')
         figpath = self.file_path('cloud_tracking')
 
-        cubes = self.cubes
-        cloud_mask_id = 'cloud_mask'
-        cloud_mask_cube = get_cube_from_attr(cubes, 'omnium_cube_id', cloud_mask_id)
-        w_thresh_coord = cloud_mask_cube.coord('w_thres')
-        level_number_coord = cloud_mask_cube.coord('model_level_number')
-        for height_level_index, height_level in enumerate(level_number_coord.points):
-            for thresh_index in range(w_thresh_coord.shape[0]):
-                stats = self.all_stats[(height_level_index, thresh_index)]
-                tracker = self.trackers[(height_level_index, thresh_index)]
+        for tracker_key in self.trackers.keys():
+            height_level_index, thresh_index = tracker_key
+            stats = self.all_stats[tracker_key]
+            tracker = self.trackers[tracker_key]
+            filename = 'atmos.cloud_tracking_z{}_t{}.'.format(height_level_index, thresh_index)
 
-                filename = 'atmos.cloud_tracking_z{}_t{}.'.format(height_level_index, thresh_index)
-
-                plot_stats(self.task.expt, os.path.dirname(figpath), filename, [stats])
-                output_stats_to_file(self.task.expt, os.path.dirname(figpath), filename + 'txt', tracker, stats)
+            plot_stats(self.task.expt, os.path.dirname(figpath), filename, [stats])
+            output_stats_to_file(self.task.expt, os.path.dirname(figpath), filename + 'txt',
+                                 tracker, stats)

@@ -3,6 +3,7 @@ import iris
 from scaffold.cycle.cycle_converter import CycleConverter, CycleDumpConverter
 from scaffold.expt.cloud_analysis import CloudAnalyser
 from scaffold.expt.cloud_track_analysis import CloudTrackAnalyser
+from scaffold.expt.cloud_track_plot import CloudTrackPlot
 from scaffold.expt.dump_extract_state import DumpExtractState
 from scaffold.expt.dump_slice_analysis import DumpSliceAnalyser
 from scaffold.expt.expt_converter import ExptConverter
@@ -50,6 +51,7 @@ analyser_classes = [
     CycleDumpConverter,
     CloudAnalyser,
     CloudTrackAnalyser,
+    CloudTrackPlot,
     DumpEntr,
     DumpExtractState,
     DumpProfilePlotter,
