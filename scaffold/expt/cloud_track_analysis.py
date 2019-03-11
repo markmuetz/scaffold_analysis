@@ -5,7 +5,7 @@ import pickle
 
 import numpy as np
 from cloud_tracking import Tracker
-from cloud_tracking.cloud_tracking_analysis import generate_stats, plot_stats, output_stats_to_file
+from cloud_tracking.cloud_tracking_analysis import generate_stats, output_stats_to_file
 
 from omnium import Analyser
 from omnium.utils import get_cube_from_attr
@@ -100,3 +100,16 @@ class CloudTrackAnalyser(Analyser):
             pickle.dump(self.trackers, f)
         logger.debug('setting recursion limit back to {}', old_recursion_limit)
 
+
+    def display_results(self):
+        self.append_log('displaying results')
+        figpath = self.file_path('cloud_tracking')
+
+        for tracker_key in self.trackers.keys():
+            height_level_index, thresh_index = tracker_key
+            stats = self.all_stats[tracker_key]
+            tracker = self.trackers[tracker_key]
+            filename = 'atmos.cloud_tracking_z{}_t{}.'.format(height_level_index, thresh_index)
+
+            output_stats_to_file(self.task.expt, os.path.dirname(figpath), filename + 'txt',
+                                 tracker, stats)
