@@ -1,3 +1,4 @@
+import sys
 import os
 from logging import getLogger
 import pickle
@@ -31,6 +32,8 @@ class CloudTrackAnalyser(Analyser):
     min_runid = 480
     # No max.
     # max_runid = 308
+
+    recursion_limit = 10000
 
     def load(self):
         self.load_cubes()
@@ -74,14 +77,20 @@ class CloudTrackAnalyser(Analyser):
                 cld_field_cube.data = cld_field
 
                 tracker = Tracker(cld_field_cube.slices_over('time'), store_working=True)
+                logger.debug('tracking clouds')
                 tracker.track()
+                logger.debug('grouping clouds')
                 tracker.group()
 
+                logger.debug('generating stats')
                 stats = generate_stats(self.task.expt, tracker)
                 self.trackers[(height_level_index, thresh_index)] = tracker
                 self.all_stats[(height_level_index, thresh_index)] = stats
 
     def save(self, state, suite):
+        old_recursion_limit = sys.getrecursionlimit()
+        logger.debug('setting recursion limit to {}', self.recursion_limit)
+        sys.setrecursionlimit(self.recursion_limit)
         with open(self.task.output_filenames[0], 'wb') as f:
             pickle.dump(self.all_stats, f)
         for tracker in self.trackers.values():
@@ -89,3 +98,5 @@ class CloudTrackAnalyser(Analyser):
             tracker.cld_field_iter = None
         with open(self.task.output_filenames[1], 'wb') as f:
             pickle.dump(self.trackers, f)
+        logger.debug('setting recursion limit back to {}', old_recursion_limit)
+
