@@ -14,6 +14,7 @@ production_settings = AnalysisSettings(dict(
     w_thresh=1.,
     # multiple.
     start_runid=240,
+    end_runid=480,
 ))
 
 test_settings = AnalysisSettings(dict(
@@ -30,4 +31,5 @@ test_settings = AnalysisSettings(dict(
     w_thresh=1.,
     # multiple.
     start_runid=0,
+    end_runid=int(1e6),
 ))
