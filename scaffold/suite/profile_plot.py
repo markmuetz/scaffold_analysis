@@ -70,7 +70,12 @@ class ProfilePlotter(Analyser):
             # v_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'v_profile')
             height = u_profile.coord('level_height').points
             # shear_factor = int(expt[-1]) # i.e. 0-5.
-            shear_factor = int(re.search('S(?P<shear_factor>\d)', expt).group('shear_factor'))
+            match = re.search('S(?P<shear_factor>\d)', expt)
+            # TODO: get RWP shear profile and plot (needs two lines as not linear).
+            if not match:
+                logger.debug('not printing shear profile')
+                continue
+            shear_factor = int(match.group('shear_factor'))
             shear_u_profile = self.base_u_profile.copy()
             shear_u_profile[:, 1] *= shear_factor
             # N.B. convert m->km.
@@ -108,7 +113,12 @@ class ProfilePlotter(Analyser):
             # v_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'v_profile')
             height = u_profile.coord('level_height').points
             # shear_factor = int(expt[-1]) # i.e. 0-5.
-            shear_factor = int(re.search('S(?P<shear_factor>\d)', expt).group('shear_factor'))
+            match = re.search('S(?P<shear_factor>\d)', expt)
+            # TODO: get RWP shear profile and plot (needs two lines as not linear).
+            if not match:
+                logger.debug('not printing shear profile')
+                continue
+            shear_factor = int(match.group('shear_factor'))
             shear_u_profile = self.base_u_profile.copy()
             shear_u_profile[:, 1] *= shear_factor
             # Offset to 0 wind at z=0.
@@ -163,7 +173,12 @@ class ProfilePlotter(Analyser):
             u_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'u_profile')
             # v_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'v_profile')
             height = u_profile.coord('level_height').points
-            shear_factor = int(re.search('S(?P<shear_factor>\d)', expt).group('shear_factor'))
+            match = re.search('S(?P<shear_factor>\d)', expt)
+            # TODO: get RWP shear profile and plot (needs two lines as not linear).
+            if not match:
+                logger.debug('not printing shear profile')
+                continue
+            shear_factor = int(match.group('shear_factor'))
             shear_u_profile = self.base_u_profile.copy()
             shear_u_profile[:, 1] *= shear_factor
             # N.B. convert m->km.
@@ -188,7 +203,11 @@ class ProfilePlotter(Analyser):
             u_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'u_profile')
             # v_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'v_profile')
             height = u_profile.coord('level_height').points
-            shear_factor = int(re.search('S(?P<shear_factor>\d)', expt).group('shear_factor'))
+            match = re.search('S(?P<shear_factor>\d)', expt)
+            if not match:
+                logger.debug('not printing shear profile')
+                continue
+            shear_factor = int(match.group('shear_factor'))
             shear_u_profile = self.base_u_profile.copy()
             shear_u_profile[:, 1] *= shear_factor
             # N.B. convert m->km.
