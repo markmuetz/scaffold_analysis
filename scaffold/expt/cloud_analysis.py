@@ -24,6 +24,15 @@ class CloudAnalyser(Analyser):
     Outputs cloud_mask: result of combined (&'ed) w and qcl thresholding.
     cloud_mask has coords for the height_level, w_thresh and qcl_thresh used.
     Also output w, qcl and rho slices for future analysis.
+
+    Additionally, labels clouds by identifying contiguous regions in the cloud mask.
+    Defined diagonally, with wrapping:
+    XXXXXXXXXXXXXXXXXX
+    X  111   2  3   4X
+    X  11  22        X
+    X     22   33    X
+    X4         3    4X
+    XXXXXXXXXXXXXXXXXX
     """
     analysis_name = 'cloud_analysis'
     single_file = True
