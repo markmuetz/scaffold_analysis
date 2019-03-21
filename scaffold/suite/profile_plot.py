@@ -50,7 +50,7 @@ class ProfilePlotter(Analyser):
         self._plot_momentum_flux()
         self._plot_cooling()
         self._plot_poster_shear_profiles()
-        self._plot_ucp_shear_profiles()
+        # self._plot_ucp_shear_profiles()
         rcParams.update({'figure.autolayout': False})
         plt.close('all')
 
