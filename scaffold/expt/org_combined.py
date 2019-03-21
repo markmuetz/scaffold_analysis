@@ -17,7 +17,6 @@ class OrgCombined(Analyser):
     input_filename_glob = '{input_dir}/atmos.???.org_analysis.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.org_combined.nc']
-    # TODO: runid
 
     def load(self):
         self.dists = defaultdict(list)
