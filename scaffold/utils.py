@@ -1,5 +1,18 @@
+import numpy as np
+
+
 def cm_to_inch(*vals):
     return [v / 2.54 for v in vals]
+
+
+def find_intersections(c1, c2):
+    signs = np.ones_like(c1)
+    diff = c1 - c2
+    signs[diff < 0] = -1
+    signs[diff == 0] = 0
+    indices = np.where((np.abs(np.roll(signs, -1) - signs) == 2) | (signs == 0))[0]
+    weights = np.array([1 / ((np.abs(diff[(i + 1) % len(diff)] / diff[i])) + 1) for i in indices])
+    return indices, weights
 
 
 def interp_vert_rho2w(vertlevs, w_slice, rho_slice, time_index, height_level_index,

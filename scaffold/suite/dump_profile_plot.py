@@ -20,7 +20,7 @@ from omnium import Analyser
 from omnium.utils import get_cube
 from omnium.consts import p_ref, kappa
 
-from scaffold.utils import cm_to_inch
+from scaffold.utils import cm_to_inch, find_intersections
 from scaffold.colour import EXPT_DETAILS
 
 logger = getLogger('scaf.dump_prof_plot')
@@ -35,15 +35,6 @@ VARS = [
     ('qgr', (0, 273), (0, 81), 'r'),
     ('qrn', (0, 272), (0, 76), 'k'),
 ]
-
-def find_intersections(c1, c2):
-    signs = np.ones_like(c1)
-    diff = c1 - c2
-    signs[diff < 0] = -1
-    signs[diff == 0] = 0
-    indices = np.where((np.abs(np.roll(signs, -1) - signs) == 2) | (signs == 0))[0]
-    weights = np.array([1 / ((np.abs(diff[i + 1] / diff[i])) + 1) for i in indices])
-    return indices, weights
 
 
 def plot_hydrometeor_profile(da, expt, ax1, ax2):
