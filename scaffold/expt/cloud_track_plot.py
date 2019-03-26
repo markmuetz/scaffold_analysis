@@ -16,9 +16,9 @@ class CloudTrackPlot(Analyser):
     calculating spatial correlation then using this to project the cloud field at a given height
     forward in time. Most heavy lifting is handled by cloud_tracking package."""
     analysis_name = 'cloud_track_plot'
-    multi_file = True
+    single_file = True
     input_dir = 'omnium_output/{version_dir}/{expt}'
-    input_filenames = ['{input_dir}/atmos.cloud_track_analysis.all_stats.pkl',]
+    input_filename = '{input_dir}/atmos.cloud_track_analysis.all_stats.pkl'
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.cloud_track_plot.dummy']
 
