@@ -134,22 +134,6 @@ class DumpSliceAnalyser(Analyser):
                 (self._plot_zoom, (expt, 'qrain', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
                 (self._plot_zoom, (expt, 'qgraup', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
             ]},
-            'S4W5rel2_S4W5Forced': {480: [
-                (self._plot_zoom, (expt, 'w', 0, 100, 185, 225, [25, 50]),
-                 {'use_norm': True, 'aspect':4}),
-                (self._plot_zoom, (expt, 'qcl', 0, 100, 185, 225, [25, 50]),
-                 {'cmap': 'Blues', 'aspect':4}),
-                (self._plot_zoom, (expt, 'qcf', 0, 100, 185, 225, [25, 50]),
-                 {'cmap': 'Blues', 'aspect':4}),
-                (self._plot_zoom, (expt, 'qcf2', 0, 100, 185, 225, [25, 50]),
-                 {'cmap': 'Blues', 'aspect':4}),
-                (self._plot_zoom, (expt, 'qrain', 0, 100, 185, 225, [25, 50]),
-                 {'cmap': 'Blues', 'aspect':4}),
-                (self._plot_zoom, (expt, 'qgraup', 0, 100, 185, 225, [25, 50]),
-                 {'cmap': 'Blues', 'aspect':4}),
-                (self._plot_zoom, (expt, 'theta', 0, 100, 185, 225, [25, 50]),
-                 {'use_norm': True, 'anomaly': True, 'aspect':4}),
-            ]},
         }
         if expt in expt_slices:
             if self.task.runid in expt_slices[expt]:
