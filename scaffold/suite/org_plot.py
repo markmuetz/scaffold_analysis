@@ -117,29 +117,44 @@ class OrgPlotter(Analyser):
 
                 x1 = list(xpoints[:indices[0] + 1]) + [crosses[0]]
                 y1 = org_data_fn(x1)
-                logger.debug('cluster_index: {}', integrate.trapz(y1, x1))
+                cluster_index = integrate.trapz(y1, x1)
+                logger.debug('cluster_index: {}', cluster_index)
 
                 x2 = list(xpoints[indices[0] + 1:indices[1] + 1]) + [crosses[1]]
                 y2 = org_data_fn(x2)
-                logger.debug('suppr_index: {}', integrate.trapz(y2, x2))
+                suppr_index = integrate.trapz(y2, x2)
+                logger.debug('suppr_index: {}', suppr_index)
+
+                self.org_data[(expt, group)]['crosses'] = crosses
+                self.org_data[(expt, group)]['cluster_radius'] = cluster_radius
+                self.org_data[(expt, group)]['suppr_radius'] = suppr_radius
+                self.org_data[(expt, group)]['cluster_index'] = cluster_index
+                self.org_data[(expt, group)]['suppr_index'] = suppr_index
 
     def save(self, state, suite):
         with open(self.task.output_filenames[0], 'w') as f:
             f.write('done')
 
     def display_results(self):
+        csv_lines = ['expt,group,cluster_radius,suppr_radius,cluster_index,suppr_index']
         for (expt, group), org_data_item in self.org_data.items():
             org_data = org_data_item['org_data']
             xpoints = org_data_item['xpoints']
             self._plot_org_hist(expt, group, xpoints, org_data)
 
             org_data_filename = os.path.join(os.path.dirname(self.task.output_filenames[0]),
-                                             'org_data_z{}.np'.format(group))
+                                             'org_data_{}_z{}.np'.format(expt, group))
             xpoints_filename = os.path.join(os.path.dirname(self.task.output_filenames[0]),
-                                            'org_data_xpoints_z{}.np'.format(group))
+                                            'org_data_xpoints_{}_z{}.np'.format(expt, group))
 
             org_data.dump(org_data_filename)
             xpoints.dump(xpoints_filename)
+            csv_lines.append('{expt},{group},{cluster_radius},{suppr_radius},{cluster_index},{suppr_index}'
+                             .format(expt=expt, group=group, **org_data_item))
+        org_csv_filename = os.path.join(os.path.dirname(self.task.output_filenames[0]),
+                                        'org_data.csv')
+        with open(org_csv_filename, 'w') as f:
+            f.write('\n'.join(csv_lines) + '\n')
 
         for group in self.groups:
             plt.figure('combined_expt_z{}'.format(group))
