@@ -7,7 +7,7 @@ import numpy as np
 from cloud_tracking import Tracker
 from cloud_tracking.cloud_tracking_analysis import generate_stats, output_stats_to_file
 
-from omnium import Analyser
+from omnium import Analyser, ExptList
 from omnium.utils import get_cube_from_attr
 
 logger = getLogger('scaf.cta')
@@ -24,8 +24,8 @@ class CloudTrackAnalyser(Analyser):
     input_dir = 'omnium_output/{version_dir}/{expt}'
     input_filename_glob = '{input_dir}/atmos.???.cloud_analysis.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
-    output_filenames = ['{output_dir}/atmos.cloud_track_analysis.all_stats.pkl',
-                        '{output_dir}/atmos.cloud_track_analysis.trackers.pkl',
+    output_filenames = ['{output_dir}/ignore_smaller/atmos.cloud_track_analysis.all_stats.pkl',
+                        '{output_dir}/ignore_smaller/atmos.cloud_track_analysis.trackers.pkl',
                         ]
     uses_runid = True
     runid_pattern = 'atmos.(?P<runid>\d{3}).cloud_analysis.nc'
@@ -51,10 +51,21 @@ class CloudTrackAnalyser(Analyser):
         level_number_coord = cloud_mask_cube.coord('model_level_number')
         logger.debug(cloud_mask_cube.shape)
 
+        w_cube = get_cube_from_attr(cubes, 'omnium_cube_id', 'w_slice')
+        rho_cube = get_cube_from_attr(cubes, 'omnium_cube_id', 'rho_slice')
+
+        expts = ExptList(self.suite)
+        expts.find([self.task.expt])
+        expt_obj = expts.get(self.task.expt)
+
         # height_level refers to orig cube.
         # height_level_index refers to w as it has already picked out the height levels.
         for height_level_index, level_number in enumerate(level_number_coord.points):
             for thresh_index in range(w_thresh_coord.shape[0]):
+                if height_level_index != 1 and thresh_index != 1:
+                    # Only perform for all height levels using thresh_index == 1,
+                    # and all thresh_index for height_level_index == 1.
+                    continue
 
                 logger.debug('height_index, thresh_index: {}, {}'.format(height_level_index,
                                                                          thresh_index))
@@ -67,6 +78,7 @@ class CloudTrackAnalyser(Analyser):
                 labelled_clouds_cube = get_cube_from_attr(cubes,
                                                           'omnium_cube_id',
                                                           labelled_clouds_cube_id)
+
                 cld_field = np.zeros(cloud_mask_cube[:, height_level_index, thresh_index, thresh_index].shape, dtype=int)
                 cld_field_cube = cloud_mask_cube[:, height_level_index, thresh_index, thresh_index].copy()
                 cld_field_cube.rename('cloud_field')
@@ -76,10 +88,13 @@ class CloudTrackAnalyser(Analyser):
                     cld_field[time_index] = labelled_clouds_ss
                 cld_field_cube.data = cld_field
 
-                tracker = Tracker(cld_field_cube.slices_over('time'),
+                tracker = Tracker(cld_field_cube.slices_over('time'), expt_obj.dx, expt_obj.dy,
                                   include_touching=True,
                                   touching_diagonal=True,
+                                  ignore_smaller_equal_than=1,
                                   store_working=True)
+                tracker.add_mass_flux_info(w_iter=w_cube[:, height_level_index].slices_over('time'),
+                                           rho_iter=rho_cube[:, height_level_index].slices_over('time'))
                 logger.debug('tracking clouds')
                 tracker.track()
                 logger.debug('grouping clouds')
@@ -99,6 +114,9 @@ class CloudTrackAnalyser(Analyser):
         for tracker in self.trackers.values():
             # Cannot be pickled.
             tracker.cld_field_iter = None
+            if tracker.can_calc_mass_flux:
+                tracker.w_iter = None
+                tracker.rho_iter = None
         with open(self.task.output_filenames[1], 'wb') as f:
             pickle.dump(self.trackers, f)
         logger.debug('setting recursion limit back to {}', old_recursion_limit)
