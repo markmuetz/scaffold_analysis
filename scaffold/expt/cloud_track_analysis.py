@@ -76,7 +76,10 @@ class CloudTrackAnalyser(Analyser):
                     cld_field[time_index] = labelled_clouds_ss
                 cld_field_cube.data = cld_field
 
-                tracker = Tracker(cld_field_cube.slices_over('time'), store_working=True)
+                tracker = Tracker(cld_field_cube.slices_over('time'),
+                                  include_touching=self.settings.cloud_track_touching,
+                                  touching_diagonal=self.settings.cloud_track_touching_diagonal,
+                                  store_working=True)
                 logger.debug('tracking clouds')
                 tracker.track()
                 logger.debug('grouping clouds')
