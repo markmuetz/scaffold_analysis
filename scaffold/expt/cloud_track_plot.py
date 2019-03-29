@@ -17,10 +17,10 @@ class CloudTrackPlot(Analyser):
     forward in time. Most heavy lifting is handled by cloud_tracking package."""
     analysis_name = 'cloud_track_plot'
     single_file = True
-    input_dir = 'omnium_output/{version_dir}/{expt}'
-    input_filename = '{input_dir}/ignore_smaller/atmos.cloud_track_analysis.all_stats.pkl'
-    output_dir = 'omnium_output/{version_dir}/{expt}'
-    output_filenames = ['{output_dir}/ignore_smaller/atmos.cloud_track_plot.dummy']
+    input_dir = 'omnium_output/{version_dir}/{expt}/ignore_smaller'
+    input_filename = '{input_dir}/atmos.cloud_track_analysis.all_stats.pkl'
+    output_dir = 'omnium_output/{version_dir}/{expt}/ignore_smaller'
+    output_filenames = ['{output_dir}/atmos.cloud_track_plot.dummy']
 
     def load(self):
         with open(self.task.filenames[0], 'rb') as f:
