@@ -15,8 +15,9 @@ production_settings = AnalysisSettings(dict(
     # multiple.
     start_runid=240,
     end_runid=480,
-    cloud_track_touching=True,
-    cloud_track_touching_diagonal=True,
+    # TODO: See if I can get this working in settings.
+    # cloud_track_touching=True,
+    # cloud_track_touching_diagonal=True,
 ))
 
 test_settings = AnalysisSettings(dict(

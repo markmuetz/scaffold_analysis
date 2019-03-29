@@ -77,8 +77,8 @@ class CloudTrackAnalyser(Analyser):
                 cld_field_cube.data = cld_field
 
                 tracker = Tracker(cld_field_cube.slices_over('time'),
-                                  include_touching=self.settings.cloud_track_touching,
-                                  touching_diagonal=self.settings.cloud_track_touching_diagonal,
+                                  include_touching=True,
+                                  touching_diagonal=True,
                                   store_working=True)
                 logger.debug('tracking clouds')
                 tracker.track()
