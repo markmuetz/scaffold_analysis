@@ -79,7 +79,7 @@ class MassFluxAnalyser(Analyser):
                 mass_flux_cube = iris.cube.Cube(mass_fluxes,
                                                 long_name=mf_cube_id,
                                                 dim_coords_and_dims=[(values, 0)],
-                                                units='kg s-1')
+                                                units='kg m-2 s-1')
 
                 mass_flux_cube.attributes['mass_flux_key'] = (height_level_index, thresh_index)
                 self.results[mf_cube_id] = mass_flux_cube
