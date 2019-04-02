@@ -17,6 +17,7 @@ from scaffold.expt.org_combined import OrgCombined
 from scaffold.expt.precip_hovmoller import PrecipHovmollerAnalyser
 from scaffold.expt.profile_analysis import ProfileAnalyser
 from scaffold.expt.restart_dump_analysis import RestartDumpAnalyser
+from scaffold.expt.restart_dump_summary_info import RestartDumpSummaryInfo
 from scaffold.expt.surf_flux_analysis import SurfFluxAnalyser
 from scaffold.scaffold_settings import production_settings, test_settings
 from scaffold.suite.dump_entr import DumpEntr
@@ -75,6 +76,7 @@ analyser_classes = [
     ProfilePlotter,
     RelaxationPlot,
     RestartDumpAnalyser,
+    RestartDumpSummaryInfo,
     SurfFluxAnalyser,
     SurfFluxPlot,
 ]
