@@ -43,6 +43,8 @@ class MassFluxAnalyser(Analyser):
         qcl_thresh_coord = cloud_mask_cube.coord('qcl_thres')
         level_number_coord = cloud_mask_cube.coord('model_level_number')
 
+        num_domain_grid_cells = w_slice.shape[2] * w_slice.shape[3]
+
         vertlevs = VertLev(self.suite.suite_dir)
         # level_number refers to orig cube.
         # height_level_index refers to w as it has already picked out the height levels.
@@ -57,6 +59,9 @@ class MassFluxAnalyser(Analyser):
                 labelled_clouds_cube = get_cube_from_attr(cubes, 'omnium_cube_id', labelled_clouds_cube_id)
 
                 mass_fluxes = []
+                total_mass_fluxes = []
+                sigmas = []
+
                 for time_index in range(cloud_mask_cube.data.shape[0]):
                     # w_ss == w_snapshot.
                     w_ss = w_slice[time_index, height_level_index].data
@@ -72,17 +77,40 @@ class MassFluxAnalyser(Analyser):
                         mask = (labelled_clouds_ss == i)
                         mass_flux = mf_ss[mask].sum()
                         mass_fluxes.append(mass_flux)
+                    total_mass_fluxes.append(mf_ss[labelled_clouds_ss >= 1].sum())
+                    sigmas.append((labelled_clouds_ss >= 1).sum() / num_domain_grid_cells)
 
                 mf_cube_id = 'mass_flux_z{}_w{}_qcl{}'.format(level_number, w_thresh, qcl_thresh)
-
                 values = iris.coords.DimCoord(range(len(mass_fluxes)), long_name='values')
                 mass_flux_cube = iris.cube.Cube(mass_fluxes,
                                                 long_name=mf_cube_id,
                                                 dim_coords_and_dims=[(values, 0)],
                                                 units='kg m-2 s-1')
 
+                total_mf_cube_id = 'total_mass_flux_z{}_w{}_qcl{}'.format(level_number, w_thresh, qcl_thresh)
+                values = iris.coords.DimCoord(range(len(total_mass_fluxes)), long_name='values')
+                total_mass_flux_cube = iris.cube.Cube(total_mass_fluxes,
+                                                      long_name=total_mf_cube_id,
+                                                      dim_coords_and_dims=[(values, 0)],
+                                                      units='kg m-2 s-1')
+
                 mass_flux_cube.attributes['mass_flux_key'] = (height_level_index, thresh_index)
+                total_mass_flux_cube.attributes['total_mass_flux_key'] = (height_level_index, thresh_index)
+
+                sigma_cube_id = 'sigma_z{}_w{}_qcl{}'.format(level_number, w_thresh, qcl_thresh)
+                values = iris.coords.DimCoord(range(len(sigmas)), long_name='values')
+                sigma_cube = iris.cube.Cube(sigmas,
+                                            long_name=sigma_cube_id,
+                                            dim_coords_and_dims=[(values, 0)],
+                                            units='')
+
+                mass_flux_cube.attributes['mass_flux_key'] = (height_level_index, thresh_index)
+                total_mass_flux_cube.attributes['total_mass_flux_key'] = (height_level_index, thresh_index)
+                sigma_cube.attributes['sigma_key'] = (height_level_index, thresh_index)
+
                 self.results[mf_cube_id] = mass_flux_cube
+                self.results[total_mf_cube_id] = total_mass_flux_cube
+                self.results[sigma_cube_id] = sigma_cube
 
     def save(self, state, suite):
         self.save_results_cubes(state, suite)
