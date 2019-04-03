@@ -23,7 +23,7 @@ class CloudTrackAnalyser(Analyser):
     multi_file = True
     input_dir = 'omnium_output/{version_dir}/{expt}'
     input_filename_glob = '{input_dir}/atmos.???.cloud_analysis.nc'
-    output_dir = 'omnium_output/{version_dir}/{expt}/ignore_smaller'
+    output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.cloud_track_analysis.all_stats.pkl',
                         '{output_dir}/atmos.cloud_track_analysis.trackers.pkl',
                         ]
