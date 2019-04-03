@@ -122,7 +122,9 @@ class OrgPlotter(Analyser):
 
                 x2 = list(xpoints[indices[0] + 1:indices[1] + 1]) + [crosses[1]]
                 y2 = org_data_fn(x2)
-                suppr_index = integrate.trapz(y2, x2)
+
+                # Make +ve.
+                suppr_index = np.abs(integrate.trapz(y2, x2))
                 logger.debug('suppr_index: {}', suppr_index)
 
                 self.org_data[(expt, group)]['crosses'] = crosses
