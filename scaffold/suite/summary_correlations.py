@@ -33,19 +33,21 @@ SORTED_EXPTS = [
 
 
 def get_mass_flux(expt):
-    mfc = iris.load('{}/atmos.mass_flux_combined.nc'.format(expt))
+    mass_flux_combined_fn = '{}/atmos.mass_flux_combined.nc'.format(expt)
+    logger.debug('loading mass_flux: {}', mass_flux_combined_fn)
+    mfc = iris.load(mass_flux_combined_fn)
     mf = get_cube_from_attr(mfc, 'omnium_cube_id', 'mass_flux_z1_w1_qcl1')
     tmf = get_cube_from_attr(mfc, 'omnium_cube_id', 'total_mass_flux_z1_w1_qcl1')
     sigma = get_cube_from_attr(mfc, 'omnium_cube_id', 'sigma_z1_w1_qcl1')
-    return {'num_clds': mf.shape[0], 'mfpc': mf.data.mean(),
-            'tmf': tmf.data.mean(), 'sigma': sigma.data.mean()}
+    return {'num_clds': mf.shape[0], 'MF_per_cloud': mf.data.mean(),
+            'total_MF': tmf.data.mean(), 'sigma': sigma.data.mean()}
 
 
 def get_cloud_lifetimes(expt):
-    with open('{}/atmos.cloud_tracking_z1_t1.txt'.format(expt), 'r') as f:
+    cloud_tracking_fn = '{}/atmos.cloud_tracking_z1_t1.txt'.format(expt)
+    logger.debug('loading cloud_tracking: {}', cloud_tracking_fn)
+    with open(cloud_tracking_fn, 'r') as f:
         lines = f.readlines()
-    # print(expt)
-    # print(lines)
 
     simple_lifetime = float(lines[4].split(',')[-1].strip())
     complex_lifetime = float(lines[7].split(',')[-1].strip())
@@ -53,7 +55,9 @@ def get_cloud_lifetimes(expt):
 
 
 def savefig(cwd):
-    plt.savefig('{}/summary_info_{}.pdf'.format(cwd, plt.gcf().get_label()))
+    fig_fn = '{}/summary_info_{}.pdf'.format(cwd, plt.gcf().get_label())
+    logger.debug('saving fig to: {}'.format(fig_fn))
+    plt.savefig(fig_fn)
 
 
 class SummaryCorrelations(Analyser):
@@ -64,24 +68,28 @@ class SummaryCorrelations(Analyser):
     input_dir = 'omnium_output/{version_dir}'
     input_filename = '{input_dir}/summary_correlations.dummy'
     output_dir = 'omnium_output/{version_dir}/suite_summary_correlations'
-    output_filenames = ['{output_dir}/atmos.summary_correlations.dummy']
+    output_filenames = ['{output_dir}/atmos.summary_correlations.dummy',
+                        '{output_dir}/all_col_values.hdf']
 
     def load(self):
         self.basedir = os.path.dirname(self.task.filenames[0])
         self.outputdir = os.path.dirname(self.task.output_filenames[0])
 
         with cd(self.basedir):
-            si_fns = sorted(glob('*/atmos.restart_dump_summary_info.hdf'))
-            self.df_org = pd.read_csv('suite_S0W0Forced_S4W0Forced_S0W5Forced_S4W5Forced_'
-                                 'RWP_C1_RWP_C2_RWP_C3_RWP_C4_RWP_C5_'
-                                 'RWP_C6_RWP_C7_RWP_C8_RWP_C9_RWP_C10'
-                                 '/org_data.csv')
+            org_data_fn = ('suite_S0W0Forced_S4W0Forced_S0W5Forced_S4W5Forced_'
+                           'RWP_C1_RWP_C2_RWP_C3_RWP_C4_RWP_C5_'
+                           'RWP_C6_RWP_C7_RWP_C8_RWP_C9_RWP_C10'
+                           '/org_data.csv')
+            logger.debug('loading org_data: {}', org_data_fn)
+
+            self.df_org = pd.read_csv(org_data_fn)
             self.df_tds = {}
             self.df_dyns = {}
-            for fn in si_fns:
-                expt = os.path.dirname(fn)
-                self.df_tds[expt] = pd.read_hdf(fn, 'thermodynamic_summary')
-                self.df_dyns[expt] = pd.read_hdf(fn, 'dynamic_summary')
+            for expt in SORTED_EXPTS:
+                si_fn = '{}/atmos.restart_dump_summary_info.hdf'.format(expt)
+                logger.debug('loading summary_info: {}', si_fn)
+                self.df_tds[expt] = pd.read_hdf(si_fn, 'thermodynamic_summary')
+                self.df_dyns[expt] = pd.read_hdf(si_fn, 'dynamic_summary')
 
             self.cloud_lifetimes = {}
             self.mass_flux = {}
@@ -91,22 +99,22 @@ class SummaryCorrelations(Analyser):
 
     def run(self):
         for expt in SORTED_EXPTS:
-            print(expt)
+            logger.debug(expt)
             df_td = self.df_tds[expt]
             # Skip first column: runid.
             for col in df_td.columns[1:]:
-                print('  {}: {}, {}'.format(col, df_td[col].mean(), df_td[col].std()))
+                logger.debug('  {}: {}, {}'.format(col, df_td[col].mean(), df_td[col].std()))
             df_dyn = self.df_dyns[expt]
             # Skip first column: runid.
             for col in df_dyn.columns[1:]:
-                print('  {}: {}, {}'.format(col, df_dyn[col].mean(), df_dyn[col].std()))
+                logger.debug('  {}: {}, {}'.format(col, df_dyn[col].mean(), df_dyn[col].std()))
 
         cols = (list(df_dyn.columns[1:]) + list(df_td.columns[1:]) +
                 list(self.df_org.columns[2:]) +
-                ['num_clds', 'mfpc', 'tmf', 'sigma'] +
+                ['num_clds', 'MF_per_cloud', 'total_MF', 'sigma'] +
                 ['simple_lifetime', 'complex_lifetime'])
 
-        all_col_values = {}
+        all_col_values = {'expt': SORTED_EXPTS}
         for i, col in enumerate(cols):
             # plt.figure(col)
             # plt.clf()
@@ -119,7 +127,7 @@ class SummaryCorrelations(Analyser):
                 elif col in self.df_org.columns[2:]:
                     col_values.append(self.df_org[(self.df_org.expt == expt) &
                                              (self.df_org.group == 1)][col].values[0])
-                elif col in ['num_clds', 'mfpc', 'tmf', 'sigma']:
+                elif col in ['num_clds', 'MF_per_cloud', 'total_MF', 'sigma']:
                     col_values.append(self.mass_flux[expt][col])
                 elif col in ['simple_lifetime', 'complex_lifetime']:
                     col_values.append(self.cloud_lifetimes[expt][col])
@@ -162,6 +170,8 @@ class SummaryCorrelations(Analyser):
     def save(self, state, suite):
         with open(self.task.output_filenames[0], 'w') as f:
             f.write('done')
+        df_all_col_values = pd.DataFrame(self.all_col_values)
+        df_all_col_values.to_hdf(self.task.output_filenames[1], 'all_col_values')
 
     def _plot_matrix(self, name, cols, data, cmap=None, sum_rows=False):
         plt.figure(name, figsize=cm_to_inch(29.7, 21.0))
@@ -203,4 +213,9 @@ class SummaryCorrelations(Analyser):
 
         self._plot_matrix('ordered_corr', ordered_cols, ordered_corr, cmap='bwr')
         self._plot_matrix('ordered_pvals', ordered_cols, ordered_pvals, sum_rows=True)
+
+        triu_pvals = self.pvals[np.triu(np.ones_like(self.pvals, dtype=bool), 1)]
+        fig = plt.figure('pvals_hist')
+        plt.hist(triu_pvals, bins=20, range=(0, 1))
+        savefig(self.outputdir)
 
