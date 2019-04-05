@@ -3,6 +3,7 @@ from logging import getLogger
 
 import iris
 import pandas as pd
+import numpy as np
 
 has_metpy = False
 try:
@@ -21,6 +22,23 @@ from omnium.utils import get_cube
 logger = getLogger('scaf.rdsa')
 if not has_metpy:
     logger.warning('metpy not available')
+
+
+def max_wind_diff_between_levels(u_profile, v_profile, start_level, end_level):
+    max_wind_diff, max_i, max_j = 0, 0, 0
+    # i is lower (higher pressure).
+    for i in range(start_level, end_level - 1):
+        for j in range(i + 1, end_level):
+            wind_diff = np.sqrt((u_profile[i] - u_profile[j])**2 +
+                                (v_profile[i] - v_profile[j])**2)
+            # v. low level debug to check it's doing right thing.
+            # logger.debug('diff {} - {} hPa: {}',
+            #              pressure[i], pressure[j], wind_diff)
+            if wind_diff > max_wind_diff:
+                max_wind_diff = wind_diff
+                max_i, max_j = i, j
+    return max_wind_diff, max_i, max_j
+
 
 class RestartDumpSummaryInfo(Analyser):
     """
@@ -47,14 +65,18 @@ class RestartDumpSummaryInfo(Analyser):
 
     def run(self):
         self.summary_info_data = []
+        self.dyn_summary_info_data = []
 
         for runid, dump in self.dumps.items():
             self._calc_thermodynamic_summary_info(runid, dump)
+            self._calc_LLS_MLS(runid, dump)
 
         self.df_summary_info = pd.DataFrame(self.summary_info_data,
                                             columns=['runid', 'Tsurf',
                                                      'LCL', 'LFC', 'LNB',
                                                      'CAPE', 'CIN'])
+        self.df_dyn_summary_info = pd.DataFrame(self.dyn_summary_info_data,
+                                                columns=['runid', 'mean_surf_wind', 'LLS', 'MLS'])
 
     def _calc_thermodynamic_summary_info(self, runid, dump):
         theta = get_cube(dump, 0, 4)
@@ -90,8 +112,19 @@ class RestartDumpSummaryInfo(Analyser):
                                        cape.magnitude,
                                        cin.magnitude])
 
+    def _calc_LLS_MLS(self, runid, dump):
+        u = get_cube(dump, 0, 2)
+        v = get_cube(dump, 0, 3)
+        u_profile = u.data.mean(axis=(1, 2))
+        v_profile = v.data.mean(axis=(1, 2))
 
+        mean_surf_wind = np.sqrt(u_profile[0]**2 + v_profile[0]**2)
+        # Level 17 == 800 hPa
+        lls = max_wind_diff_between_levels(u_profile, v_profile, 0, 17)
+        # Level 33 == 500 hPa
+        mls = max_wind_diff_between_levels(u_profile, v_profile, 17, 33)
+        self.dyn_summary_info_data.append([runid, mean_surf_wind, lls[0], mls[0]])
 
     def save(self, state, suite):
         self.df_summary_info.to_hdf(self.task.output_filenames[0], 'thermodynamic_summary')
-
+        self.df_dyn_summary_info.to_hdf(self.task.output_filenames[0], 'dynamic_summary')
