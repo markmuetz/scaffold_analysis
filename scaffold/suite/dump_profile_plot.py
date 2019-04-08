@@ -113,7 +113,7 @@ class DumpProfilePlotter(Analyser):
             f.write('done')
 
     def display_results(self):
-        # self._plot_hydrometeors()
+        self._plot_hydrometeors()
         self._plot_skewT()
         self._plot_theta_profiles()
         plt.close('all')
