@@ -8,7 +8,7 @@ from omnium import Analyser
 from omnium.utils import get_cube
 from omnium.consts import p_ref, kappa, L, cp, g
 
-from scaffold.colour import EXPT_DETAILS
+from scaffold.expt_settings import EXPT_DETAILS
 
 logger = getLogger('scaf.rel_plot')
 

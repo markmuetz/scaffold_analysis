@@ -14,7 +14,7 @@ from omnium.utils import get_cube_from_attr
 
 from scaffold.vertlev import VertLev
 from scaffold.utils import cm_to_inch
-from scaffold.colour import EXPT_DETAILS
+from scaffold.expt_settings import EXPT_DETAILS
 
 logger = getLogger('scaf.prof_plot')
 

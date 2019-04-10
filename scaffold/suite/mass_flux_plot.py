@@ -12,7 +12,7 @@ from scipy import optimize
 from omnium import Analyser, ExptList
 
 from scaffold.utils import cm_to_inch
-from scaffold.colour import EXPT_DETAILS
+from scaffold.expt_settings import EXPT_DETAILS
 
 logger = getLogger('scaf.mfp')
 

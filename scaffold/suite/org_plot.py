@@ -13,7 +13,7 @@ import pylab as plt
 from omnium import Analyser, ExptList
 
 from scaffold.utils import cm_to_inch, find_intersections
-from scaffold.colour import EXPT_DETAILS
+from scaffold.expt_settings import EXPT_DETAILS
 
 logger = getLogger('scaf.org_plot')
 

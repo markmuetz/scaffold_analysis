@@ -21,7 +21,7 @@ from omnium.utils import get_cube
 from omnium.consts import p_ref, kappa
 
 from scaffold.utils import cm_to_inch, find_intersections
-from scaffold.colour import EXPT_DETAILS
+from scaffold.expt_settings import EXPT_DETAILS
 
 logger = getLogger('scaf.dump_prof_plot')
 if not has_metpy:

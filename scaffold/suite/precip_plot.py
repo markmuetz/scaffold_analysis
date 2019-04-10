@@ -6,7 +6,7 @@ from matplotlib.colors import LogNorm
 from omnium import Analyser
 from omnium.utils import get_cube
 
-from scaffold.colour import EXPT_DETAILS
+from scaffold.expt_settings import EXPT_DETAILS
 
 
 class PrecipPlot(Analyser):

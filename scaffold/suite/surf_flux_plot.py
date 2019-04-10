@@ -11,7 +11,7 @@ from omnium import Analyser
 from omnium.utils import get_cube
 from omnium.consts import L
 
-from scaffold.colour import EXPT_COLOUR
+from scaffold.expt_settings import EXPT_DETAILS
 logger = getLogger('scaf.sfp')
 
 
@@ -59,8 +59,8 @@ class SurfFluxPlot(Analyser):
                 times = (precip_ts.coord('time').points - start_time) / 24
 
                 kwargs = {}
-                if expt in EXPT_COLOUR:
-                    kwargs['color'] = EXPT_COLOUR[expt]
+                if expt in EXPT_DETAILS:
+                    kwargs['color'] = EXPT_DETAILS[expt]
                 plot = plt.plot(times, lhf_ts.data, label=expt, linestyle='-', **kwargs)
                 #colour = plot[0].get_color()
                 colour = plot[0].get_color()
