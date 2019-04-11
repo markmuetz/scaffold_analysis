@@ -59,6 +59,7 @@ class RelaxationPlot(Analyser):
             # z = T_inc.coord('level_height').points
             # z_theta = exnerp.coord('level_height').points
 
+            # TODO: Uses hydrostatic approx which is not valid. Do proper dz integral.
             # Note, I am ignoring top level!
             T_inc_fe = ((cp / g) * (T_inc.data[:, :-1] / 30 * dp)).sum(axis=1).mean(axis=(1, 2))
             q_inc = mv_inc.data / (1 - mv_inc.data)

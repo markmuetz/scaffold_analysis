@@ -1,5 +1,8 @@
+import os
 from logging import getLogger
 import csv
+
+import pandas as pd
 
 from omnium import Analyser
 
@@ -16,7 +19,7 @@ class EnergyBalance(Analyser):
         '{input_dir}/relaxation_plot_final_day_relaxation_energy_flux.csv',
     ]
     output_dir = 'omnium_output/{version_dir}/suite_{expts}'
-    output_filenames = ['{output_dir}/atmos.energy_balance.dummy']
+    output_filenames = ['{output_dir}/energy_balance.hdf']
 
     def load(self):
         self.surf_flux_file = open(self.task.filenames[0], 'r')
@@ -44,16 +47,23 @@ class EnergyBalance(Analyser):
         self.rel_file.close()
 
     def save(self, state, suite):
-        with open(self.task.output_filenames[0], 'w') as f:
-            f.write('done')
+        self.df_energy_balance.to_hdf(self.task.output_filenames[0], 'energy_balance')
 
     def display_results(self):
+        cols = ['expt',
+                'LHF', 'SHF', 'PFE',
+                'TrelFE', 'QRelFE',
+                'EnergyIn', 'EnergyOut',
+                'MoistureIn', 'MoistureOut',
+                'EnergyImbalance',
+                'MoistureImbalance']
+        data = []
         for expt in self.task.expts:
             sf_row = self.surf_flux[expt]
             rel_row = self.rel[expt]
             # LHF + SHF
             energy_in = sf_row[1] + sf_row[2]
-            # TrelFE + QrelFR
+            # TrelFE + QrelFE
             energy_out = rel_row[0] + rel_row[1]  # -ve
             # SHF
             moisture_in = sf_row[1]
@@ -65,3 +75,15 @@ class EnergyBalance(Analyser):
             logger.info('Moisture imbalance for {} [W m-2]: {:.3f} ({:.2f} %)',
                         expt, moisture_in + moisture_out,
                         100 * (moisture_in + moisture_out) / moisture_in)
+
+            data.append([expt,
+                         sf_row[1], sf_row[2], -sf_row[0],
+                         rel_row[0], rel_row[1],
+                         energy_in, energy_out,
+                         moisture_in, moisture_out,
+                         energy_in + energy_out,
+                         moisture_in + moisture_out])
+        self.df_energy_balance = pd.DataFrame(data=data, columns=cols)
+        latex_fn = os.path.splitext(self.task.output_filenames[0])[0] + '.tex'
+        self.df_energy_balance.to_latex(latex_fn, float_format='%.1f')
+
