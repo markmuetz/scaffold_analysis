@@ -54,7 +54,7 @@ class PrecipPlot(Analyser):
         if not self.expts_to_plot:
             self.expts_to_plot = self.task.expts
 
-        # self._plot_snapshots()
+        self._plot_snapshots()
         self._plot_hovmollers()
 
     def _plot_snapshots(self):
@@ -63,15 +63,23 @@ class PrecipPlot(Analyser):
 
         max_precips = ['time_index, expt, max precip [mm/hr]']
         for i in range(precip.shape[0] - 100, precip.shape[0]):
-            fig, axes = plt.subplots(1, len(self.expts_to_plot))
+            fig = plt.figure(figsize=cm_to_inch(18, 8))
+            gs = gridspec.GridSpec(2, len(self.expts_to_plot),
+                                   height_ratios=[1, 0.2])
+            axes = []
+            for ax_index in range(len(self.expts_to_plot)):
+                if ax_index == 0:
+                    axes.append(plt.subplot(gs[0, ax_index]))
+                else:
+                    ax = plt.subplot(gs[0, ax_index], sharey=axes[0])
+                    plt.setp(ax.get_yticklabels(), visible=False)
+                    axes.append(ax)
 
             precip_max = 0
             for expt in self.expts_to_plot:
                 precip = self.precips[expt]
                 precip_max = max(precip[i].data.max(), precip_max)
 
-            if len(self.expts_to_plot) == 1:
-                axes = [axes] # Make iterable.
             for ax, expt in zip(axes, self.expts_to_plot):
                 if expt in EXPT_DETAILS:
                     ucp_kwargs = dict(zip(['label', 'color', 'linestyle'], EXPT_DETAILS[expt]))
@@ -94,21 +102,25 @@ class PrecipPlot(Analyser):
                 precip_data = precip[i].data * 3600
 
                 precip_min = 1e-4
+                precip_vmin = 1e-1
                 precip_data[precip_data < precip_min] = 0
                 im = ax.imshow(precip_data, origin='lower',
                                interpolation='nearest', extent=[0, 256, 0, 256],
                                #vmin=0, vmax=precip_max * 3600)
-                               norm=LogNorm(vmin=precip_min, vmax=precip_max * 3600))
+                               norm=LogNorm(vmin=precip_vmin, vmax=precip_max * 3600))
 
             for expt in self.task.expts:
                 precip = self.precips[expt]
                 precip_data = precip[i].data * 3600
                 max_precips.append('{},{},{}'.format(i, expt, precip_data.max()))
 
-            plt.subplots_adjust(right=0.82)
-            cbar_ax = fig.add_axes([0.85, 0.27, 0.02, 0.46])
-            cbar = fig.colorbar(im, cax=cbar_ax)
-            cbar.set_label('rainfall (mm hr$^{-1}$)', rotation=270, labelpad=15)
+            plt.subplots_adjust(bottom=0.3)
+            plt.tight_layout()
+            cbar_ax = fig.add_axes([0.1, 0.2, 0.8, 0.04])
+            # cbar_ax = fig.add_axes([0.85, 0.27, 0.02, 0.46])
+            cbar = fig.colorbar(im, cax=cbar_ax, orientation='horizontal')
+            # cbar.set_label('precip. (mm hr$^{-1}$)', rotation=270, labelpad=15)
+            cbar.set_label('precip. (mm hr$^{-1}$)', labelpad=0)
 
             if i == 1849:
                 # UCP figure!
@@ -121,6 +133,9 @@ class PrecipPlot(Analyser):
         if len(self.task.expts) != 4:
             logger.debug('only plot hovmollers for 4 expts')
             return
+
+        # N.B. should divide into 20
+        divider = 10
 
         fig = plt.figure(figsize=cm_to_inch(18, 15))
         # fig.subplots_adjust(bottom=0.15)
@@ -138,31 +153,11 @@ class PrecipPlot(Analyser):
                 else:
                     flattened_axes.append(plt.subplot(gs[i, j]))
         colorbar_ax = fig.add_axes([0.1, 0.1, 0.8, 0.02])
+        masked_hov = {}
+        precip_min = 1e-1
+        precip_max = 0
         for i, expt in enumerate(self.task.expts):
-            if expt in EXPT_DETAILS:
-                expt_name, colour = EXPT_DETAILS[expt][0:2]
-            else:
-                expt_name = expt
-                colour = 'k'
-            ax1, ax2 = flattened_axes[i * 2], flattened_axes[i * 2 + 1]
             precip = self.precips[expt]
-
-            start_time = precip.coord('time').points[0]
-            times = precip.coord('time').points - start_time
-            timelength_hours = times[-1] - times[0]
-            timelength_days = timelength_hours / 24
-
-            # Convert m to km.
-            x = precip.coord('grid_longitude').points / 1e3
-            y = precip.coord('grid_latitude').points / 1e3
-            x_res = x[1] - x[0]
-            y_res = y[1] - y[0]
-            nx = len(x)
-            ny = len(y)
-
-            # N.B. should divide into 20
-            divider = 10
-
             if expt in self.cached_hov_data:
                 logger.debug('using cached data for {}', expt)
                 masked_hov_x, masked_hov_y = self.cached_hov_data[expt]
@@ -185,20 +180,50 @@ class PrecipPlot(Analyser):
                 masked_hov_x.dump(cached_hov_x_fn)
                 masked_hov_y.dump(cached_hov_y_fn)
 
+            masked_hov[expt] = (masked_hov_x, masked_hov_y)
+            precip_max = max(masked_hov_x.max(), masked_hov_y.max(), precip_max)
+
+        for i, expt in enumerate(self.task.expts):
+            (masked_hov_x, masked_hov_y) = masked_hov[expt]
+
+            if expt in EXPT_DETAILS:
+                expt_name, colour = EXPT_DETAILS[expt][0:2]
+            else:
+                expt_name = expt
+                colour = 'k'
+
+            ax1, ax2 = flattened_axes[i * 2], flattened_axes[i * 2 + 1]
+            precip = self.precips[expt]
+
+            start_time = precip.coord('time').points[0]
+            times = precip.coord('time').points - start_time
+            timelength_hours = times[-1] - times[0]
+            timelength_days = timelength_hours / 24
+
+            # Convert m to km.
+            x = precip.coord('grid_longitude').points / 1e3
+            y = precip.coord('grid_latitude').points / 1e3
+            x_res = x[1] - x[0]
+            y_res = y[1] - y[0]
+            nx = len(x)
+            ny = len(y)
+
             ax1.set_title('{} x-dir'.format(expt_name))
-            im = ax1.imshow(masked_hov_x, interpolation='nearest',
-                       extent=[0, x_res * nx, timelength_days, timelength_days - timelength_days / divider],
-                       aspect='auto',
-                       cmap=plt.get_cmap('Blues'),
-                       norm=LogNorm(), vmax=2e-3)
+            im = ax1.imshow(masked_hov_x * 3600, interpolation='nearest',
+                            extent=[0, x_res * nx, timelength_days, timelength_days - timelength_days / divider],
+                            aspect='auto',
+                            cmap=plt.get_cmap('Blues'),
+                            #norm=LogNorm(), vmax=2e-3)
+                            norm=LogNorm(vmin=precip_min, vmax=precip_max * 3600))
             ax1.set_xlabel('x (km)')
 
             ax2.set_title('{} y-dir'.format(expt_name))
-            ax2.imshow(masked_hov_y, interpolation='nearest',
+            ax2.imshow(masked_hov_y * 3600, interpolation='nearest',
                        extent=[0, y_res * ny, timelength_days, timelength_days - timelength_days / divider],
                        aspect='auto',
                        cmap=plt.get_cmap('Blues'),
-                       norm=LogNorm(), vmax=2e-3)
+                       # norm=LogNorm(), vmax=2e-3)
+                       norm=LogNorm(vmin=precip_min, vmax=precip_max * 3600))
             ax2.set_xlabel('y (km)')
 
             # Closure over expt
