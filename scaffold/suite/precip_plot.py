@@ -3,6 +3,7 @@ from logging import getLogger
 
 import numpy as np
 import matplotlib
+import matplotlib.gridspec as gridspec
 matplotlib.use('Agg')
 import pylab as plt
 from matplotlib.colors import LogNorm
@@ -121,14 +122,28 @@ class PrecipPlot(Analyser):
             logger.debug('only plot hovmollers for 4 expts')
             return
 
-        fig, axes = plt.subplots(2, 4, figsize=cm_to_inch(18, 15), sharey=True)
+        fig = plt.figure(figsize=cm_to_inch(18, 15))
+        # fig.subplots_adjust(bottom=0.15)
 
-        flattened_axes = axes.flatten()
+        # Displaying 2x4 data. Use 3x5 grid because need gap between left 2 and right 2 ax,
+        # and need space for colorbar at bottom.
+        gs = gridspec.GridSpec(3, 5,
+                               height_ratios=[1, 1, 0.2],
+                               width_ratios=[1, 1, 0.01, 1, 1])
+        flattened_axes = []
+        for i in [0, 1]:
+            for j in [0, 1, 3, 4]:
+                if i != 0 and j != 0:
+                    flattened_axes.append(plt.subplot(gs[i, j], sharey=flattened_axes[0]))
+                else:
+                    flattened_axes.append(plt.subplot(gs[i, j]))
+        colorbar_ax = fig.add_axes([0.1, 0.1, 0.8, 0.02])
         for i, expt in enumerate(self.task.expts):
             if expt in EXPT_DETAILS:
-                expt_name = EXPT_DETAILS[expt][0]
+                expt_name, colour = EXPT_DETAILS[expt][0:2]
             else:
                 expt_name = expt
+                colour = 'k'
             ax1, ax2 = flattened_axes[i * 2], flattened_axes[i * 2 + 1]
             precip = self.precips[expt]
 
@@ -171,7 +186,7 @@ class PrecipPlot(Analyser):
                 masked_hov_y.dump(cached_hov_y_fn)
 
             ax1.set_title('{} x-dir'.format(expt_name))
-            ax1.imshow(masked_hov_x, interpolation='nearest',
+            im = ax1.imshow(masked_hov_x, interpolation='nearest',
                        extent=[0, x_res * nx, timelength_days, timelength_days - timelength_days / divider],
                        aspect='auto',
                        cmap=plt.get_cmap('Blues'),
@@ -186,13 +201,15 @@ class PrecipPlot(Analyser):
                        norm=LogNorm(), vmax=2e-3)
             ax2.set_xlabel('y (km)')
 
+            # Closure over expt
             def plot_phase_vel(x, y):
                 dx = x[1] - x[0]
                 dy = y[1] - y[0]
                 # dx: km, dy: days
                 phase_vel = dx / dy * 1e3 / 86400 # m/s
                 logger.info('Phase velocity for {}: {} m/s', expt, phase_vel)
-                ax1.plot(x, y, 'k--', label='{:.1f} m s$^{{-1}}$'.format(phase_vel))
+                ax1.plot(x, y, linestyle='--', color='k',
+                         label='{:.1f} m s$^{{-1}}$'.format(phase_vel))
                 ax1.legend(framealpha=1)
                 return phase_vel
 
@@ -209,6 +226,12 @@ class PrecipPlot(Analyser):
 
             if i in [0, 2]:
                 ax1.set_ylabel('time (days)')
+            else:
+                plt.setp(ax1.get_yticklabels(), visible=False)
+            plt.setp(ax2.get_yticklabels(), visible=False)
+
+        cb = plt.colorbar(im, cax=colorbar_ax, orientation='horizontal')
+        cb.set_label('precip. (mm hr$^{-1}$)')
 
         plt.tight_layout()
         plt.show()
