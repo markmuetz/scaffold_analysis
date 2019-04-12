@@ -141,8 +141,8 @@ class DumpProfilePlotter(Analyser):
 
     def display_results(self):
         # self._plot_hydrometeors()
-        self._plot_skewT()
-        # self._plot_theta_profiles()
+        # self._plot_skewT()
+        self._plot_theta_profiles()
         plt.close('all')
 
     def _plot_hydrometeors(self):
@@ -228,9 +228,12 @@ class DumpProfilePlotter(Analyser):
         plt.savefig(self.file_path('skewT.png'))
 
     def _plot_theta_profiles(self):
-        for i, expt in enumerate(self.task.expts):
+        fig, axes = plt.subplots(2, 2, sharex=True, sharey=True, figsize=cm_to_inch(18, 16))
+        for expt_index, (expt, ax) in enumerate(zip(self.task.expts, axes.flatten())):
             logger.debug('plot thetas for {}', expt)
             da = self.expt_cubes[expt]
+            if expt in EXPT_DETAILS:
+                ax.set_title(EXPT_DETAILS[expt][0])
 
             theta_cube = get_cube(da, 0, 4)
             pi_cube = get_cube(da, 0, 255)
@@ -246,21 +249,16 @@ class DumpProfilePlotter(Analyser):
             Td = mpcalc.dewpoint_from_specific_humidity(q * units('kg/kg'), T * units.degK, p * units('hPa'))
             theta_e = mpcalc.equivalent_potential_temperature(p * units('hPa'), T * units.degK, Td)
             theta_es = mpcalc.saturation_equivalent_potential_temperature(p * units('hPa'), T * units.degK)
-            title = 'thetas_' + expt
-
-            plt.figure(title)
-            plt.clf()
-            plt.title(title)
 
             theta_profile = theta.mean(axis=(1, 2))
             theta_e_profile = theta_e.mean(axis=(1, 2))
             theta_es_profile = theta_es.mean(axis=(1, 2))
             p_profile = p.mean(axis=(1, 2))
 
-            plt.plot(theta_profile, z, 'r-', label='$\\theta$')
-            plt.plot(theta_e_profile, z, 'g-', label='$\\theta_{e}$')
-            plt.plot(theta_es_profile, z, 'b-', label='$\\theta_{es}$')
-            plt.axvline(x=theta_e_profile[0], linestyle='--', color='k', label='parcel ascent')
+            line_theta, = ax.plot(theta_profile, z / 1000, 'r-', label='$\\theta$')
+            line_theta_e, = ax.plot(theta_e_profile, z / 1000, 'g-', label='$\\theta_{e}$')
+            line_theta_es, = ax.plot(theta_es_profile, z / 1000, 'b-', label='$\\theta_{es}$')
+            line_pa = ax.axvline(x=theta_e_profile[0], linestyle='--', color='k', label='asc.')
 
             indices, weights = find_intersections(theta_es_profile.magnitude,
                                                   np.ones_like(theta_e_profile) * theta_e_profile[0].magnitude)
@@ -268,24 +266,37 @@ class DumpProfilePlotter(Analyser):
             i, w = indices[0], weights[0]
             z_lfc = z[i] + w * (z[i + 1] - z[i])
             p_lfc = p_profile[i] + w * (p_profile[i + 1] - p_profile[i])
-            plt.plot((theta_e_profile.magnitude[0] - 2, theta_e_profile.magnitude[0] + 2),
-                     (z_lfc, z_lfc),
-                     linestyle='--', color='grey', label='LFC ({:.0f} m)'.format(z_lfc))
+            line_lfc, = ax.plot((theta_e_profile.magnitude[0] - 2, theta_e_profile.magnitude[0] + 2),
+                                (z_lfc / 1000, z_lfc / 1000),
+                                linestyle='--', color='grey', label='LFC={:.1f} km'.format(z_lfc / 1000))
 
             i, w = indices[1], weights[1]
             z_lnb = z[i] + w * (z[i + 1] - z[i])
             p_lnb = p_profile[i] + w * (p_profile[i + 1] - p_profile[i])
-            plt.plot((theta_e_profile.magnitude[0] - 2, theta_e_profile.magnitude[0] + 2),
-                     (z_lnb, z_lnb),
-                     linestyle='--', color='brown', label='LNB ({:.0f} m)'.format(z_lnb))
+            line_lnb, = ax.plot((theta_e_profile.magnitude[0] - 2, theta_e_profile.magnitude[0] + 2),
+                                (z_lnb / 1000, z_lnb / 1000),
+                                linestyle='--', color='brown', label='LNB={:.1f} km'.format(z_lnb / 1000))
 
 
             logger.debug('LFC: {:.0f} m, {:.0f} hPa'.format(z_lfc, p_lfc))
             logger.debug('LNB: {:.0f} m, {:.0f} hPa'.format(z_lnb, p_lnb))
 
-            plt.legend()
+            if expt_index == 1:
+                legend = plt.legend(handles=[line_theta, line_theta_e, line_theta_es, line_pa],
+                                    loc=7, handlelength=1)
+                plt.gca().add_artist(legend)
 
-            plt.ylabel('height (m)')
-            plt.xlim((290, 360))
-            plt.ylim((0, 15000))
-            plt.savefig(self.file_path(title))
+            ax.legend(handles=[line_lnb, line_lfc], loc=2, handlelength=1)
+
+            if expt_index in [0, 1]:
+                ax.set_xlabel('')
+            else:
+                ax.set_xlabel('(K)')
+
+            if expt_index in [0, 2]:
+                ax.set_ylabel('height (km)')
+            ax.set_xlim((290, 360))
+            ax.set_ylim((0, 15))
+
+        title = 'thetas'
+        plt.savefig(self.file_path(title))
