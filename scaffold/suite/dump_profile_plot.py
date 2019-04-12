@@ -1,6 +1,8 @@
 from logging import getLogger
 
 import matplotlib
+#from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
 import numpy as np
 
 matplotlib.use('Agg')
@@ -60,17 +62,29 @@ def plot_hydrometeor_profile(da, expt, ax1, ax2):
         ax2.set_ylim((0, 20))
         ax2.set_xlim((10e-1, 10e8))
 
-def plot_skewT(fig, name, p_profile, T_profile, Td_profile):
-    skew = SkewT(fig, rotation=55)
+def plot_skewT(fig, subplot, name, p_profile, T_profile, Td_profile):
+    skew = SkewT(fig=fig, subplot=subplot, rotation=55)
 
     skew.plot(p_profile.to('hPa'), T_profile.to('degC'), 'r-')
     skew.plot(p_profile.to('hPa'), Td_profile.to('degC'), 'r--')
 
     skew.ax.set_ylim(1000, 100)
-    skew.ax.set_xlim(-30, 30)
+    skew.ax.set_xlim(-35, 30)
+
+    if subplot[2] in [2, 4]:
+        plt.setp(skew.ax.get_yticklabels(), visible=False)
+        skew.ax.set_ylabel('')
+    else:
+        skew.ax.set_ylabel('pressure (hPa)')
+
+    if subplot[2] in [1, 2]:
+        plt.setp(skew.ax.get_xticklabels(), visible=False)
+        skew.ax.set_xlabel('')
+    else:
+        skew.ax.set_xlabel('temperature ($^\circ$C)')
 
     # skew.plot_dry_adiabats(t0=np.linspace(253.15, 303.15, 6) * units('K'))
-    t0 = np.linspace(-30, 30, 7) * units('degC')
+    t0 = np.linspace(-40, 30, 8) * units('degC')
     skew.plot_dry_adiabats(t0=t0)
     skew.plot_moist_adiabats(t0=t0)
     skew.plot_mixing_lines()
@@ -78,18 +92,31 @@ def plot_skewT(fig, name, p_profile, T_profile, Td_profile):
     Tparcel_profile = mpcalc.parcel_profile(p_profile, T_profile[0], Td_profile[0]).to('degC')
     skew.plot(p_profile.to('hPa'), Tparcel_profile, 'k-')
     skew.shade_cape(p_profile, T_profile, Tparcel_profile)
-    skew.shade_cin(p_profile, T_profile, Tparcel_profile)
+    skew.shade_cin(p_profile[:20], T_profile[:20], Tparcel_profile[:20])
 
     try:
         cape, cin = mpcalc.surface_based_cape_cin(p_profile, T_profile, Td_profile)
-        skew.ax.set_title('{}\n' 
-                          'CAPE = {:.2f} J kg$^{{-1}}$\n'
-                          'CIN = {:.2f} J kg$^{{-1}}$'
-                          .format(name, cape.magnitude, cin.magnitude))
+        # skew.ax.set_title('{}\n'
+        #                   'CAPE = {:.2f} J kg$^{{-1}}$\n'
+        #                   'CIN = {:.2f} J kg$^{{-1}}$'
+        #                   .format(name, cape.magnitude, cin.magnitude))
+        skew.ax.set_title('{}'.format(name))
+        lcl = mpcalc.lcl(p_profile[0], T_profile[0], Td_profile[0])
+        lfc = mpcalc.lfc(p_profile, T_profile, Td_profile)
+        lnb = mpcalc.el(p_profile, T_profile, Td_profile)
+        # skew.ax.axhline(lcl[0].to('hPa').magnitude)
+        # skew.plot([lcl[0].to('hPa'), lcl[0].to('hPa')], [200 * units('K'), 300 * units('K')], 'k--')
+        legend_elements = [
+            Patch(facecolor='r', alpha=0.5, label='CAPE={:.0f} J kg$^{{-1}}$'.format(cape.magnitude)),
+            Patch(facecolor='b', alpha=0.5, label='CIN={:.0f} J kg$^{{-1}}$'.format(cin.magnitude)),
+            Patch(facecolor='w', alpha=0, label='LNB={:.0f} hPa'.format(lnb[0].to('hPa').magnitude)),
+            Patch(facecolor='w', alpha=0, label='LFC={:.0f} hPa'.format(lfc[0].to('hPa').magnitude)),
+            Patch(facecolor='w', alpha=0, label='LCL={:.0f} hPa'.format(lcl[0].to('hPa').magnitude)),
+        ]
+
+        skew.ax.legend(handles=legend_elements, loc='bottom left', framealpha=1, handlelength=0.9)
     except Exception as e:
         logger.debug(e)
-    skew.ax.set_xlabel('temperature ($^\circ$C)')
-    skew.ax.set_ylabel('pressure (hPa)')
 
     fig.tight_layout()
 
@@ -113,9 +140,9 @@ class DumpProfilePlotter(Analyser):
             f.write('done')
 
     def display_results(self):
-        self._plot_hydrometeors()
+        # self._plot_hydrometeors()
         self._plot_skewT()
-        self._plot_theta_profiles()
+        # self._plot_theta_profiles()
         plt.close('all')
 
     def _plot_hydrometeors(self):
@@ -163,6 +190,7 @@ class DumpProfilePlotter(Analyser):
         plt.show()
 
     def _plot_skewT(self):
+        fig = plt.figure(dpi=100, figsize=cm_to_inch(18, 20))
         for i, expt in enumerate(self.task.expts):
             da = self.expt_cubes[expt]
 
@@ -178,23 +206,26 @@ class DumpProfilePlotter(Analyser):
             T = Tdata * units('K')
             Td = mpcalc.dewpoint_from_specific_humidity(qv, T, p)
 
-            fig = plt.figure(dpi=100, figsize=cm_to_inch(10, 12))
-
-            plot_skewT(fig, expt,
+            if expt in EXPT_DETAILS:
+                expt_name = EXPT_DETAILS[expt][0]
+            else:
+                expt_name = expt
+            plot_skewT(fig, (2, 2, i + 1), expt_name,
                        p.mean(axis=(1, 2)),
                        T.mean(axis=(1, 2)),
                        Td.mean(axis=(1, 2)))
-            plt.savefig(self.file_path('skewT_{}.png'.format(expt)))
+            # plt.savefig(self.file_path('skewT_{}.png'.format(expt)))
 
-            fig = plt.figure(dpi=100, figsize=cm_to_inch(10, 12))
+            # fig = plt.figure(dpi=100, figsize=cm_to_inch(10, 12))
 
-            if expt in EXPT_DETAILS:
+            if False and expt in EXPT_DETAILS:
                 ucp_kwargs = dict(zip(['label', 'color', 'linestyle'], EXPT_DETAILS[expt]))
                 plot_skewT(fig, ucp_kwargs['label'],
                            p.mean(axis=(1, 2)),
                            T.mean(axis=(1, 2)),
                            Td.mean(axis=(1, 2)))
                 plt.savefig(self.file_path('UCP_skewT_{}.png'.format(expt)))
+        plt.savefig(self.file_path('skewT.png'))
 
     def _plot_theta_profiles(self):
         for i, expt in enumerate(self.task.expts):
