@@ -167,9 +167,10 @@ class MassFluxPlotter(Analyser):
             sorted_cubes = []
 
             for cube in cubes:
-                (height_level_index, thresh_index) = cube.attributes['mass_flux_key']
-                mf_key = (height_level_index, thresh_index)
-                sorted_cubes.append((mf_key, cube))
+                if cube.name().startswith('mass_flux'):
+                    (height_level_index, thresh_index) = cube.attributes['mass_flux_key']
+                    mf_key = (height_level_index, thresh_index)
+                    sorted_cubes.append((mf_key, cube))
 
             # Each element is a tuple like: ((1, 3), cube)
             # Sorting will put in correct order, sorting on initial tuple.
