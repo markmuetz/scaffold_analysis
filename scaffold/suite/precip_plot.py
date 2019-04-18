@@ -64,16 +64,29 @@ class PrecipPlot(Analyser):
         max_precips = ['time_index, expt, max precip [mm/hr]']
         for i in range(precip.shape[0] - 100, precip.shape[0]):
             fig = plt.figure(figsize=cm_to_inch(18, 8))
-            gs = gridspec.GridSpec(2, len(self.expts_to_plot),
-                                   height_ratios=[1, 0.2])
-            axes = []
-            for ax_index in range(len(self.expts_to_plot)):
-                if ax_index == 0:
-                    axes.append(plt.subplot(gs[0, ax_index]))
-                else:
-                    ax = plt.subplot(gs[0, ax_index], sharey=axes[0])
-                    plt.setp(ax.get_yticklabels(), visible=False)
-                    axes.append(ax)
+            if len(self.expts_to_plot) == 10:
+                gs = gridspec.GridSpec(3, 5,
+                                       height_ratios=[1, 1, 0.2])
+                axes = []
+                for ax_index in range(len(self.expts_to_plot)):
+                    if ax_index == 0:
+                        axes.append(plt.subplot(gs[ax_index // 5, ax_index % 5]))
+                    else:
+                        ax = plt.subplot(gs[ax_index // 5, ax_index % 5], sharey=axes[0])
+                        plt.setp(ax.get_yticklabels(), visible=False)
+                        axes.append(ax)
+
+            else:
+                gs = gridspec.GridSpec(2, len(self.expts_to_plot),
+                                       height_ratios=[1, 0.2])
+                axes = []
+                for ax_index in range(len(self.expts_to_plot)):
+                    if ax_index == 0:
+                        axes.append(plt.subplot(gs[0, ax_index]))
+                    else:
+                        ax = plt.subplot(gs[0, ax_index], sharey=axes[0])
+                        plt.setp(ax.get_yticklabels(), visible=False)
+                        axes.append(ax)
 
             precip_max = 0
             for expt in self.expts_to_plot:
