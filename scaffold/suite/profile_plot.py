@@ -50,7 +50,7 @@ class ProfilePlotter(Analyser):
         self._plot_momentum_flux()
         self._plot_cooling()
         self._plot_poster_shear_profiles()
-        # self._plot_ucp_shear_profiles()
+        self._plot_ucp_shear_profiles()
         rcParams.update({'figure.autolayout': False})
         plt.close('all')
 
@@ -95,7 +95,7 @@ class ProfilePlotter(Analyser):
 
     def _plot_ucp_shear_profiles(self):
         f, ax1 = plt.subplots(1, 1, sharey=True)
-        f.set_size_inches(*cm_to_inch(8, 12))
+        f.set_size_inches(*cm_to_inch(16, 12))
         vertlev = VertLev(self.suite.suite_dir)
         ax1.plot(vertlev.dz_theta, vertlev.z_rho / 1e3)
         ax1.set_xlabel('$\\Delta z$ (m)')
@@ -113,16 +113,20 @@ class ProfilePlotter(Analyser):
             # v_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'v_profile')
             height = u_profile.coord('level_height').points
             # shear_factor = int(expt[-1]) # i.e. 0-5.
-            match = re.search('S(?P<shear_factor>\d)', expt)
+            match = re.search('S(?P<shear_factor>\d)W(?P<wind_factor>\d)', expt)
             # TODO: get RWP shear profile and plot (needs two lines as not linear).
             if not match:
                 logger.debug('not printing shear profile')
                 continue
             shear_factor = int(match.group('shear_factor'))
+            wind_factor = int(match.group('wind_factor'))
             shear_u_profile = self.base_u_profile.copy()
             shear_u_profile[:, 1] *= shear_factor
             # Offset to 0 wind at z=0.
-            shear_u_profile[:, 1] -= shear_u_profile[0, 1]
+            if shear_factor == 0 and wind_factor == 5:
+                shear_u_profile[:, 1] -= shear_u_profile[0, 1] - wind_factor
+            else:
+                shear_u_profile[:, 1] -= shear_u_profile[0, 1] + wind_factor
             # N.B. convert m->km.
             ax1.plot(shear_u_profile[:, 1], shear_u_profile[:, 0] / 1e3,
                      color=ucp_kwargs['color'], linestyle='-', label=ucp_kwargs['label'][:-1])
