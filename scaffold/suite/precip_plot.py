@@ -63,8 +63,8 @@ class PrecipPlot(Analyser):
 
         max_precips = ['time_index, expt, max precip [mm/hr]']
         for i in range(precip.shape[0] - 100, precip.shape[0]):
-            fig = plt.figure(figsize=cm_to_inch(18, 8))
             if len(self.expts_to_plot) == 10:
+                fig = plt.figure(figsize=cm_to_inch(18, 15))
                 gs = gridspec.GridSpec(3, 5,
                                        height_ratios=[1, 1, 0.2])
                 axes = []
@@ -74,7 +74,6 @@ class PrecipPlot(Analyser):
                     else:
                         ax = plt.subplot(gs[ax_index // 5, ax_index % 5],
                                          sharex=axes[0], sharey=axes[0])
-                        plt.setp(ax.get_yticklabels(), visible=False)
                     axes.append(ax)
 
                     if ax_index in [0, 1, 2, 3, 4]:
@@ -92,6 +91,7 @@ class PrecipPlot(Analyser):
                                        height_ratios=[1, 0.2])
                 axes = []
                 for ax_index in range(len(self.expts_to_plot)):
+                    fig = plt.figure(figsize=cm_to_inch(18, 8))
                     if ax_index == 0:
                         ax = plt.subplot(gs[0, ax_index])
                     else:
@@ -138,7 +138,10 @@ class PrecipPlot(Analyser):
                 precip_data = precip[i].data * 3600
                 max_precips.append('{},{},{}'.format(i, expt, precip_data.max()))
 
-            plt.subplots_adjust(bottom=0.3)
+            if len(self.expts_to_plot) == 10:
+                plt.subplots_adjust(bottom=0.3)
+            else:
+                plt.subplots_adjust(bottom=0.3)
             plt.tight_layout()
             cbar_ax = fig.add_axes([0.1, 0.2, 0.8, 0.04])
             # cbar_ax = fig.add_axes([0.85, 0.27, 0.02, 0.46])
