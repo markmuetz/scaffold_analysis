@@ -64,7 +64,7 @@ class PrecipPlot(Analyser):
         max_precips = ['time_index, expt, max precip [mm/hr]']
         for i in range(precip.shape[0] - 100, precip.shape[0]):
             if len(self.expts_to_plot) == 10:
-                fig = plt.figure(figsize=cm_to_inch(18, 15))
+                fig = plt.figure(figsize=cm_to_inch(18, 12))
                 gs = gridspec.GridSpec(3, 5,
                                        height_ratios=[1, 1, 0.2])
                 axes = []
@@ -108,6 +108,8 @@ class PrecipPlot(Analyser):
             for expt in self.expts_to_plot:
                 precip = self.precips[expt]
                 precip_max = max(precip[i].data.max(), precip_max)
+                # vmax = precip_max * 3600
+                vmax = 200
 
             for ax, expt in zip(axes, self.expts_to_plot):
                 if expt in EXPT_DETAILS:
@@ -131,7 +133,7 @@ class PrecipPlot(Analyser):
                 im = ax.imshow(precip_data, origin='lower',
                                interpolation='nearest', extent=[0, 256, 0, 256],
                                #vmin=0, vmax=precip_max * 3600)
-                               norm=LogNorm(vmin=precip_vmin, vmax=precip_max * 3600))
+                               norm=LogNorm(vmin=precip_vmin, vmax=vmax))
 
             for expt in self.task.expts:
                 precip = self.precips[expt]
