@@ -70,11 +70,22 @@ class PrecipPlot(Analyser):
                 axes = []
                 for ax_index in range(len(self.expts_to_plot)):
                     if ax_index == 0:
-                        axes.append(plt.subplot(gs[ax_index // 5, ax_index % 5]))
+                        ax = plt.subplot(gs[ax_index // 5, ax_index % 5])
                     else:
-                        ax = plt.subplot(gs[ax_index // 5, ax_index % 5], sharey=axes[0])
+                        ax = plt.subplot(gs[ax_index // 5, ax_index % 5],
+                                         sharex=axes[0], sharey=axes[0])
                         plt.setp(ax.get_yticklabels(), visible=False)
-                        axes.append(ax)
+                    axes.append(ax)
+
+                    if ax_index in [0, 1, 2, 3, 4]:
+                        plt.setp(ax.get_xticklabels(), visible=False)
+                    else:
+                        ax.set_xlabel('x (km)')
+
+                    if ax_index in [1, 2, 3, 4, 6, 7, 8, 9]:
+                        plt.setp(ax.get_yticklabels(), visible=False)
+                    else:
+                        ax.set_ylabel('y (km)')
 
             else:
                 gs = gridspec.GridSpec(2, len(self.expts_to_plot),
@@ -82,11 +93,16 @@ class PrecipPlot(Analyser):
                 axes = []
                 for ax_index in range(len(self.expts_to_plot)):
                     if ax_index == 0:
-                        axes.append(plt.subplot(gs[0, ax_index]))
+                        ax = plt.subplot(gs[0, ax_index])
                     else:
-                        ax = plt.subplot(gs[0, ax_index], sharey=axes[0])
+                        ax = plt.subplot(gs[0, ax_index], sharex=axes[0], sharey=axes[0])
+                    axes.append(ax)
+                    ax.set_xlabel('x (km)')
+
+                    if ax_index != 0:
                         plt.setp(ax.get_yticklabels(), visible=False)
-                        axes.append(ax)
+                    else:
+                        ax.set_ylabel('y (km)')
 
             precip_max = 0
             for expt in self.expts_to_plot:
@@ -99,11 +115,6 @@ class PrecipPlot(Analyser):
                     ax.set_title(ucp_kwargs['label'])
                 else:
                     ax.set_title(expt)
-                if expt == self.task.expts[0]:
-                    ax.set_ylabel('y (km)')
-                else:
-                    ax.get_yaxis().set_visible(False)
-                ax.set_xlabel('x (km)')
 
                 precip = self.precips[expt]
                 # precip in kg m-2 s-1, want mm hr-1:
