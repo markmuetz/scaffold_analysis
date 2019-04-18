@@ -141,11 +141,12 @@ class PrecipPlot(Analyser):
                 max_precips.append('{},{},{}'.format(i, expt, precip_data.max()))
 
             if len(self.expts_to_plot) == 10:
-                plt.subplots_adjust(bottom=0.3)
+                plt.subplots_adjust(bottom=0.4)
+                cbar_ax = fig.add_axes([0.1, 0.1, 0.8, 0.04])
             else:
                 plt.subplots_adjust(bottom=0.3)
+                cbar_ax = fig.add_axes([0.1, 0.2, 0.8, 0.04])
             plt.tight_layout()
-            cbar_ax = fig.add_axes([0.1, 0.2, 0.8, 0.04])
             # cbar_ax = fig.add_axes([0.85, 0.27, 0.02, 0.46])
             cbar = fig.colorbar(im, cax=cbar_ax, orientation='horizontal')
             # cbar.set_label('precip. (mm hr$^{-1}$)', rotation=270, labelpad=15)
