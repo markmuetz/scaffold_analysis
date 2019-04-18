@@ -46,7 +46,7 @@ class PlotDensityMfContrib:
         self.ax2.plot(bin_centers, y2, label=expt_obj.name)
 
     def finish(self, filename):
-        self.ax1.legend()
+        self.ax1.legend(ncol=2)
         self.fig.savefig(filename)
 
 
@@ -75,7 +75,7 @@ class PlotDensityPoster:
         # ax1_p.plot(x, np.exp(m * x + c), color=colour, linestyle='--')
 
     def finish(self, filename):
-        self.ax1.legend()
+        self.ax1.legend(ncol=2)
         self.fig.savefig(filename)
 
 
@@ -108,7 +108,7 @@ class PlotUcpDensityPoster:
         # ax1_p.plot(x, np.exp(m * x + c), color=colour, linestyle='--')
 
     def finish(self, filename):
-        self.ax1.legend()
+        self.ax1.legend(ncol=2)
         self.fig.tight_layout()
         self.fig.savefig(filename)
 
@@ -133,7 +133,10 @@ class MassFluxPlotter(Analyser):
         self.load_cubes()
 
     def run(self):
-        self.xlim = (0, 3)
+        if len(self.task.expts) == 10:
+            self.xlim = (0, 10)
+        else:
+            self.xlim = (0, 3)
         self.ylim = None
         self.nbins = 100
 
