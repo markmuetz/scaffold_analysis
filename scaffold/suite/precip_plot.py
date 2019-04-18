@@ -64,7 +64,7 @@ class PrecipPlot(Analyser):
         max_precips = ['time_index, expt, max precip [mm/hr]']
         for i in range(precip.shape[0] - 100, precip.shape[0]):
             if len(self.expts_to_plot) == 10:
-                fig = plt.figure(figsize=cm_to_inch(18, 12))
+                fig = plt.figure(figsize=cm_to_inch(18, 10))
                 gs = gridspec.GridSpec(3, 5,
                                        height_ratios=[1, 1, 0.2])
                 axes = []
@@ -142,7 +142,7 @@ class PrecipPlot(Analyser):
 
             if len(self.expts_to_plot) == 10:
                 plt.subplots_adjust(bottom=0.4)
-                cbar_ax = fig.add_axes([0.1, 0.1, 0.8, 0.04])
+                cbar_ax = fig.add_axes([0.1, 0.1, 0.8, 0.02])
             else:
                 plt.subplots_adjust(bottom=0.3)
                 cbar_ax = fig.add_axes([0.1, 0.2, 0.8, 0.04])
