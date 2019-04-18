@@ -40,10 +40,14 @@ class PlotDensityMfContrib:
     def plot(self, expt_obj, bin_centers, width, y_density, y2, linregress, **kwargs):
         (x, m, c, rval, pval, stderr) = linregress
 
-        plot = self.ax1.plot(bin_centers, y_density * width, label=expt_obj.name)
+        if expt_obj.name in EXPT_DETAILS:
+            kwargs = dict(zip(['short_name', 'color', 'linestyle'], EXPT_DETAILS[expt_obj.name]))
+            kwargs['label'] = '{}'.format(kwargs.pop('short_name'))
+
+        plot = self.ax1.plot(bin_centers, y_density * width, **kwargs)
         colour = plot[0].get_color()
         # ax1.plot(x, np.exp(m * x + c), color=colour, linestyle='--')
-        self.ax2.plot(bin_centers, y2, label=expt_obj.name)
+        self.ax2.plot(bin_centers, y2, **kwargs)
 
     def finish(self, filename):
         self.ax1.legend(ncol=2)
@@ -67,8 +71,10 @@ class PlotDensityPoster:
         self.fig, self.ax1 = fig, ax1
 
     def plot(self, expt_obj, bin_centers, width, y_density, num_clds, **kwargs):
-        self.ax1.plot(bin_centers, y_density * width,
-                      label='{} - {} clouds'.format(expt_obj.name, num_clds))
+        if expt_obj.name in EXPT_DETAILS:
+            kwargs = dict(zip(['short_name', 'color', 'linestyle'], EXPT_DETAILS[expt_obj.name]))
+            kwargs['label'] = '{} - {} clouds'.format(kwargs.pop('short_name'), num_clds)
+        self.ax1.plot(bin_centers, y_density * width, **kwargs)
         logger.debug('Sum y_density={}'.format((y_density * width).sum()))
         # ax1_p.fill_between(bin_centers, y_hist + np.sqrt(y_hist), y_hist - np.sqrt(y_hist),
         # color=colour, alpha=0.3)
