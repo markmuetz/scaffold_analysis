@@ -87,11 +87,11 @@ class PrecipPlot(Analyser):
                         ax.set_ylabel('y (km)')
 
             else:
+                fig = plt.figure(figsize=cm_to_inch(18, 8))
                 gs = gridspec.GridSpec(2, len(self.expts_to_plot),
                                        height_ratios=[1, 0.2])
                 axes = []
                 for ax_index in range(len(self.expts_to_plot)):
-                    fig = plt.figure(figsize=cm_to_inch(18, 8))
                     if ax_index == 0:
                         ax = plt.subplot(gs[0, ax_index])
                     else:
