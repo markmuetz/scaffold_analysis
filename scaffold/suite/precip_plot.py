@@ -66,7 +66,7 @@ class PrecipPlot(Analyser):
             if len(self.expts_to_plot) == 10:
                 fig = plt.figure(figsize=cm_to_inch(18, 10))
                 gs = gridspec.GridSpec(3, 5,
-                                       height_ratios=[1, 1, 0.4])
+                                       height_ratios=[1, 1, 0.6])
                 axes = []
                 for ax_index in range(len(self.expts_to_plot)):
                     if ax_index == 0:
@@ -142,7 +142,7 @@ class PrecipPlot(Analyser):
 
             if len(self.expts_to_plot) == 10:
                 plt.subplots_adjust(bottom=0.4)
-                cbar_ax = fig.add_axes([0.1, 0.1, 0.8, 0.02])
+                cbar_ax = fig.add_axes([0.1, 0.15, 0.8, 0.02])
             else:
                 plt.subplots_adjust(bottom=0.3)
                 cbar_ax = fig.add_axes([0.1, 0.2, 0.8, 0.04])
