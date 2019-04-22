@@ -55,7 +55,7 @@ def get_cloud_lifetimes(expt):
 
 
 def savefig(cwd):
-    fig_fn = '{}/summary_info_{}.pdf'.format(cwd, plt.gcf().get_label())
+    fig_fn = '{}/summary_info_{}.png'.format(cwd, plt.gcf().get_label())
     logger.debug('saving fig to: {}'.format(fig_fn))
     plt.savefig(fig_fn)
 
@@ -198,6 +198,10 @@ class SummaryCorrelations(Analyser):
     def display_results(self):
         self._plot_matrix('corr', self.cols, self.corr, cmap='bwr')
         self._plot_matrix('pvals', self.cols, self.pvals, sum_rows=True)
+
+        robust_corr = self.corr.copy()
+        robust_corr[self.pvals > 0.01] = 0
+        self._plot_matrix('robust_corr', self.cols, robust_corr, cmap='bwr')
 
         reorder_index = []
         with open(os.path.join(self.outputdir, 'ordered_pvals.csv'), 'w') as f:
