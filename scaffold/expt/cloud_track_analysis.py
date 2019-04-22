@@ -62,7 +62,11 @@ class CloudTrackAnalyser(Analyser):
         # height_level_index refers to w as it has already picked out the height levels.
         for height_level_index, level_number in enumerate(level_number_coord.points):
             for thresh_index in range(w_thresh_coord.shape[0]):
-                if height_level_index != 1 and thresh_index != 1:
+                # TODO: reinstate
+                # if height_level_index != 1 and thresh_index != 1:
+
+                # ONLY perform for both index == 1.
+                if height_level_index != 1 or thresh_index != 1:
                     # Only perform for all height levels using thresh_index == 1,
                     # and all thresh_index for height_level_index == 1.
                     continue
