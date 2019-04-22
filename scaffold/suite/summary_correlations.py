@@ -50,7 +50,7 @@ def get_cloud_lifetimes(expt):
         lines = f.readlines()
 
     simple_lifetime = float(lines[4].split(',')[-1].strip())
-    complex_lifetime = float(lines[7].split(',')[-1].strip())
+    complex_lifetime = float(lines[8].split(',')[-1].strip())
     return {'simple_lifetime': simple_lifetime, 'complex_lifetime': complex_lifetime}
 
 
