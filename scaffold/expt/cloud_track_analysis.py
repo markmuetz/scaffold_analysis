@@ -121,7 +121,6 @@ class CloudTrackAnalyser(Analyser):
             pickle.dump(self.trackers, f)
         logger.debug('setting recursion limit back to {}', old_recursion_limit)
 
-
     def display_results(self):
         self.append_log('displaying results')
         figpath = self.file_path('cloud_tracking')
