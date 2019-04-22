@@ -2,6 +2,7 @@ import os
 from logging import getLogger
 import pickle
 
+from scaffold.expt_settings import EXPT_DETAILS
 from cloud_tracking.cloud_tracking_analysis import plot_stats
 
 from omnium import Analyser
@@ -42,4 +43,9 @@ class CloudTrackPlot(Analyser):
             stats = self.all_stats[all_stats_key]
             filename = 'atmos.cloud_tracking_z{}_t{}.'.format(height_level_index, thresh_index)
 
-            plot_stats(self.task.expt, os.path.dirname(figpath), filename, [stats])
+            if self.task.expt in EXPT_DETAILS:
+                expt_name = EXPT_DETAILS[self.task.expt][0]
+            else:
+                expt_name = self.task.expt
+
+            plot_stats(expt_name, os.path.dirname(figpath), filename, [stats])
