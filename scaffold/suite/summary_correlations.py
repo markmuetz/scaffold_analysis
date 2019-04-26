@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import iris
 
 from omnium import Analyser
-from omnium.utils import cd, get_cube_from_attr, cm_to_inch
+from omnium.utils import cd, get_cube_from_attr, cm_to_inch, latex_sigfig
 
 
 logger = getLogger('scaf.summ_corr')
@@ -30,6 +30,38 @@ SORTED_EXPTS = [
     'RWP_C9',
     'RWP_C10',
 ]
+
+NAME_MAP = {
+    'LLS': 'LLS (m s$^{-1}$)',
+    'mean_surf_wind': 'surface wind (m s$^{-1}$)',
+    'CAPE': 'CAPE (J kg$^{-1}$)',
+    'simple_lifetime': 'simple cloud lifetime (min)',
+    'complex_lifetime': 'complex cloud group lifetime (min)',
+    'total_MF': 'total mass flux',
+    'sigma': 'cloud fraction ($\sigma$)',
+}
+
+
+def plot_corr(df, c1, c2):
+    title = '{} vs {}'.format(c1, c2).replace(' ', '_')
+    plt.figure(title)
+    plt.clf()
+    d1, d2 = df[c1].values, df[c2].values
+    # plt.title(title)
+    plt.plot(d1, d2, 'kx')
+    lr = stats.linregress(d1, d2)
+    x = np.array([d1.min(), d1.max()])
+    y = lr.slope * x + lr.intercept
+
+    plt.plot(x, y, 'k--', label='r$^2$={}, p={}'.format(latex_sigfig(lr.rvalue ** 2),
+                                                        latex_sigfig(lr.pvalue)))
+    plt.legend()
+    plt.xlabel(NAME_MAP.get(c1, c1))
+    plt.ylabel(NAME_MAP.get(c2, c2))
+    plt.tight_layout()
+
+    plt.show()
+    return lr
 
 
 def get_mass_flux(expt):
@@ -166,12 +198,12 @@ class SummaryCorrelations(Analyser):
         self.all_col_values = all_col_values
         self.corr = corr
         self.pvals = pvals
+        self.df_all_col_values = pd.DataFrame(self.all_col_values)
 
     def save(self, state, suite):
         with open(self.task.output_filenames[0], 'w') as f:
             f.write('done')
-        df_all_col_values = pd.DataFrame(self.all_col_values)
-        df_all_col_values.to_hdf(self.task.output_filenames[1], 'all_col_values')
+        self.df_all_col_values.to_hdf(self.task.output_filenames[1], 'all_col_values')
 
     def _plot_matrix(self, name, cols, data, cmap=None, sum_rows=False):
         plt.figure(name, figsize=cm_to_inch(29.7, 21.0))
@@ -196,6 +228,10 @@ class SummaryCorrelations(Analyser):
         savefig(self.outputdir)
 
     def display_results(self):
+        # self._plot_corr_matrices()
+        self._plot_indiv_corr()
+
+    def _plot_corr_matrices(self):
         self._plot_matrix('corr', self.cols, self.corr, cmap='bwr')
         self._plot_matrix('pvals', self.cols, self.pvals, sum_rows=True)
 
@@ -223,3 +259,14 @@ class SummaryCorrelations(Analyser):
         plt.hist(triu_pvals, bins=20, range=(0, 1))
         savefig(self.outputdir)
 
+    def _plot_indiv_corr(self):
+        corr_pairs = [
+            ['LLS', 'cluster_index'],
+            ['mean_surf_wind', 'CAPE'],
+            ['cluster_index', 'simple_lifetime'],
+            ['cluster_index', 'complex_lifetime'],
+        ]
+
+        for c1, c2 in corr_pairs:
+            plot_corr(self.df_all_col_values, c1, c2)
+            savefig(self.outputdir)
