@@ -62,6 +62,7 @@ def plot_hydrometeor_profile(da, expt, ax1, ax2):
         ax2.set_ylim((0, 20))
         ax2.set_xlim((10e-1, 10e8))
 
+
 def plot_skewT(fig, subplot, name, p_profile, T_profile, Td_profile):
     skew = SkewT(fig=fig, subplot=subplot, rotation=55)
 
@@ -140,9 +141,10 @@ class DumpProfilePlotter(Analyser):
             f.write('done')
 
     def display_results(self):
-        # self._plot_hydrometeors()
+        self._plot_hydrometeors()
         self._plot_skewT()
         self._plot_theta_profiles()
+        self._plot_deltas()
         plt.close('all')
 
     def _plot_hydrometeors(self):
@@ -300,3 +302,45 @@ class DumpProfilePlotter(Analyser):
 
         title = 'thetas'
         plt.savefig(self.file_path(title))
+
+    def _plot_deltas(self):
+        if not len(self.task.expts) == 4:
+            logger.info('Can only plot deltas for 4 expts')
+            return
+
+        fig, axes = plt.subplots(2, 2, sharey=True, figsize=cm_to_inch(18, 16))
+        expt_pairs = [self.task.expts[:2], self.task.expts[2:]]
+        # expt_pairs = [self.task.expts[::2], self.task.expts[1::2]]
+        for i, (expt1, expt2) in enumerate(expt_pairs):
+            expt_name1, expt_name2 = EXPT_DETAILS[expt1][0], EXPT_DETAILS[expt2][0]
+            da1, da2 = self.expt_cubes[expt1], self.expt_cubes[expt2]
+            theta1, theta2 = get_cube(da1, 0, 4), get_cube(da2, 0, 4)
+            qv1, qv2 = get_cube(da1, 0, 10), get_cube(da2, 0, 10)
+            ax_th, ax_qv = axes[i, :]
+
+            z = theta1.coord('atmosphere_hybrid_height_coordinate').points
+
+            ax_th.plot(theta1.data.mean(axis=(1, 2)) - theta2.data.mean(axis=(1, 2)), z / 1000,
+                       label='{} - {}'.format(expt_name1, expt_name2), color='k')
+            ax_qv.plot(qv1.data.mean(axis=(1, 2)) - qv2.data.mean(axis=(1, 2)), z / 1000,
+                       label='{} - {}'.format(expt_name1, expt_name2), color='k')
+            ax_th.set_ylim((0, 15))
+            ax_th.set_ylabel('height (km)')
+            if i == 1:
+                ax_th.set_xlabel('$\\Delta \\theta$ (K)')
+                ax_qv.set_xlabel('$\\Delta$q (g kg$^{-1}$)')
+            else:
+                plt.setp(ax_th.get_xticklabels(), visible=False)
+                plt.setp(ax_qv.get_xticklabels(), visible=False)
+
+            ax_th.set_xlim((-1.1, 1.1))
+            # ax_th.set_xlim((-8, 8))
+            ax_th.axvline(x=0, color='k', linestyle='--')
+            ax_qv.set_xlim((-0.00068, 0.00005))
+            # ax_qv.set_xlim((-0.002, 0.00005))
+            ax_qv.axvline(x=0, color='k', linestyle='--')
+            ax_qv.legend()
+
+        title = 'theta_qv_deltas'
+        plt.savefig(self.file_path(title))
+
