@@ -46,7 +46,7 @@ class DumpSliceAnalyser(Analyser):
     analysis_name = 'dump_slice_analysis'
     single_file = True
     input_dir = 'share/data/history/{expt}'
-    input_filename_glob = '{input_dir}/atmosa_da4??.nc'
+    input_filename_glob = '{input_dir}/atmosa_da480.nc'
     output_dir = 'omnium_output/{version_dir}/{expt}'
     output_filenames = ['{output_dir}/atmos.{runid:03}.dump_slice_analysis.dummy']
     uses_runid = True
@@ -107,38 +107,55 @@ class DumpSliceAnalyser(Analyser):
         plt.savefig(full_filename)
 
     def _plot(self, expt):
-        self._plot_slices(expt, 'u', use_norm=True, anomaly=True, vlev='rho')
-        self._plot_slices(expt, 'u', use_norm=True, use_mean_wind=True, vlev='rho')
-        self._plot_slices(expt, 'w', use_norm=True)
-        self._plot_slices(expt, 'theta', use_norm=True, anomaly=True)
-        self._plot_slices(expt, 'theta_e', cmap='RdBu_r')
+        # self._plot_slices(expt, 'u', use_norm=True, anomaly=True, vlev='rho')
+        # self._plot_slices(expt, 'u', use_norm=True, use_mean_wind=True, vlev='rho')
+        # self._plot_slices(expt, 'w', use_norm=True)
+        # self._plot_slices(expt, 'theta', use_norm=True, anomaly=True)
+        # self._plot_slices(expt, 'theta_e', cmap='RdBu_r')
 
         qvars = ['qcl', 'qcf', 'qcf2', 'qrain', 'qgraup']
         for qvar in qvars:
             if not hasattr(self, qvar):
                 continue
-            self._plot_slices(expt, qvar, cmap='Blues')
+            # self._plot_slices(expt, qvar, cmap='Blues')
 
         expt_slices = {
             'S0W0Forced': {480: [
-                (self._plot_indiv_cross_sections, (expt, 'w', 10, 125, 50), {'use_norm': True}),
-                (self._plot_indiv_cross_sections, (expt, 'qcl', 10, 125, 50), {'cmap': 'Blues'}),
-                (self._plot_indiv_cross_sections, (expt, 'qcf', 10, 125, 50), {'cmap': 'Blues'}),
-                (self._plot_indiv_cross_sections, (expt, 'theta_e', 10, 125, 50),
+                # (self._plot_indiv_cross_sections, (expt, 'w', 10, 125, 50), {'use_norm': True}),
+                # (self._plot_indiv_cross_sections, (expt, 'qcl', 10, 125, 50), {'cmap': 'Blues'}),
+                # (self._plot_indiv_cross_sections, (expt, 'qcf', 10, 125, 50), {'cmap': 'Blues'}),
+                # (self._plot_indiv_cross_sections, (expt, 'theta_e', 10, 125, 50),
+                #  {'cmap': 'RdBu_r'}),
+                # (self._plot_zoom, (expt, 'w', 10, 5, 15, 125, 120, 130, [50]), {'use_norm': True}),
+                # (self._plot_zoom, (expt, 'theta_e', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'RdBu_r'}),
+                # (self._plot_zoom, (expt, 'qcl', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
+                # (self._plot_zoom, (expt, 'qcf', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
+                # (self._plot_zoom, (expt, 'qcf2', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
+                # (self._plot_zoom, (expt, 'qrain', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
+                # (self._plot_zoom, (expt, 'qgraup', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
+
+                (self._plot_indiv_cross_sections, (expt, 'w', 217, 36, 50), {'use_norm': True,
+                                                                             'box': [212, 222, 31, 41]}),
+                (self._plot_indiv_cross_sections, (expt, 'qcl', 217, 36, 50), {'cmap': 'Blues'}),
+                (self._plot_indiv_cross_sections, (expt, 'qcf', 217, 36, 50), {'cmap': 'Blues'}),
+                (self._plot_indiv_cross_sections, (expt, 'theta_e', 217, 36, 50),
                  {'cmap': 'RdBu_r'}),
-                (self._plot_zoom, (expt, 'w', 10, 5, 15, 125, 120, 130, [50]), {'use_norm': True}),
-                (self._plot_zoom, (expt, 'theta_e', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'RdBu_r'}),
-                (self._plot_zoom, (expt, 'qcl', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
-                (self._plot_zoom, (expt, 'qcf', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
-                (self._plot_zoom, (expt, 'qcf2', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
-                (self._plot_zoom, (expt, 'qrain', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
-                (self._plot_zoom, (expt, 'qgraup', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
+                (self._plot_zoom, (expt, 'w', 217, 212, 222, 36, 31, 41, [50]), {'use_norm': True}),
+                (self._plot_zoom, (expt, 'theta_e', 217, 212, 222, 36, 31, 41, [50]), {'cmap': 'RdBu_r'}),
+                (self._plot_zoom, (expt, 'qcl', 217, 212, 222, 36, 31, 41, [50]), {'cmap': 'Blues'}),
+                (self._plot_zoom, (expt, 'qcf', 217, 212, 222, 36, 31, 41, [50]), {'cmap': 'Blues'}),
+                (self._plot_zoom, (expt, 'qcf2', 217, 212, 222, 36, 31, 41, [50]), {'cmap': 'Blues'}),
+                (self._plot_zoom, (expt, 'qrain', 217, 212, 222, 36, 31, 41, [50]), {'cmap': 'Blues'}),
+                (self._plot_zoom, (expt, 'qgraup', 217, 212, 222, 36, 31, 41, [50]), {'cmap': 'Blues'}),
+                # (self._plot_zoom, (expt, 'qcf', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
+                # (self._plot_zoom, (expt, 'qcf2', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
+                # (self._plot_zoom, (expt, 'qrain', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
+                # (self._plot_zoom, (expt, 'qgraup', 10, 5, 15, 125, 120, 130, [50]), {'cmap': 'Blues'}),
             ]},
         }
-        if expt in expt_slices:
-            if self.task.runid in expt_slices[expt]:
-                for fn, args, kwargs in expt_slices[expt][self.task.runid]:
-                    fn(*args, **kwargs)
+        if expt in expt_slices and self.task.runid in expt_slices[expt]:
+            for fn, args, kwargs in expt_slices[expt][self.task.runid]:
+                fn(*args, **kwargs)
 
     def _plot_zoom(self, expt, var, i, imin, imax, j, jmin, jmax, ks, **kwargs):
         extent = (imin, imax, jmin, jmax)
@@ -146,14 +163,18 @@ class DumpSliceAnalyser(Analyser):
         for k in ks:
             # self._plot_zoom_hor_slice(expt, var, imin, imax, jmin, jmax, k, **kwargs)
             self._plot_indiv_hor_slice(expt, var, i, j, k, mode='zoom', extent=extent, **kwargs)
-        self._plot_indiv_vert_slice(expt, var, 'xz', i, j, None, mode='zoom', extent=extent, **kwargs)
-        self._plot_indiv_vert_slice(expt, var, 'yz', i, j, None, mode='zoom', extent=extent, **kwargs)
+        extent = (imin, imax, 0, 15)
+        self._plot_indiv_vert_slice(expt, var, 'xz', i, j, ks, mode='zoom', extent=extent, **kwargs)
+        extent = (jmin, jmax, 0, 15)
+        self._plot_indiv_vert_slice(expt, var, 'yz', i, j, ks, mode='zoom', extent=extent, **kwargs)
 
 
     def _plot_indiv_cross_sections(self, expt, var, i, j, k, **kwargs):
-        self._plot_indiv_hor_slice(expt, var, i, j, k, mode='indiv', **kwargs)
-        self._plot_indiv_vert_slice(expt, var, 'xz', i, j, k, mode='indiv', **kwargs)
-        self._plot_indiv_vert_slice(expt, var, 'yz', i, j, k, mode='indiv', **kwargs)
+        self._plot_indiv_hor_slice(expt, var, None, None, k, mode='indiv', **kwargs)
+        if 'box' in kwargs:
+            kwargs.pop('box')
+        self._plot_indiv_vert_slice(expt, var, 'xz', i, j, [k], mode='indiv', **kwargs)
+        self._plot_indiv_vert_slice(expt, var, 'yz', i, j, [k], mode='indiv', **kwargs)
 
     def _plot_zoom_vert_slice(self, expt, var, plane, imin, imax, jmin, jmax, ks,
                               use_norm=False, cmap='bwr', anomaly=False, aspect=1):
@@ -199,6 +220,10 @@ class DumpSliceAnalyser(Analyser):
     def _plot_indiv_hor_slice(self, expt, var, i, j, k, use_norm=False, cmap='bwr',
                               anomaly=False, use_mean_wind=False, mode='', extent=None,
                               **kwargs):
+        if 'box' in kwargs:
+            box = kwargs.pop('box')
+        else:
+            box = None
         cube = getattr(self, var)
         z = cube.coord('atmosphere_hybrid_height_coordinate').points / 1000
         if anomaly:
@@ -217,11 +242,13 @@ class DumpSliceAnalyser(Analyser):
             data = data - data.mean()
         if use_mean_wind:
             data = data - mean_wind
+
         if extent is None:
             extent = (0, 256, 0, 256)
+            imin, imax, jmin, jmax = extent
         else:
             imin, imax, jmin, jmax = extent
-            data = data[imin:imax, jmin:jmax]
+            data = data[jmin:jmax, imin:imax]
 
         ax.set_title(title)
         # Coords are model_level, y, x or model_level, lat, lon
@@ -236,14 +263,20 @@ class DumpSliceAnalyser(Analyser):
         ax.set_ylabel('y (km)')
         plt.colorbar(im)
         if i:
-            ax.vlines(x=i, ymin=0, ymax=256, color='k', linestyles='--')
+            ax.vlines(x=i, ymin=jmin, ymax=jmax, color='k', linestyles='--')
         if j:
-            ax.hlines(y=j, xmin=0, xmax=256, color='k', linestyles='--')
+            ax.hlines(y=j, xmin=imin, xmax=imax, color='k', linestyles='--')
+
+        if box:
+            ax.vlines(x=box[0], ymin=box[2], ymax=box[3], color='k', linestyles='-')
+            ax.vlines(x=box[1], ymin=box[2], ymax=box[3], color='k', linestyles='-')
+            ax.hlines(y=box[2], xmin=box[0], xmax=box[1], color='k', linestyles='-')
+            ax.hlines(y=box[3], xmin=box[0], xmax=box[1], color='k', linestyles='-')
         self._create_dir_savefig('/{1}/xy/{2}/{0}_{1}_{2}_slice_{3}.png'
                                  .format(expt, self.task.runid, var, k))
         plt.close('all')
 
-    def _plot_indiv_vert_slice(self, expt, var, plane, i, j, k, extent=None,
+    def _plot_indiv_vert_slice(self, expt, var, plane, i, j, ks=[], extent=None,
                                use_norm=False, cmap='bwr', anomaly=False, use_mean_wind=False,
                                vlev='theta', mode=''):
         cube = getattr(self, var)
@@ -288,6 +321,7 @@ class DumpSliceAnalyser(Analyser):
 
         if extent is None:
             extent = (0, 256, 0, 20)
+            imin, imax, _, _ = extent
         else:
             imin, imax, _, _ = extent
             data = data[:, imin:imax]
@@ -295,11 +329,15 @@ class DumpSliceAnalyser(Analyser):
 
         ax.set_title(title)
 
-        self._plot_vert_slice(ax, data, N, use_norm, cmap, vlev=vlev, extent=extent)
+        kwargs = {}
+        if mode == 'zoom':
+            kwargs['aspect'] = 0.5
+        self._plot_vert_slice(ax, data, N, use_norm, cmap, vlev=vlev, extent=extent, **kwargs)
         if vline_index:
-            ax.vlines(x=vline_index, ymin=0, ymax=20, color='k', linestyles='--')
-        if k:
-            ax.hlines(y=z[k], xmin=0, xmax=256, color='k', linestyles='--')
+            ax.vlines(x=vline_index, ymin=0, ymax=15, color='k', linestyles='--')
+        if ks:
+            for k in ks:
+                ax.hlines(y=z[k], xmin=imin, xmax=imax, color='k', linestyles='--')
         self._create_dir_savefig(filename)
         plt.close('all')
 
@@ -342,12 +380,12 @@ class DumpSliceAnalyser(Analyser):
         kwargs = {}
         if use_norm:
             kwargs['norm'] = MidpointNormalize(midpoint=0,
-                                               vmin=data_interp[:200].min(),
-                                               vmax=data_interp[:200].max())
+                                               vmin=data_interp[:150].min(),
+                                               vmax=data_interp[:150].max())
         if cmap:
             kwargs['cmap'] = cmap
 
-        im = ax.imshow(data_interp[:200], origin='lower', aspect=aspect, extent=extent,
+        im = ax.imshow(data_interp[:150], origin='lower', aspect=aspect, extent=extent,
                        **kwargs)
 
         plt.colorbar(im)
