@@ -60,8 +60,8 @@ class SurfFluxPlot(Analyser):
 
                 kwargs = {}
                 if expt in EXPT_DETAILS:
-                    kwargs['color'] = EXPT_DETAILS[expt]
-                plot = plt.plot(times, lhf_ts.data, label=expt, linestyle='-', **kwargs)
+                    kwargs['label'], kwargs['color'], _ = EXPT_DETAILS[expt]
+                plot = plt.plot(times, lhf_ts.data, linestyle='-', **kwargs)
                 #colour = plot[0].get_color()
                 colour = plot[0].get_color()
                 plt.plot(times, shf_ts.data, color=colour, linestyle='-.')
