@@ -254,38 +254,21 @@ class DumpSliceAnalyser(Analyser):
         cax = plt.subplot(gs[1, :])
 
         j = 36
-        vmin, vmax = 0, 0.008
+        vmin, vmax = 1e-5, 0.01
 
         extent_xz = (extent[0], extent[1], 0, 20)
-        self._plot_indiv_vert_slice(expt, 'qrain', 'xz', None, j, [], ax=ax1, savefig=False,
-                                    vmin=vmin, vmax=vmax, cbar=False, extent=extent_xz,
-                                    mode='zoom', cmap='Blues')
-
-        self._plot_indiv_vert_slice(expt, 'qcl', 'xz', None, j, [], ax=ax2, savefig=False,
-                                    vmin=vmin, vmax=vmax, cbar=False, extent=extent_xz,
-                                    mode='zoom', cmap='Blues')
-        self._plot_indiv_vert_slice(expt, 'qgraup', 'xz', None, j, [], ax=ax3, savefig=False,
-                                    vmin=vmin, vmax=vmax, cbar=False, extent=extent_xz,
-                                    mode='zoom', cmap='Blues')
-        self._plot_indiv_vert_slice(expt, 'qcf', 'xz', None, j, [], ax=ax4, savefig=False,
-                                    vmin=vmin, vmax=vmax, cbar=False, extent=extent_xz,
-                                    mode='zoom', cmap='Blues')
-        self._plot_indiv_vert_slice(expt, 'qcf2', 'xz', None, j, [], ax=ax5, savefig=False,
-                                    vmin=vmin, vmax=vmax, cbar=False, extent=extent_xz,
-                                    mode='zoom', cmap='Blues')
-
-        ax1.set_title('qrain')
-        ax2.set_title('qcl')
-        ax3.set_title('qgraup')
-        ax4.set_title('qcf')
-        ax5.set_title('qcf2')
+        for ax, var in zip([ax1, ax2, ax3, ax4, ax5], ['qrain', 'qcl', 'qgraup', 'qcf', 'qcf2']):
+            self._plot_indiv_vert_slice(expt, var, 'xz', None, j, [], ax=ax, savefig=False,
+                                        vmin=vmin, vmax=vmax, cbar=False, extent=extent_xz,
+                                        mode='zoom', cmap='Blues', use_log_norm=True)
+            ax.set_title(var)
 
         for ax in [ax2, ax3, ax4, ax5]:
             ax.set_ylabel('')
             ax.get_yaxis().set_visible(False)
 
         cbar = plt.colorbar(ax1.get_images()[0], cax=cax, orientation='horizontal')
-        cbar.set_label('specific desity (g kg$^{-1}$)')
+        cbar.set_label('specific density (g kg$^{-1}$)')
         plt.tight_layout()
         plt.gcf().subplots_adjust(bottom=0.17)
 
@@ -379,25 +362,14 @@ class DumpSliceAnalyser(Analyser):
         cax = plt.subplot(gs[1, :])
 
         j = 109
-        vmin, vmax = 0, 0.005
+        vmin, vmax = 1e-5, 0.01
 
         extent_xz = (extent[0], extent[1], 0, 20)
-        self._plot_indiv_vert_slice(expt, 'qrain', 'xz', None, j, [], ax=ax1, savefig=False,
-                                    vmin=vmin, vmax=vmax, cbar=False, extent=extent_xz,
-                                    mode='zoom', cmap='Blues')
-
-        self._plot_indiv_vert_slice(expt, 'qcl', 'xz', None, j, [], ax=ax2, savefig=False,
-                                    vmin=vmin, vmax=vmax, cbar=False, extent=extent_xz,
-                                    mode='zoom', cmap='Blues')
-        self._plot_indiv_vert_slice(expt, 'qgraup', 'xz', None, j, [], ax=ax3, savefig=False,
-                                    vmin=vmin, vmax=vmax, cbar=False, extent=extent_xz,
-                                    mode='zoom', cmap='Blues')
-        self._plot_indiv_vert_slice(expt, 'qcf', 'xz', None, j, [], ax=ax4, savefig=False,
-                                    vmin=vmin, vmax=vmax, cbar=False, extent=extent_xz,
-                                    mode='zoom', cmap='Blues')
-        self._plot_indiv_vert_slice(expt, 'qcf2', 'xz', None, j, [], ax=ax5, savefig=False,
-                                    vmin=vmin, vmax=vmax, cbar=False, extent=extent_xz,
-                                    mode='zoom', cmap='Blues')
+        for ax, var in zip([ax1, ax2, ax3, ax4, ax5], ['qrain', 'qcl', 'qgraup', 'qcf', 'qcf2']):
+            self._plot_indiv_vert_slice(expt, var, 'xz', None, j, [], ax=ax, savefig=False,
+                                        vmin=vmin, vmax=vmax, cbar=False, extent=extent_xz,
+                                        mode='zoom', cmap='Blues', use_log_norm=True)
+            ax.set_title(var)
 
         ax1.set_title('qrain')
         ax2.set_title('qcl')
@@ -410,7 +382,7 @@ class DumpSliceAnalyser(Analyser):
             ax.get_yaxis().set_visible(False)
 
         cbar = plt.colorbar(ax1.get_images()[0], cax=cax, orientation='horizontal')
-        cbar.set_label('specific desity (g kg$^{-1}$)')
+        cbar.set_label('specific density (g kg$^{-1}$)')
         plt.tight_layout()
         plt.gcf().subplots_adjust(bottom=0.17)
 
@@ -647,7 +619,7 @@ class DumpSliceAnalyser(Analyser):
 
     def _plot_vert_slice(self, ax, data, N, use_norm, cmap='bwr',
                          extent=(0, 256, 0, 20), aspect=10, vlev='theta', vmin=None, vmax=None,
-                         cbar=True):
+                         cbar=True, use_log_norm=False):
         if vlev == 'theta':
             data_rbs = scipy.interpolate.RectBivariateSpline(self.vertlevs.z_theta, np.arange(N),
                                                              data)
@@ -665,6 +637,10 @@ class DumpSliceAnalyser(Analyser):
                 kwargs['norm'] = MidpointNormalize(midpoint=0,
                                                    vmin=data_interp[:200].min(),
                                                    vmax=data_interp[:200].max())
+        elif use_log_norm:
+            kwargs['norm'] = colors.LogNorm()
+            if vmin is not None and vmax is not None:
+                kwargs['vmin'], kwargs['vmax'] = vmin, vmax
         else:
             if vmin is not None and vmax is not None:
                 kwargs['vmin'], kwargs['vmax'] = vmin, vmax
