@@ -131,7 +131,7 @@ class RelaxationPlot(Analyser):
             T_inc_profile = T_inc.data.mean(axis=(0, 2, 3)) * 2880
             plt.plot(T_inc_profile, z / 1000, **ucp_kwargs)
 
-        plt.xlim((-3, 1))
+        plt.xlim((-5, 1))
         plt.ylim((0, 15))
         plt.axvline(x=0, ls='--', color='k')
         plt.legend(loc='lower right')
