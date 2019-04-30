@@ -134,7 +134,7 @@ class RelaxationPlot(Analyser):
         plt.xlim((-5, 1))
         plt.ylim((0, 15))
         plt.axvline(x=0, ls='--', color='k')
-        plt.legend(loc='lower right')
+        plt.legend(loc='lower left')
         plt.savefig(self.file_path('UCP_T_incs.png'))
 
         plt.clf()
