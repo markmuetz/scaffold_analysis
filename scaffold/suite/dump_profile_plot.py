@@ -63,6 +63,39 @@ def plot_hydrometeor_profile(da, expt, ax1, ax2):
         ax2.set_xlim((10e-1, 10e8))
 
 
+def plot_hydrometeor_profile2(da, expt, ax, linestyle='-'):
+    for var in VARS:
+        logger.debug('plotting profile of {} for {}', var, expt)
+        varname = var[0]
+        qvar = get_cube(da, *var[1])
+
+        z = qvar.coord('atmosphere_hybrid_height_coordinate').points / 1000
+        qvar_profile = qvar.data.mean(axis=(1, 2))
+
+        ax.plot(qvar_profile * 1000, z, var[3], label=varname, linestyle=linestyle)
+
+        ax.set_xscale('log')
+        ax.set_ylim((0, 20))
+        ax.set_xlim((10e-5, 10e-2))
+
+def plot_hydrometeor_profile_diff(da1, da2, ax):
+    for var in VARS:
+        varname = var[0]
+        qvar1 = get_cube(da1, *var[1])
+        qvar2 = get_cube(da2, *var[1])
+
+        z = qvar1.coord('atmosphere_hybrid_height_coordinate').points / 1000
+        qvar1_profile = qvar1.data.mean(axis=(1, 2))
+        qvar2_profile = qvar2.data.mean(axis=(1, 2))
+
+        ax.plot((qvar2_profile - qvar1_profile) * 1000, z, var[3], label=varname)
+
+        # ax.set_xscale('log')
+        ax.set_ylim((0, 20))
+        # ax.set_xlim((10e-7, 10e-1))
+        # ax1.set_title(expt)
+
+
 def plot_skewT(fig, subplot, name, p_profile, T_profile, Td_profile):
     skew = SkewT(fig=fig, subplot=subplot, rotation=55)
 
@@ -141,11 +174,51 @@ class DumpProfilePlotter(Analyser):
             f.write('done')
 
     def display_results(self):
+        self._plot_hydrometeor_deltas()
         self._plot_hydrometeors()
         self._plot_skewT()
         self._plot_theta_profiles()
         self._plot_deltas()
         plt.close('all')
+
+    def _plot_hydrometeor_deltas(self):
+        if not len(self.task.expts) == 4:
+            logger.debug('can only plot hydrometeor deltas for 4 expts')
+            return
+
+        fig = plt.figure(dpi=100, figsize=cm_to_inch(18, 15))
+        expt_pairs = [self.task.expts[:2], self.task.expts[2:]]
+        axL = fig.add_subplot(2, 2, 1)
+        axR = fig.add_subplot(2, 2, 2, sharey=axL)
+
+        for i, (expt1, expt2) in enumerate(expt_pairs):
+            if i == 0:
+                ax1, ax2 = axL, axR
+            else:
+                ax1 = fig.add_subplot(2, 2, i * 2 + 1, sharey=axL, sharex=axL)
+                ax2 = fig.add_subplot(2, 2, i * 2 + 2, sharey=axL, sharex=axR)
+
+            da1, da2 = self.expt_cubes[expt1], self.expt_cubes[expt2]
+            plot_hydrometeor_profile2(da1, expt1, ax1)
+            plot_hydrometeor_profile2(da2, expt2, ax1, '--')
+            plot_hydrometeor_profile_diff(da1, da2, ax2)
+            expt_name1, expt_name2 = EXPT_DETAILS[expt1][0], EXPT_DETAILS[expt2][0]
+            ax1.set_title('{} and {}'.format(expt_name1, expt_name2))
+            ax2.set_title('{} - {}'.format(expt_name2, expt_name1))
+            if i == 0:
+                plt.setp(ax1.get_xticklabels(), visible=False)
+                plt.setp(ax2.get_xticklabels(), visible=False)
+                ax2.legend(bbox_to_anchor=(0.8, 0.6))
+            else:
+                ax1.set_xlabel('specific density (g kg$^{-1}$)')
+                ax2.set_xlabel('$\Delta$ specific density (g kg$^{-1}$)')
+
+            ax1.set_ylabel('height (km)')
+
+            plt.setp(ax2.get_yticklabels(), visible=False)
+
+        plt.tight_layout()
+        plt.savefig(self.file_path('hydrometeor_deltas.png'))
 
     def _plot_hydrometeors(self):
         fig = plt.figure(dpi=100, figsize=(10, 10))
@@ -170,7 +243,7 @@ class DumpProfilePlotter(Analyser):
             indiv_ax1 = indiv_fig.add_subplot(1, 2, 1)
             indiv_ax2 = indiv_fig.add_subplot(1, 2, 2, sharey=axL)
             plot_hydrometeor_profile(da, expt, indiv_ax1, indiv_ax2)
-            indiv_ax1.set_xlabel('mass fraction (g kg$^{-1}$)')
+            indiv_ax1.set_xlabel('specific density (g kg$^{-1}$)')
             indiv_ax2.set_xlabel('number (# kg$^{-1}$)')
             indiv_ax2.legend(bbox_to_anchor=(0.8, 0.75))
             indiv_fig.savefig(self.file_path('hydrometeors_{}.png'.format(expt)))

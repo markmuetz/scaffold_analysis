@@ -45,7 +45,7 @@ class PlotDensityMfContrib:
             kwargs['label'] = '{}'.format(kwargs.pop('short_name'))
 
         plot = self.ax1.plot(bin_centers, y_density * width, **kwargs)
-        colour = plot[0].get_color()
+        # colour = plot[0].get_color()
         # ax1.plot(x, np.exp(m * x + c), color=colour, linestyle='--')
         self.ax2.plot(bin_centers, y2, **kwargs)
 
