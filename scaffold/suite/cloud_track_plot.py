@@ -6,7 +6,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from scaffold.expt_settings import EXPT_DETAILS
-# from cloud_tracking.cloud_tracking_analysis import plot_stats
 
 from omnium import Analyser
 from omnium.utils import cm_to_inch
@@ -46,7 +45,6 @@ def plot_pdf_for_expt(ax, expt_name, all_stats):
     ax.set_ylim((0, 0.1))
 
 
-
 class CloudTrackPlot(Analyser):
     """Tracks clouds using method similar to Plant 2009.
 
@@ -81,12 +79,11 @@ class CloudTrackPlot(Analyser):
 
         fig, axes = plt.subplots(2, 2, figsize=cm_to_inch(16, 14))
 
+        height_level_index, thresh_index = (1, 1)
         for i, (expt, ax) in enumerate(zip(self.task.expts, axes.flatten())):
             all_stats = self.all_stats[expt]
 
-            figpath = self.file_path('cloud_tracking')
             stats = all_stats[(1, 1)]
-            height_level_index, thresh_index = (1, 1)
 
             if expt in EXPT_DETAILS:
                 expt_name = EXPT_DETAILS[expt][0]
@@ -105,7 +102,6 @@ class CloudTrackPlot(Analyser):
             else:
                 plt.setp(ax.get_xticklabels(), visible=False)
 
-            # plt.figure('combined_plot_pdf')
             ax.set_title('{}'.format(expt_name))
             if i == 1:
                 ax.legend(loc='upper right')

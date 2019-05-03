@@ -3,7 +3,6 @@ import iris
 from scaffold.cycle.cycle_converter import CycleConverter, CycleDumpConverter
 from scaffold.expt.cloud_analysis import CloudAnalyser
 from scaffold.expt.cloud_track_analysis import CloudTrackAnalyser
-from scaffold.suite.cloud_track_plot import CloudTrackPlot
 from scaffold.expt.dump_extract_state import DumpExtractState
 from scaffold.expt.dump_slice_analysis import DumpSliceAnalyser
 from scaffold.expt.expt_converter import ExptConverter
@@ -20,6 +19,8 @@ from scaffold.expt.restart_dump_analysis import RestartDumpAnalyser
 from scaffold.expt.restart_dump_summary_info import RestartDumpSummaryInfo
 from scaffold.expt.surf_flux_analysis import SurfFluxAnalyser
 from scaffold.scaffold_settings import production_settings, test_settings
+from scaffold.suite.cloud_track_plot import CloudTrackPlot
+from scaffold.suite.cloud_track_lifecycles_plot import CloudTrackLifecyclesPlot
 from scaffold.suite.dump_entr import DumpEntr
 from scaffold.suite.dump_profile_plot import DumpProfilePlotter
 from scaffold.suite.energy_balance import EnergyBalance
@@ -53,6 +54,7 @@ analyser_classes = [
     CycleDumpConverter,
     CloudAnalyser,
     CloudTrackAnalyser,
+    CloudTrackLifecyclesPlot,
     CloudTrackPlot,
     DumpEntr,
     DumpExtractState,
