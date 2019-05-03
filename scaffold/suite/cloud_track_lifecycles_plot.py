@@ -15,7 +15,7 @@ from omnium.utils import cm_to_inch
 logger = getLogger('scaf.ctlp')
 
 
-def plot_mf_lifecycle(ax, expt_name, tracker):
+def plot_mf_lifecycle(ax, tracker):
     groups = [g for g in tracker.groups if len(g) >= 2]
 
     for cg in groups:
@@ -110,7 +110,7 @@ class CloudTrackLifecyclesPlot(Analyser):
             else:
                 expt_name = expt
 
-            plot_mf_lifecycle(ax, expt_name, tracker)
+            plot_mf_lifecycle(ax, tracker)
 
             if i in [0, 2]:
                 ax.set_ylabel('mass flux ($\\times 10^{7}$ kg s$^{-1}$)')
