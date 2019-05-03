@@ -15,59 +15,71 @@ from omnium.utils import cm_to_inch
 logger = getLogger('scaf.ctlp')
 
 
-def plot_mf_lifecycle(ax, tracker):
+def plot_mf_lifecycle(ax, tracker, group_type='all'):
+    """Calculate mass_flux_lifecycle and plot results into ax, for the given tracker
+
+    group_type can be 'all', 'simile' or 'complex'
+    """
+    # Only do for groups with at least 2 clouds in them.
     groups = [g for g in tracker.groups if len(g) >= 2]
 
+    # Recalculate all cloud fractions using the 'simple' formulation.
+    # This is where cloud fractions for split clouds are simply proportional
+    # to the area of the split clouds. As opposed to the method in Plant 2009,
+    # which can cause difficulties (-ve numbers, infinities) with a longer timestep.
     for cg in groups:
         cg.frac_method = 'simple'
         cg._calc_cld_fractions()
 
-    lifetime_mass_flux = []
-    lifetime_size = []
+    lifecycle_mass_flux = []
     lengths = []
-    simple = []
+    # Boolean array that says whether simple or complex (linear or not).
+    is_simple = []
+
+    # For each group, get the mass_flux_lifecycle(s).
+    # There will be one mass_flux_lifecycle for every end cloud in the group.
     for cg in groups:
-        for mass_flux_lifetime in cg.get_cld_lifetime_properties('mass_flux'):
-            f_mass_flux = interpolate.interp1d(np.linspace(0, 1, len(mass_flux_lifetime)), mass_flux_lifetime)
-            lifetime_mass_flux.append(f_mass_flux(np.linspace(0, 1, 100)))
+        for mass_flux_lifecycle in cg.get_cld_lifetime_properties('mass_flux'):
+            f_mass_flux = interpolate.interp1d(np.linspace(0, 1, len(mass_flux_lifecycle)),
+                                               mass_flux_lifecycle)
+            lifecycle_mass_flux.append(f_mass_flux(np.linspace(0, 1, 100)))
 
             # Only do once.
-            lengths.append(len(mass_flux_lifetime))
-            simple.append(cg.is_linear)
+            lengths.append(len(mass_flux_lifecycle))
+            is_simple.append(cg.is_linear)
 
-        for size_lifetime in cg.get_cld_lifetime_properties('size'):
-            f_size = interpolate.interp1d(np.linspace(0, 1, len(size_lifetime)), size_lifetime)
-            lifetime_size.append(f_size(np.linspace(0, 1, 100)))
-
-    lifetime_mass_flux = np.array(lifetime_mass_flux)
+    lifecycle_mass_flux = np.array(lifecycle_mass_flux)
     lengths = np.array(lengths)
-    simple = np.array(simple, dtype=int)
+    is_simple = np.array(is_simple, dtype=int)
 
+    # 5 min per lenght unit, 6 -> 30 min...
     lifetimes = [
         (lengths <= 6, 'b', 't <= 30 min'),
         ((lengths > 6) & (lengths <= 12), 'g', '30 min < t <= 60 min'),
         (lengths > 12, 'r', '60 min < t'),
     ]
 
-    for group_type in ['all']:
+    for lifetime_filt, colour, label in lifetimes:
+        if group_type == 'simple':
+            group_filt = is_simple == 1
+        elif group_type == 'complex':
+            group_filt = is_simple == 0
+        elif group_type == 'all':
+            group_filt = np.ones_like(is_simple, dtype=bool)
 
-        for lifetime_filt, colour, label in lifetimes:
-            if group_type == 'simple':
-                group_filt = simple == 1
-            elif group_type == 'complex':
-                group_filt = simple == 0
-            elif group_type == 'all':
-                group_filt = np.ones_like(simple, dtype=bool)
+        filt = lifetime_filt & group_filt
+        mf25, mf_median, mf75 = np.percentile(lifecycle_mass_flux[filt], [25, 50, 75], axis=0)
 
-            filt = lifetime_filt & group_filt
-            mf25, mf_median, mf75 = np.percentile(lifetime_mass_flux[filt], [25, 50, 75], axis=0)
-
-            ax.plot(np.linspace(0, 1, 100), mf_median / 1e7, linestyle='-', color=colour, label=label)
-            ax.plot(np.linspace(0, 1, 100), mf25 / 1e7, linestyle='--', color=colour)
-            ax.plot(np.linspace(0, 1, 100), mf75 / 1e7, linestyle='--', color=colour)
+        ax.plot(np.linspace(0, 1, 100), mf_median / 1e7, linestyle='-', color=colour, label=label)
+        ax.plot(np.linspace(0, 1, 100), mf25 / 1e7, linestyle='--', color=colour)
+        ax.plot(np.linspace(0, 1, 100), mf75 / 1e7, linestyle='--', color=colour)
 
 
 class CloudTrackLifecyclesPlot(Analyser):
+    """Plot lifecycle figures based on analysing all cloud groups in a given tracker.
+
+    Uses the 'simple' method for calculating cloud fractions - not to be confused with 'simple'
+    clouds, i.e. clouds that have no merges or splits (sorry for the naming!)."""
     analysis_name = 'cloud_track_lifecycle_plot'
     multi_expt = True
     input_dir = 'omnium_output/{version_dir}/{expt}'
