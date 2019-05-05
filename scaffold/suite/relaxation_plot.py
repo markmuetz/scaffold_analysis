@@ -6,7 +6,7 @@ import pylab as plt
 
 from omnium import Analyser
 from omnium.utils import get_cube
-from omnium.consts import p_ref, kappa, L, cp, g
+from omnium.consts import p_ref, kappa, L, cp, g, Re
 
 from scaffold.expt_settings import EXPT_DETAILS
 
@@ -37,7 +37,8 @@ class RelaxationPlot(Analyser):
         self._calc_total_heating()
 
     def _calc_total_heating(self):
-        total_heating = ['Expt,TrelFE [W m-2],QrelFE [W m-2]']
+        # total_heating = ['Expt,method,TrelFE [W m-2],QrelFE [W m-2]']
+        total_heating = ['Expt,relFE [W m-2],QrelFE [W m-2]']
         for expt in self.task.expts:
             cube = self.expt_cubes[expt]
 
@@ -45,31 +46,52 @@ class RelaxationPlot(Analyser):
             T_inc = get_cube(cube, 53, 181)
             mv_inc = get_cube(cube, 53, 182)
 
-            # exnerp on rho levels.
-            exnerp = get_cube(cube, 0, 255)
-            p = exnerp.data ** (1 / kappa) * p_ref
+            self._calc_vertical_integral(expt, cube, T_inc, mv_inc, total_heating)
+            # self._calc_vertical_integral_hydrostatic(expt, cube, T_inc, mv_inc, total_heating)
 
-            # N.B. this is the correct way round if you want the right signs.
-            # TODO: this calculation is not exact. Midpoints of rho levels are not on theta
-            # TODO: this calculation also assumes hydrostatic equilibrium - this is not right
-            # TODO: this calculation also doesn't take into account theta-level 0 - not sure about?
-            # levels so, working out dp should take this into account.
-            dp = (p[:, :-1] - p[:, 1:])
-
-            # z = T_inc.coord('level_height').points
-            # z_theta = exnerp.coord('level_height').points
-
-            # TODO: Uses hydrostatic approx which is not valid. Do proper dz integral.
-            # Note, I am ignoring top level!
-            T_inc_fe = ((cp / g) * (T_inc.data[:, :-1] / 30 * dp)).sum(axis=1).mean(axis=(1, 2))
-            q_inc = mv_inc.data / (1 - mv_inc.data)
-            q_inc_fe = ((L / g) * (q_inc[:, :-1] / 30 * dp)).sum(axis=1).mean(axis=(1, 2))
-
-            logger.debug('{} - T_inc flux equiv: {} W m-2', expt, T_inc_fe)
-            logger.debug('{} - q_inc flux equiv: {} W m-2', expt, q_inc_fe)
-            total_heating.append('{},{},{}'.format(expt, T_inc_fe.mean(), q_inc_fe.mean()))
         self.save_text('final_day_relaxation_energy_flux.csv', '\n'.join(total_heating) + '\n')
         self.save_text('final_day_relaxation_energy_flux.csv.done', 'done')
+
+    def _calc_vertical_integral(self, expt, cube, T_inc, mv_inc, total_heating):
+        rho = get_cube(cube, 0, 253)
+        rho.data = rho.data / Re**2
+        for coord in T_inc.coords():
+            if coord.name() == 'level_height':
+                height_name = 'level_height'
+                break
+            elif coord.name() == 'atmosphere_hybrid_height_coordinate':
+                height_name = 'atmosphere_hybrid_height_coordinate'
+                break
+        z_coord = T_inc.coord(height_name)
+        dz = z_coord.bounds[:, 1] - z_coord.bounds[:, 0]
+        T_inc_fe = (cp * (rho.data * T_inc.data / 30 * dz[None, :, None, None])).sum(axis=1).mean(axis=(1, 2))
+        q_inc = mv_inc.data / (1 - mv_inc.data)
+        q_inc_fe = (L * (rho.data * q_inc / 30 * dz[None, :, None, None])).sum(axis=1).mean(axis=(1, 2))
+        logger.debug('{} - T_inc flux equiv: {} W m-2', expt, T_inc_fe)
+        logger.debug('{} - q_inc flux equiv: {} W m-2', expt, q_inc_fe)
+        # total_heating.append('{},nonhydrostatic,{},{}'.format(expt, T_inc_fe.mean(), q_inc_fe.mean()))
+        total_heating.append('{},{},{}'.format(expt, T_inc_fe.mean(), q_inc_fe.mean()))
+
+    def _calc_vertical_integral_hydrostatic(self, expt, cube, T_inc, mv_inc, total_heating):
+        # exnerp on rho levels.
+        exnerp = get_cube(cube, 0, 255)
+        p = exnerp.data ** (1 / kappa) * p_ref
+        # N.B. this is the correct way round if you want the right signs.
+        # TODO: this calculation is not exact. Midpoints of rho levels are not on theta
+        # TODO: this calculation also assumes hydrostatic equilibrium - this is not right
+        # TODO: this calculation also doesn't take into account theta-level 0 - not sure about?
+        # levels so, working out dp should take this into account.
+        dp = (p[:, :-1] - p[:, 1:])
+        # z = T_inc.coord('level_height').points
+        # z_theta = exnerp.coord('level_height').points
+        # TODO: Uses hydrostatic approx which is not valid. Do proper dz integral.
+        # Note, I am ignoring top level!
+        T_inc_fe = ((cp / g) * (T_inc.data[:, :-1] / 30 * dp)).sum(axis=1).mean(axis=(1, 2))
+        q_inc = mv_inc.data / (1 - mv_inc.data)
+        q_inc_fe = ((L / g) * (q_inc[:, :-1] / 30 * dp)).sum(axis=1).mean(axis=(1, 2))
+        logger.debug('{} - T_inc flux equiv: {} W m-2', expt, T_inc_fe)
+        logger.debug('{} - q_inc flux equiv: {} W m-2', expt, q_inc_fe)
+        total_heating.append('{},hydrostatic,{},{}'.format(expt, T_inc_fe.mean(), q_inc_fe.mean()))
 
     def _plot_theta_mv_incs(self):
         plt.clf()
