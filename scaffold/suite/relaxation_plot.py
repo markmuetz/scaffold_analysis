@@ -33,9 +33,9 @@ class RelaxationPlot(Analyser):
             f.write('done')
 
     def display_results(self):
-        self._plot_theta_mv_incs()
-        self._plot_UCP_theta_mv_incs()
-        self._plot_combined_theta_mv_incs()
+        self._plot_T_mv_incs()
+        self._plot_UCP_T_mv_incs()
+        self._plot_combined_T_mv_incs()
         self._calc_total_heating()
 
     def _calc_total_heating(self):
@@ -105,7 +105,7 @@ class RelaxationPlot(Analyser):
         logger.debug('{} - q_inc flux equiv: {} W m-2', expt, q_inc_fe)
         total_heating.append('{},{},{}'.format(expt, T_inc_fe.mean(), q_inc_fe.mean()))
 
-    def _plot_theta_mv_incs(self):
+    def _plot_T_mv_incs(self):
         plt.clf()
         plt.xlabel('T_inc (K day$^{-1}$)')
         plt.ylabel('height (km)')
@@ -149,7 +149,7 @@ class RelaxationPlot(Analyser):
         plt.legend()
         plt.savefig(self.file_path('mv_incs.png'))
 
-    def _plot_UCP_theta_mv_incs(self):
+    def _plot_UCP_T_mv_incs(self):
         plt.clf()
         plt.xlabel('T_inc (K day$^{-1}$)')
         plt.ylabel('height (km)')
@@ -189,7 +189,7 @@ class RelaxationPlot(Analyser):
         plt.legend(loc='upper right')
         plt.savefig(self.file_path('UCP_mv_incs.png'))
 
-    def _plot_combined_theta_mv_incs(self):
+    def _plot_combined_T_mv_incs(self):
         fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True, figsize=cm_to_inch(16, 12))
 
         ax1.set_xlabel('T_inc (K day$^{-1}$)')
@@ -225,4 +225,4 @@ class RelaxationPlot(Analyser):
         ax2.set_ylim((0, 15))
         ax2.axvline(x=0, ls='--', color='k')
         ax2.legend(loc='upper left')
-        plt.savefig(self.file_path('combined_theta_mv_incs.png'))
+        plt.savefig(self.file_path('combined_T_mv_incs.png'))
