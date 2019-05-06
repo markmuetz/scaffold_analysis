@@ -228,7 +228,7 @@ class SummaryCorrelations(Analyser):
         savefig(self.outputdir)
 
     def display_results(self):
-        # self._plot_corr_matrices()
+        self._plot_corr_matrices()
         self._plot_indiv_corr()
 
     def _plot_corr_matrices(self):
