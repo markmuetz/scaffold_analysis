@@ -6,8 +6,8 @@ import numpy as np
 
 matplotlib.use('Agg')
 import pylab as plt
-from scipy import stats
-from scipy import optimize
+from scipy import stats, optimize
+import pandas as pd
 
 from omnium import Analyser, ExptList
 
@@ -157,6 +157,7 @@ class MassFluxPlotter(Analyser):
 
     def display_results(self):
         self._plot_mass_flux_hist()
+        self._display_num_clds()
         plt.close('all')
 
     def _do_group_data(self):
@@ -168,10 +169,10 @@ class MassFluxPlotter(Analyser):
         self.height_levels = []
         self.all_expt_data = []
 
-        expts = ExptList(self.suite)
-        expts.find(self.task.expts)
+        self.expts = ExptList(self.suite)
+        self.expts.find(self.task.expts)
         for expt in self.task.expts:
-            expt_obj = expts.get(expt)
+            expt_obj = self.expts.get(expt)
             cubes = self.expt_cubes[expt]
             sorted_cubes = []
 
@@ -340,3 +341,26 @@ class MassFluxPlotter(Analyser):
                 if self.ylim:
                     plt.ylim(self.ylim)
             plt.savefig(self.file_path(name + '.png'))
+
+    def _display_num_clds(self):
+        num_cld_snapshots = 10 * 48  # 10 days, every half hour.
+        mean_num_clds = []
+        nice_expt_names = []
+
+        for expt in self.task.expts:
+            expt_obj = self.expts.get(expt)
+            cubes = self.expt_cubes[expt]
+            nice_expt_names.append(EXPT_DETAILS[expt][0])
+
+            mf_key = (1, 1)
+            for cube in cubes:
+                if (cube.name().startswith('mass_flux') and
+                        tuple(cube.attributes['mass_flux_key']) == mf_key):
+                    # sorted_cubes.append((mf_key, cube))
+                    mean_num_clds.append(cube.shape[0] / num_cld_snapshots)
+
+        df_mean_num_clds = pd.DataFrame({'expt': nice_expt_names, 'mean_num_clds': mean_num_clds})
+        df_mean_num_clds.to_hdf(self.file_path('mean_num_clds.hdf'), 'mean_num_clds')
+        print(mean_num_clds)
+
+
