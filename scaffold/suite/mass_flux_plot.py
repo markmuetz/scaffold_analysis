@@ -254,7 +254,8 @@ class MassFluxPlotter(Analyser):
             # y[y > 10] selects all values where y > 10
             # :len(log_y) selects values up to len - the two are not nec. the same!
             # Only calc. logarithm where y > 10.
-            log_y = np.log(y[y > 10])
+            first_greater_than_index = np.where(y < 10)[0][0]
+            log_y = np.log(y[:first_greater_than_index])
             x = bin_centers[:len(log_y)]
 
             m, c, rval, pval, stderr = stats.linregress(x[1:], log_y[1:])
