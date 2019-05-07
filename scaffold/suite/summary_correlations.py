@@ -71,7 +71,8 @@ def get_mass_flux(expt):
     mf = get_cube_from_attr(mfc, 'omnium_cube_id', 'mass_flux_z1_w1_qcl1')
     tmf = get_cube_from_attr(mfc, 'omnium_cube_id', 'total_mass_flux_z1_w1_qcl1')
     sigma = get_cube_from_attr(mfc, 'omnium_cube_id', 'sigma_z1_w1_qcl1')
-    return {'num_clds': mf.shape[0], 'MF_per_cloud': mf.data.mean(),
+    num_cld_snapshots = 10 * 48  # 10 days, every half hour.
+    return {'mean_num_clds': mf.shape[0] / num_cld_snapshots, 'MF_per_cloud': mf.data.mean(),
             'total_MF': tmf.data.mean(), 'sigma': sigma.data.mean()}
 
 
@@ -83,7 +84,10 @@ def get_cloud_lifetimes(expt):
 
     simple_lifetime = float(lines[4].split(',')[-1].strip())
     complex_lifetime = float(lines[8].split(',')[-1].strip())
-    return {'simple_lifetime': simple_lifetime, 'complex_lifetime': complex_lifetime}
+    all_lifetime = float(lines[10].split(',')[-1].strip())
+    return {'simple_lifetime': simple_lifetime,
+            'complex_lifetime': complex_lifetime,
+            'all_lifetime': all_lifetime}
 
 
 def savefig(cwd):
@@ -143,8 +147,8 @@ class SummaryCorrelations(Analyser):
 
         cols = (list(df_dyn.columns[1:]) + list(df_td.columns[1:]) +
                 list(self.df_org.columns[2:]) +
-                ['num_clds', 'MF_per_cloud', 'total_MF', 'sigma'] +
-                ['simple_lifetime', 'complex_lifetime'])
+                ['mean_num_clds', 'MF_per_cloud', 'total_MF', 'sigma'] +
+                ['all_lifetime', 'simple_lifetime', 'complex_lifetime'])
 
         all_col_values = {'expt': SORTED_EXPTS}
         for i, col in enumerate(cols):
@@ -159,9 +163,9 @@ class SummaryCorrelations(Analyser):
                 elif col in self.df_org.columns[2:]:
                     col_values.append(self.df_org[(self.df_org.expt == expt) &
                                              (self.df_org.group == 1)][col].values[0])
-                elif col in ['num_clds', 'MF_per_cloud', 'total_MF', 'sigma']:
+                elif col in ['mean_num_clds', 'MF_per_cloud', 'total_MF', 'sigma']:
                     col_values.append(self.mass_flux[expt][col])
-                elif col in ['simple_lifetime', 'complex_lifetime']:
+                elif col in ['all_lifetime', 'simple_lifetime', 'complex_lifetime']:
                     col_values.append(self.cloud_lifetimes[expt][col])
 
             # plt.plot(SORTED_EXPTS, col_values, 'ko')
