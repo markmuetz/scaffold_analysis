@@ -179,7 +179,25 @@ class DumpProfilePlotter(Analyser):
         self._plot_skewT()
         self._plot_theta_profiles()
         self._plot_deltas()
+        self._calc_melting_level()
         plt.close('all')
+
+    def _calc_melting_level(self):
+        melting_level_csv = ['expt,level (m)']
+        for expt in self.task.expts:
+            da = self.expt_cubes[expt]
+            exnerp = get_cube(da, 0, 255)
+            theta = get_cube(da, 0, 4)
+            z = theta.coord('atmosphere_hybrid_height_coordinate').points
+
+            Tdata = theta.data * exnerp.data
+            Tprofile = Tdata.mean(axis=(1, 2))
+            melting_height_index = np.where(Tprofile < 273.15)[0][0]
+            logger.info('{}: Melting height: {} km', expt, z[melting_height_index] / 1000)
+            melting_level_csv.append('{},{}'.format(expt, z[melting_height_index]))
+
+        with open(self.file_path('melting_level.csv'), 'w') as f:
+            f.write('\n'.join(melting_level_csv) + '\n')
 
     def _plot_hydrometeor_deltas(self):
         if not len(self.task.expts) == 4:
