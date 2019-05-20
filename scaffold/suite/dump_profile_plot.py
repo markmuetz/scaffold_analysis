@@ -20,7 +20,7 @@ except ImportError:
 
 from omnium import Analyser
 from omnium.utils import get_cube
-from omnium.consts import p_ref, kappa
+from omnium.consts import p_ref, kappa, Re
 
 from scaffold.utils import cm_to_inch, find_intersections
 from scaffold.expt_settings import EXPT_DETAILS
@@ -174,6 +174,7 @@ class DumpProfilePlotter(Analyser):
             f.write('done')
 
     def display_results(self):
+        self._calc_density_at_12p5km()
         self._plot_hydrometeor_deltas()
         self._plot_hydrometeors()
         self._plot_skewT()
@@ -198,6 +199,27 @@ class DumpProfilePlotter(Analyser):
 
         with open(self.file_path('melting_level.csv'), 'w') as f:
             f.write('\n'.join(melting_level_csv) + '\n')
+
+    def _calc_density_at_12p5km(self):
+        density_csv = ['expt,level (m),density (kg m-3)']
+        index_12p5km = 60
+        for expt in self.task.expts:
+            da = self.expt_cubes[expt]
+            rho = get_cube(da, 0, 253)
+
+            rho.data = rho.data / Re**2
+            rho.units = 'kg m-3'
+            rho_profile = rho.data.mean(axis=(1, 2))
+
+            z = rho.coord('atmosphere_hybrid_height_coordinate').points
+
+            logger.info('{}: Density at {} km: {}', expt, z[0], rho_profile[0])
+            logger.info('{}: Density at {} km: {}', expt, z[index_12p5km], rho_profile[index_12p5km])
+            density_csv.append('{},{},{}'.format(expt, z[0], rho_profile[0]))
+            density_csv.append('{},{},{}'.format(expt, z[index_12p5km], rho_profile[index_12p5km]))
+
+        with open(self.file_path('density_at_12p5km.csv'), 'w') as f:
+            f.write('\n'.join(density_csv) + '\n')
 
     def _plot_hydrometeor_deltas(self):
         if not len(self.task.expts) == 4:
