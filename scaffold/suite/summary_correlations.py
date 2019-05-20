@@ -35,32 +35,38 @@ NAME_MAP = {
     'LLS': 'LLS (m s$^{-1}$)',
     'mean_surf_wind': 'surface wind (m s$^{-1}$)',
     'CAPE': 'CAPE (J kg$^{-1}$)',
+    'all_lifetime': 'all cloud lifetime (min)',
     'simple_lifetime': 'simple cloud lifetime (min)',
     'complex_lifetime': 'complex cloud group lifetime (min)',
     'total_MF': 'total mass flux',
     'sigma': 'cloud fraction ($\sigma$)',
+    'cluster_index': 'cluster-index (km)',
 }
 
 
-def plot_corr(df, c1, c2):
+def plot_corr(df, c1, c2, ax=None):
     title = '{} vs {}'.format(c1, c2).replace(' ', '_')
-    plt.figure(title)
-    plt.clf()
+    if not ax:
+        plt.figure(title, figsize=cm_to_inch(16, 12))
+        plt.clf()
+        ax = plt.gca()
+
     d1, d2 = df[c1].values, df[c2].values
+    if c2 == 'cluster_index':
+        d2 = d2 / 1000 # Convert from m to km
     # plt.title(title)
-    plt.plot(d1, d2, 'kx')
+    ax.plot(d1, d2, 'kx')
     lr = stats.linregress(d1, d2)
     x = np.array([d1.min(), d1.max()])
     y = lr.slope * x + lr.intercept
 
-    plt.plot(x, y, 'k--', label='r$^2$={}, p={}'.format(latex_sigfig(lr.rvalue ** 2),
-                                                        latex_sigfig(lr.pvalue)))
-    plt.legend()
-    plt.xlabel(NAME_MAP.get(c1, c1))
-    plt.ylabel(NAME_MAP.get(c2, c2))
-    plt.tight_layout()
+    ax.plot(x, y, 'k--', label='r$^2$={}\n p={}'.format(latex_sigfig(lr.rvalue ** 2),
+                                                       latex_sigfig(lr.pvalue)))
+    ax.legend()
+    ax.set_xlabel(NAME_MAP.get(c1, c1))
+    ax.set_ylabel(NAME_MAP.get(c2, c2))
+    # plt.tight_layout()
 
-    plt.show()
     return lr
 
 
@@ -267,10 +273,22 @@ class SummaryCorrelations(Analyser):
         corr_pairs = [
             ['LLS', 'cluster_index'],
             ['mean_surf_wind', 'CAPE'],
-            ['cluster_index', 'simple_lifetime'],
-            ['cluster_index', 'complex_lifetime'],
         ]
 
         for c1, c2 in corr_pairs:
             plot_corr(self.df_all_col_values, c1, c2)
+            plt.tight_layout()
             savefig(self.outputdir)
+
+        title = '{} vs {}'.format('cluster_index', 'lifetimes').replace(' ', '_')
+        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, sharex=True,
+                                            figsize=cm_to_inch(20, 10), num=title)
+        plot_corr(self.df_all_col_values, 'cluster_index', 'all_lifetime', ax1)
+        ax1.set_ylim((0, None))
+        plot_corr(self.df_all_col_values, 'cluster_index', 'simple_lifetime', ax2)
+        ax2.set_ylim((0, 70))
+        plot_corr(self.df_all_col_values, 'cluster_index', 'complex_lifetime', ax3)
+        ax3.set_ylim((0, None))
+        plt.tight_layout()
+        savefig(self.outputdir)
+
