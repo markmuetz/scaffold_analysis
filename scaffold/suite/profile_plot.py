@@ -162,9 +162,10 @@ class ProfilePlotter(Analyser):
 
         cooling = np.zeros_like(pressure_profile.data)
 
-        cooling[pressure_data > 200] = -1.5
+        cooling_rate = -1.5  # K.day-1
+        cooling[pressure_data > 200] = cooling_rate
         lin_region = (pressure_data < 200) & (pressure_data > 100)
-        cooling[lin_region] = -(1 - (200 - pressure_data[lin_region])/(200 - 100)) * 2
+        cooling[lin_region] = (1 - (200 - pressure_data[lin_region])/(200 - 100)) * cooling_rate
 
         ax2.plot(cooling, z / 1e3, 'b-')
         ax2.set_xlim((-2, 2))
