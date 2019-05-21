@@ -144,7 +144,7 @@ class ProfilePlotter(Analyser):
         plt.savefig(self.file_path('UCP_shear_profiles.png'))
 
     def _plot_input_profiles(self):
-        f, (ax1, ax2, ax3) = plt.subplots(1, 3, sharey=True)
+        f, (ax1, ax2) = plt.subplots(1, 2, sharey=True, figsize=cm_to_inch(16, 8))
         vertlev = VertLev(self.suite.suite_dir)
         ax1.plot(vertlev.dz_theta, vertlev.z_rho / 1e3)
         ax1.set_xlabel('$\\Delta z$ (m)')
@@ -162,39 +162,15 @@ class ProfilePlotter(Analyser):
 
         cooling = np.zeros_like(pressure_profile.data)
 
-        cooling[pressure_data > 200] = -2
+        cooling[pressure_data > 200] = -1.5
         lin_region = (pressure_data < 200) & (pressure_data > 100)
         cooling[lin_region] = -(1 - (200 - pressure_data[lin_region])/(200 - 100)) * 2
 
         ax2.plot(cooling, z / 1e3, 'b-')
-        ax2.set_xlim((-3, 3))
+        ax2.set_xlim((-2, 2))
         #plt.ylabel('height (km)')
         ax2.set_xlabel('prescribed heating (K day$^{-1}$)')
         ax2.axvline(x=0, color='k', linestyle='--')
-
-        for expt in self.task.expts:
-            cubes = self.expt_cubes[expt]
-            u_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'u_profile')
-            # v_profile = get_cube_from_attr(cubes, 'omnium_cube_id', 'v_profile')
-            height = u_profile.coord('level_height').points
-            match = re.search('S(?P<shear_factor>\d)', expt)
-            # TODO: get RWP shear profile and plot (needs two lines as not linear).
-            if not match:
-                logger.debug('not printing shear profile')
-                continue
-            shear_factor = int(match.group('shear_factor'))
-            shear_u_profile = self.base_u_profile.copy()
-            shear_u_profile[:, 1] *= shear_factor
-            # N.B. convert m->km.
-            plot = ax3.plot(shear_u_profile[:, 1], shear_u_profile[:, 0] / 1e3, label=expt)
-            colour = plot[0].get_color()
-            #import ipdb; ipdb.set_trace()
-            ax3.plot(u_profile.data, height / 1e3, color=colour, linestyle='--')
-
-        ax3.set_xlim((-15, 15))
-        #ax3.set_ylim((0, 20))
-        ax3.set_xlabel('u profile (m s$^{-1}$)')
-        ax3.legend(loc='upper left')
 
         #plt.tight_layout()
         #plt.subplots_adjust(wspace=0)
