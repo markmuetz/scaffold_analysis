@@ -32,7 +32,7 @@ SORTED_EXPTS = [
 ]
 
 NAME_MAP = {
-    'LLS': 'LLS (m s$^{-1}$)',
+    'LLS': 'LLWD (m s$^{-1}$)',
     'mean_surf_wind': 'surface wind (m s$^{-1}$)',
     'CAPE': 'CAPE (J kg$^{-1}$)',
     'all_lifetime': 'all cloud lifetime (min)',
@@ -52,10 +52,16 @@ def plot_corr(df, c1, c2, ax=None):
         ax = plt.gca()
 
     d1, d2 = df[c1].values, df[c2].values
+    if c1 == 'cluster_index':
+        d1 = d1 / 1000 # Convert from m to km
     if c2 == 'cluster_index':
         d2 = d2 / 1000 # Convert from m to km
     # plt.title(title)
-    ax.plot(d1, d2, 'kx')
+
+
+    markers = {'S': 'o', 'R': 'x'}
+    for expt, v1, v2 in zip(df.expt, d1, d2):
+        ax.scatter(v1, v2, color='k', marker=markers[expt[0]])
     lr = stats.linregress(d1, d2)
     x = np.array([d1.min(), d1.max()])
     y = lr.slope * x + lr.intercept
