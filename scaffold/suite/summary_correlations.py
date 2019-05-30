@@ -33,14 +33,39 @@ SORTED_EXPTS = [
 
 NAME_MAP = {
     'LLS': 'LLWD (m s$^{-1}$)',
-    'mean_surf_wind': 'surface wind (m s$^{-1}$)',
+    'MLS': 'MLWD (m s$^{-1}$)',
+    'mean_surf_wind': 'mean surf. wind (m s$^{-1}$)',
     'CAPE': 'CAPE (J kg$^{-1}$)',
     'all_lifetime': 'all cloud lifetime (min)',
     'simple_lifetime': 'simple cloud lifetime (min)',
     'complex_lifetime': 'complex cloud group lifetime (min)',
-    'total_MF': 'total mass flux',
-    'sigma': 'cloud fraction ($\sigma$)',
+    'total_MF': 'total MF',
+    'MF_per_cloud': 'MF per cloud',
+    'sigma': '$\sigma$',
     'cluster_index': 'cluster-index (km)',
+    'suppr_index': 'suppr-index (km)',
+    'suppr_radius': 'suppr-radius (km)',
+    'cluster_radius': 'cluster-radius (km)',
+    'mean_num_clds': 'mean num. clouds',
+    'Tsurf': 'T. surf.',
+}
+
+CORR_NAME_MAP = {
+    'LLS': 'LLWD',
+    'MLS': 'MLWD',
+    'mean_surf_wind': 'mean surf. wind',
+    'CAPE': 'CAPE',
+    'all_lifetime': 'all lifetime',
+    'simple_lifetime': 'simple lifetime',
+    'complex_lifetime': 'complex lifetime',
+    'total_MF': 'total MF',
+    'sigma': '$\sigma$',
+    'cluster_index': 'cluster-index',
+    'suppr_index': 'suppr-index',
+    'suppr_radius': 'suppr-radius',
+    'cluster_radius': 'cluster-radius',
+    'mean_num_clds': 'mean num. clouds',
+    'Tsurf': 'T. surf.',
 }
 
 
@@ -207,6 +232,7 @@ class SummaryCorrelations(Analyser):
                 lr = stats.linregress(d1, d2)
                 corr[i, j] = lr.rvalue
                 pvals[i, j] = lr.pvalue
+                logger.info('{} vs {}: r2-val={}, p-val={}', col1, col2, lr.rvalue**2, lr.pvalue)
                 # axes[i, j].plot(d1, d2, 'kx')
         # savefig(cwd)
 
@@ -238,8 +264,8 @@ class SummaryCorrelations(Analyser):
                 plt.annotate('{:.2f}'.format(data[:, j].sum()), (data.shape[0] - 0.3, j + 0.1),
                              color='k', fontsize=8, annotation_clip=False)
 
-        plt.xticks(range(len(cols)), cols, rotation=90)
-        plt.yticks(range(len(cols)), cols)
+        plt.xticks(range(len(cols)), [CORR_NAME_MAP.get(c, c) for c in cols], rotation=90)
+        plt.yticks(range(len(cols)), [CORR_NAME_MAP.get(c, c) for c in cols])
         plt.tight_layout()
         savefig(self.outputdir)
 
