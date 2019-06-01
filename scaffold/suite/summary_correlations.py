@@ -10,6 +10,7 @@ import iris
 
 from omnium import Analyser
 from omnium.utils import cd, get_cube_from_attr, cm_to_inch, latex_sigfig
+from scaffold.expt_settings import cycle
 
 
 logger = getLogger('scaf.summ_corr')
@@ -266,6 +267,22 @@ class SummaryCorrelations(Analyser):
 
         plt.xticks(range(len(cols)), [CORR_NAME_MAP.get(c, c) for c in cols], rotation=90)
         plt.yticks(range(len(cols)), [CORR_NAME_MAP.get(c, c) for c in cols])
+        ax = plt.gca()
+        xticklabels = ax.get_xticklabels()
+        yticklabels = ax.get_yticklabels()
+
+        def colour_ticks(ticklabels):
+            for i, ticklab in enumerate(ticklabels):
+                if i >= 17:
+                    ticklab.set_color(cycle[2])
+                elif i >= 9:
+                    ticklab.set_color(cycle[0])
+                elif i >= 3:
+                    ticklab.set_color(cycle[1])
+
+        colour_ticks(xticklabels)
+        colour_ticks(yticklabels)
+
         plt.tight_layout()
         savefig(self.outputdir)
 
