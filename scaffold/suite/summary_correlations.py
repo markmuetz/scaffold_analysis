@@ -92,8 +92,10 @@ def plot_corr(df, c1, c2, ax=None):
     x = np.array([d1.min(), d1.max()])
     y = lr.slope * x + lr.intercept
 
-    ax.plot(x, y, 'k--', label='r$^2$={}\n p={}'.format(latex_sigfig(lr.rvalue ** 2),
-                                                       latex_sigfig(lr.pvalue)))
+    ax.plot(x, y, 'k--', label='m={}\nc={}\nr$^2$={}\np={}'.format(latex_sigfig(lr.slope),
+                                                                   latex_sigfig(lr.intercept),
+                                                                   latex_sigfig(lr.rvalue ** 2),
+                                                                   latex_sigfig(lr.pvalue)))
     ax.legend()
     ax.set_xlabel(NAME_MAP.get(c1, c1))
     ax.set_ylabel(NAME_MAP.get(c2, c2))
