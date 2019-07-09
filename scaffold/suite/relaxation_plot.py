@@ -221,6 +221,8 @@ class RelaxationPlot(Analyser):
             # 2880 steps_per_perdiodm: converts to g/kg/day
             mv_inc_profile = mv_inc.data.mean(axis=(0, 2, 3)) * 2880 * 1000
             ax2.plot(mv_inc_profile, z / 1000, **kwargs)
+            logger.info('{}: mv_inc max;min: {};{}',
+                        expt, mv_inc_profile.max(), mv_inc_profile.min())
 
         ax2.set_xlim((-1, 0.4))
         ax2.set_ylim((0, 15))
