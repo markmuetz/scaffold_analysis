@@ -190,7 +190,7 @@ class RelaxationPlot(Analyser):
         plt.savefig(self.file_path('UCP_mv_incs.png'))
 
     def _plot_combined_T_mv_incs(self):
-        fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True, figsize=cm_to_inch(16, 12))
+        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, sharey=True, figsize=cm_to_inch(20, 12))
 
         ax1.set_xlabel('T_inc (K day$^{-1}$)')
         ax1.set_ylabel('height (km)')
@@ -209,6 +209,7 @@ class RelaxationPlot(Analyser):
         ax1.set_xlim((-4, 1))
         ax1.set_ylim((0, 15))
         ax1.axvline(x=0, ls='--', color='k')
+
         ax2.set_xlabel('mv_inc (g kg$^{-1}$ day$^{-1}$)')
         for expt in self.task.expts:
             kwargs = {}
@@ -225,4 +226,24 @@ class RelaxationPlot(Analyser):
         ax2.set_ylim((0, 15))
         ax2.axvline(x=0, ls='--', color='k')
         ax2.legend(loc='upper left')
+
+        ax3.set_xlabel('combined_inc (K day$^{-1}$)')
+        for expt in self.task.expts:
+            kwargs = {}
+            if expt in EXPT_DETAILS:
+                kwargs = dict(zip(['label', 'color', 'linestyle'], EXPT_DETAILS[expt]))
+            T_inc = get_cube(self.expt_cubes[expt], 53, 181)
+            mv_inc = get_cube(self.expt_cubes[expt], 53, 182)
+            z = mv_inc.coord('level_height').points
+
+            # 2880 steps_per_perdiodm: converts to K/day
+            T_inc_profile = T_inc.data.mean(axis=(0, 2, 3)) * 2880
+            # 2880 steps_per_perdiodm: converts to g/kg/day
+            mv_inc_profile = mv_inc.data.mean(axis=(0, 2, 3)) * 2880 * 1000
+            ax3.plot(T_inc_profile + L / cp * mv_inc_profile / 1000, z / 1000, **kwargs)
+
+        ax3.set_xlim((-4, 1))
+        ax3.set_ylim((0, 15))
+        ax3.axvline(x=0, ls='--', color='k')
+
         plt.savefig(self.file_path('combined_T_mv_incs.png'))
