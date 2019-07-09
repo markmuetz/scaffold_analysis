@@ -209,6 +209,7 @@ class RelaxationPlot(Analyser):
         ax1.set_xlim((-4, 1))
         ax1.set_ylim((0, 15))
         ax1.axvline(x=0, ls='--', color='k')
+        ax1.axvline(x=-1.5, ls='--', color='k')
 
         ax2.set_xlabel('mv_inc (g kg$^{-1}$ day$^{-1}$)')
         for expt in self.task.expts:
@@ -247,5 +248,6 @@ class RelaxationPlot(Analyser):
         ax3.set_xlim((-4, 1))
         ax3.set_ylim((0, 15))
         ax3.axvline(x=0, ls='--', color='k')
+        ax3.axvline(x=-1.5, ls='--', color='k')
 
         plt.savefig(self.file_path('combined_T_mv_incs.png'))
