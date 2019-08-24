@@ -76,7 +76,8 @@ class RestartDumpSummaryInfo(Analyser):
                                                      'LCL', 'LFC', 'LNB',
                                                      'CAPE', 'CIN'])
         self.df_dyn_summary_info = pd.DataFrame(self.dyn_summary_info_data,
-                                                columns=['runid', 'mean_surf_wind', 'LLS', 'MLS'])
+                                                columns=['runid', 'mean_surf_wind',
+                                                         'LLWD', 'LLS', 'MLWD', 'MLS'])
 
     def _calc_thermodynamic_summary_info(self, runid, dump):
         theta = get_cube(dump, 0, 4)
@@ -117,13 +118,16 @@ class RestartDumpSummaryInfo(Analyser):
         v = get_cube(dump, 0, 3)
         u_profile = u.data.mean(axis=(1, 2))
         v_profile = v.data.mean(axis=(1, 2))
+        z = u.coord('atmosphere_hybrid_height_coordinate').points
 
         mean_surf_wind = np.sqrt(u_profile[0]**2 + v_profile[0]**2)
         # Level 17 == 800 hPa
-        lls = max_wind_diff_between_levels(u_profile, v_profile, 0, 17)
+        llwd, lli, llj = max_wind_diff_between_levels(u_profile, v_profile, 0, 17)
         # Level 33 == 500 hPa
-        mls = max_wind_diff_between_levels(u_profile, v_profile, 17, 33)
-        self.dyn_summary_info_data.append([runid, mean_surf_wind, lls[0], mls[0]])
+        mlwd, mli, mlj = max_wind_diff_between_levels(u_profile, v_profile, 17, 33)
+        self.dyn_summary_info_data.append([runid, mean_surf_wind,
+                                           llwd, llwd / (z[llj] - z[lli]),
+                                           mlwd, mlwd / (z[mlj] - z[mli])])
 
     def save(self, state, suite):
         self.df_summary_info.to_hdf(self.task.output_filenames[0], 'thermodynamic_summary')

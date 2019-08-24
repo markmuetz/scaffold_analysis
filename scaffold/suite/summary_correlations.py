@@ -1,5 +1,4 @@
 import os
-from glob import glob
 from logging import getLogger
 
 import pandas as pd
@@ -33,8 +32,10 @@ SORTED_EXPTS = [
 ]
 
 NAME_MAP = {
-    'LLS': 'LLWD (m s$^{-1}$)',
-    'MLS': 'MLWD (m s$^{-1}$)',
+    'LLS': 'LLS (s$^{-1}$)',
+    'MLS': 'MLS (s$^{-1}$)',
+    'LLWD': 'LLWD (m s$^{-1}$)',
+    'MLWD': 'MLWD (m s$^{-1}$)',
     'mean_surf_wind': 'mean surf. wind (m s$^{-1}$)',
     'CAPE': 'CAPE (J kg$^{-1}$)',
     'all_lifetime': 'all cloud lifetime (min)',
@@ -51,8 +52,10 @@ NAME_MAP = {
 }
 
 CORR_NAME_MAP = {
-    'LLS': 'LLWD',
-    'MLS': 'MLWD',
+    'LLS': 'LLS',
+    'MLS': 'MLS',
+    'LLWD': 'LLWD',
+    'MLWD': 'MLWD',
     'mean_surf_wind': 'mean surf. wind',
     'CAPE': 'CAPE',
     'all_lifetime': 'all lifetime',
