@@ -66,6 +66,7 @@ class CloudTrackPlot(Analyser):
                 self.all_stats[expt] = pickle.load(f)
 
     def run(self):
+        self.thresh = 0  # 0, 1 or 2 -- 10% lower, actual, 10% higher.
         pass
 
     def save(self, state, suite):
@@ -79,7 +80,7 @@ class CloudTrackPlot(Analyser):
 
         fig, axes = plt.subplots(2, 2, figsize=cm_to_inch(16, 14))
 
-        height_level_index, thresh_index = (1, 1)
+        height_level_index, thresh_index = (1, self.thresh)
         for i, (expt, ax) in enumerate(zip(self.task.expts, axes.flatten())):
             all_stats = self.all_stats[expt]
 

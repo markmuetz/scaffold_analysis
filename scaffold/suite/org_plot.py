@@ -42,6 +42,7 @@ class OrgPlotter(Analyser):
 
         self.groups = []
         self.org_data = {}
+        self.thresh = 0  # 0, 1 or 2 -- 10% lower, actual, 10% higher.
 
         expts = ExptList(self.suite)
         expts.find(self.task.expts)
@@ -83,7 +84,7 @@ class OrgPlotter(Analyser):
                     hist_kwargs['bins'] = self.nbins
 
                 plt.figure('Not_used')
-                n, bins, patch = plt.hist(hist_data[1].data, **hist_kwargs)
+                n, bins, patch = plt.hist(hist_data[self.thresh].data, **hist_kwargs)
                 plt.figure('combined_expt_z{}'.format(group))
 
                 areas = np.pi * (bins[1:]**2 - bins[:-1]**2)
@@ -161,23 +162,23 @@ class OrgPlotter(Analyser):
         for group in self.groups:
             plt.figure('combined_expt_z{}'.format(group))
             plt.legend(loc='upper right')
-            plt.savefig(self.file_path('z{}_combined.png'.format(group)))
+            plt.savefig(self.file_path('z{}_t{}_combined.png'.format(group, self.thresh)))
 
-            plt.figure('combined_expt_z{}_log'.format(group))
+            plt.figure('combined_expt_z{}_t{}_log'.format(group, self.thresh))
             plt.legend(loc='upper right')
-            plt.savefig(self.file_path('z{}_combined_log.png'.format(group)))
+            plt.savefig(self.file_path('z{}_t{}_combined_log.png'.format(group, self.thresh)))
 
-            fig = plt.figure('poster_combined_expt_z{}_log'.format(group))
+            fig = plt.figure('poster_combined_expt_z{}_t{}_log'.format(group, self.thresh))
             fig.set_size_inches(*cm_to_inch(25, 7))
             plt.legend(loc='upper center', ncol=5)
             plt.tight_layout()
-            plt.savefig(self.file_path('poster_z{}_combined_log.png'.format(group)))
+            plt.savefig(self.file_path('poster_z{}_t{}_combined_log.png'.format(group, self.thresh)))
 
-            fig = plt.figure('fig_combined_expt_z{}_log'.format(group))
+            fig = plt.figure('fig_combined_expt_z{}_t{}_log'.format(group, self.thresh))
             fig.set_size_inches(*cm_to_inch(20, 7))
             plt.legend(loc='upper right', ncol=2)
             plt.tight_layout()
-            plt.savefig(self.file_path('fig_z{}_combined_log.png'.format(group)))
+            plt.savefig(self.file_path('fig_z{}_t{}_combined_log.png'.format(group, self.thresh)))
 
         plt.close('all')
 

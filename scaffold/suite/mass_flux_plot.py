@@ -145,6 +145,7 @@ class MassFluxPlotter(Analyser):
             self.xlim = (0, 3)
         self.ylim = None
         self.nbins = 100
+        self.thresh = 0  # 0, 1 or 2 -- 10% lower, actual, 10% higher.
 
         self._do_group_data()
         self._calc_histograms()
@@ -225,7 +226,7 @@ class MassFluxPlotter(Analyser):
             #y_min, bin_edges = np.histogram(hist_data[2].data, bins=50, range=(0, dmax))
             #y_max, bin_edges = np.histogram(hist_data[0].data, bins=50, range=(0, dmax))
 
-            y, bin_edges = np.histogram(hist_data[1].data * dx * dy / self.mass_flux_scaling,
+            y, bin_edges = np.histogram(hist_data[self.thresh].data * dx * dy / self.mass_flux_scaling,
                                         **hist_kwargs)
             y_density, bin_edges = np.histogram(hist_data[1].data * dx * dy / self.mass_flux_scaling,
                                                 density=True,
@@ -313,15 +314,15 @@ class MassFluxPlotter(Analyser):
 
         for height_level_index in self.height_levels:
             # Finish up (save and add legends) for multiple plots.
-            filepath = self.file_path('density_mf_contrib_z{}'.format(height_level_index))
+            filepath = self.file_path('density_mf_contrib_z{}_t{}'.format(height_level_index, self.thresh))
             combined_plotters[height_level_index]['density_mf_contrib'].finish(filepath)
-            filepath = self.file_path('density_poster_z{}'.format(height_level_index))
+            filepath = self.file_path('density_poster_z{}_t{}'.format(height_level_index, self.thresh))
             combined_plotters[height_level_index]['density_poster'].finish(filepath)
-            filepath = self.file_path('UCP_density_poster_z{}'.format(height_level_index))
+            filepath = self.file_path('UCP_density_poster_z{}_t{}'.format(height_level_index, self.thresh))
             combined_plotters[height_level_index]['ucp_density_poster'].finish(filepath)
 
     def _plot_indiv_mass_flux(self, expt_obj, height_level_index, bin_centers, width, y, **kwargs):
-        name = '{}.z{}.mass_flux_hist'.format(expt_obj.name, height_level_index)
+        name = '{}.z{}_t{}.mass_flux_hist'.format(expt_obj.name, height_level_index, self.thresh)
 
         # Plot individual mass flux plots.
         for log in [False, True]:
