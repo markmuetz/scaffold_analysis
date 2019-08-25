@@ -228,7 +228,7 @@ class MassFluxPlotter(Analyser):
 
             y, bin_edges = np.histogram(hist_data[self.thresh].data * dx * dy / self.mass_flux_scaling,
                                         **hist_kwargs)
-            y_density, bin_edges = np.histogram(hist_data[1].data * dx * dy / self.mass_flux_scaling,
+            y_density, bin_edges = np.histogram(hist_data[self.thresh].data * dx * dy / self.mass_flux_scaling,
                                                 density=True,
                                                 **hist_kwargs)
             bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
