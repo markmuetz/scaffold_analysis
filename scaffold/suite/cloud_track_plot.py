@@ -84,7 +84,7 @@ class CloudTrackPlot(Analyser):
         for i, (expt, ax) in enumerate(zip(self.task.expts, axes.flatten())):
             all_stats = self.all_stats[expt]
 
-            stats = all_stats[(1, 1)]
+            stats = all_stats[(1, self.thresh)]
 
             if expt in EXPT_DETAILS:
                 expt_name = EXPT_DETAILS[expt][0]
