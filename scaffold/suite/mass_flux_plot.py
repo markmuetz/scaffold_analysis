@@ -145,7 +145,7 @@ class MassFluxPlotter(Analyser):
             self.xlim = (0, 3)
         self.ylim = None
         self.nbins = 100
-        self.thresh = 1  # 0, 1 or 2 -- 10% lower, actual, 10% higher.
+        self.thresh = 0  # 0, 1 or 2 -- 10% lower, actual, 10% higher.
 
         self._do_group_data()
         self._calc_histograms()
