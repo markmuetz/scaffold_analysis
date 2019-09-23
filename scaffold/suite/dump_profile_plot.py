@@ -435,7 +435,7 @@ class DumpProfilePlotter(Analyser):
 
             ax_th.plot(theta1.data.mean(axis=(1, 2)) - theta2.data.mean(axis=(1, 2)), z / 1000,
                        label='{} - {}'.format(expt_name1, expt_name2), color='k')
-            ax_qv.plot(qv1.data.mean(axis=(1, 2)) - qv2.data.mean(axis=(1, 2)), z / 1000,
+            ax_qv.plot((qv1.data.mean(axis=(1, 2)) - qv2.data.mean(axis=(1, 2))) * 1000, z / 1000,
                        label='{} - {}'.format(expt_name1, expt_name2), color='k')
             ax_th.set_ylim((0, 15))
             ax_th.set_ylabel('height (km)')
@@ -449,7 +449,7 @@ class DumpProfilePlotter(Analyser):
             ax_th.set_xlim((-1.1, 1.1))
             # ax_th.set_xlim((-8, 8))
             ax_th.axvline(x=0, color='k', linestyle='--')
-            ax_qv.set_xlim((-0.00068, 0.00005))
+            ax_qv.set_xlim((-0.68, 0.05))
             # ax_qv.set_xlim((-0.002, 0.00005))
             ax_qv.axvline(x=0, color='k', linestyle='--')
             ax_qv.legend()
