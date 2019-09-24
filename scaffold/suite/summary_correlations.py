@@ -254,7 +254,7 @@ class SummaryCorrelations(Analyser):
         self.df_all_col_values.to_hdf(self.task.output_filenames[1], 'all_col_values')
 
     def _plot_matrix(self, name, cols, data, cmap=None, sum_rows=False):
-        plt.figure(name, figsize=cm_to_inch(29.7, 21.0))
+        plt.figure(name, figsize=cm_to_inch(21, 21.0))
         plt.clf()
         if cmap:
             plt.imshow(data, cmap=cmap)
@@ -262,7 +262,7 @@ class SummaryCorrelations(Analyser):
             plt.imshow(data)
         for i in range(data.shape[0]):
             for j in range(data.shape[1]):
-                plt.annotate('{:.2f}'.format(data[i, j]), (i - 0.3, j + 0.1),
+                plt.annotate('{:.2f}'.format(data[i, j]), (i - 0.4, j + 0.1),
                              color='w', fontsize=8)
 
         if sum_rows:
