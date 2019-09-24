@@ -194,7 +194,6 @@ class SummaryCorrelations(Analyser):
                 ['all_lifetime', 'simple_lifetime', 'complex_lifetime'])
 
         # Copy self.cols
-        cols = [c for c in self.cols]
         if 'LLS' in cols:
             cols.remove('LLS')
         if 'MLS' in cols:
