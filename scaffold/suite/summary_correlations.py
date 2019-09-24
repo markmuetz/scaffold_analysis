@@ -193,6 +193,13 @@ class SummaryCorrelations(Analyser):
                 ['mean_num_clds', 'MF_per_cloud', 'total_MF', 'sigma'] +
                 ['all_lifetime', 'simple_lifetime', 'complex_lifetime'])
 
+        # Copy self.cols
+        cols = [c for c in self.cols]
+        if 'LLS' in cols:
+            cols.remove('LLS')
+        if 'MLS' in cols:
+            cols.remove('MLS')
+
         all_col_values = {'expt': SORTED_EXPTS}
         for i, col in enumerate(cols):
             # plt.figure(col)
@@ -302,15 +309,7 @@ class SummaryCorrelations(Analyser):
         robust_corr = self.corr.copy()
         robust_corr[self.pvals > 0.01] = 0
 
-        # Copy self.cols
-        cols = [c for c in self.cols]
-        if 'LLS' in cols:
-            cols.remove('LLS')
-        if 'MLS' in cols:
-            cols.remove('MLS')
-
-        self._plot_matrix('robust_corr', cols, robust_corr, cmap='bwr')
-        self._plot_matrix('full_robust_corr', self.cols, robust_corr, cmap='bwr')
+        self._plot_matrix('robust_corr', self.cols, robust_corr, cmap='bwr')
 
         reorder_index = []
         with open(os.path.join(self.outputdir, 'ordered_pvals.csv'), 'w') as f:
