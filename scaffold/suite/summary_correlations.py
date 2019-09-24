@@ -301,7 +301,16 @@ class SummaryCorrelations(Analyser):
 
         robust_corr = self.corr.copy()
         robust_corr[self.pvals > 0.01] = 0
-        self._plot_matrix('robust_corr', self.cols, robust_corr, cmap='bwr')
+
+        # Copy self.cols
+        cols = [c for c in self.cols]
+        if 'LLS' in cols:
+            cols.remove('LLS')
+        if 'MLS' in cols:
+            cols.remove('MLS')
+
+        self._plot_matrix('robust_corr', cols, robust_corr, cmap='bwr')
+        self._plot_matrix('full_robust_corr', self.cols, robust_corr, cmap='bwr')
 
         reorder_index = []
         with open(os.path.join(self.outputdir, 'ordered_pvals.csv'), 'w') as f:
@@ -325,7 +334,7 @@ class SummaryCorrelations(Analyser):
 
     def _plot_indiv_corr(self):
         corr_pairs = [
-            ['LLS', 'cluster_index'],
+            ['LLWD', 'cluster_index'],
             ['mean_surf_wind', 'CAPE'],
         ]
 
