@@ -19,4 +19,4 @@ EXPT_DETAILS = {
 }
 
 for i in range(10):
-    EXPT_DETAILS['RWP_C{}'.format(i + 1)] = ['C{}'.format(i + 1), cycle[i], '-']
+    EXPT_DETAILS['RWP_C{}'.format(i + 1)] = ['C{}'.format(i + 1), cycle[i], '--']

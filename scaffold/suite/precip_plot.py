@@ -63,10 +63,11 @@ class PrecipPlot(Analyser):
 
         max_precips = ['time_index, expt, max precip [mm/hr]']
         for i in range(precip.shape[0] - 100, precip.shape[0]):
+            print(i)
             if len(self.expts_to_plot) == 10:
-                fig = plt.figure(figsize=cm_to_inch(18, 10))
+                fig = plt.figure(figsize=cm_to_inch(20, 12))
                 gs = gridspec.GridSpec(3, 5,
-                                       height_ratios=[1, 1, 0.6])
+                                       height_ratios=[1, 1, 0.3])
                 axes = []
                 for ax_index in range(len(self.expts_to_plot)):
                     if ax_index == 0:
@@ -141,12 +142,12 @@ class PrecipPlot(Analyser):
                 max_precips.append('{},{},{}'.format(i, expt, precip_data.max()))
 
             if len(self.expts_to_plot) == 10:
-                plt.subplots_adjust(bottom=0.4)
+                plt.subplots_adjust(left=0.1, top=0.95, right=0.95, wspace=0.1, hspace=0.05)
                 cbar_ax = fig.add_axes([0.1, 0.15, 0.8, 0.02])
             else:
                 plt.subplots_adjust(bottom=0.3)
                 cbar_ax = fig.add_axes([0.1, 0.2, 0.8, 0.04])
-            plt.tight_layout()
+            # plt.tight_layout()
             # cbar_ax = fig.add_axes([0.85, 0.27, 0.02, 0.46])
             cbar = fig.colorbar(im, cax=cbar_ax, orientation='horizontal')
             # cbar.set_label('precip. (mm hr$^{-1}$)', rotation=270, labelpad=15)

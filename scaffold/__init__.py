@@ -36,8 +36,9 @@ from scaffold.suite.surf_flux_plot import SurfFluxPlot
 from scaffold.version import VERSION
 
 # Check and apply LBHEM fix.
-assert iris.HAS_LBHEM_FIX
-iris.site_configuration['fix_lbhem_eq_4'] = 3
+# DISABLED due to not being able to pip install iris.
+# assert iris.HAS_LBHEM_FIX
+# iris.site_configuration['fix_lbhem_eq_4'] = 3
 
 __version__ = VERSION
 

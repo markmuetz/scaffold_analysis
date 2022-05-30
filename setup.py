@@ -38,7 +38,7 @@ setup(
         'omnium>=0.10.2',
         'cloud_tracking',
         'f90nml',
-        'iris',
+        # 'iris',
         'matplotlib',
         'numpy',
         'scipy',
