@@ -164,17 +164,17 @@ class OrgPlotter(Analyser):
             plt.legend(loc='upper right')
             plt.savefig(self.file_path('z{}_t{}_combined.png'.format(group, self.thresh)))
 
-            plt.figure('combined_expt_z{}_t{}_log'.format(group, self.thresh))
+            plt.figure('combined_expt_z{}_log'.format(group))
             plt.legend(loc='upper right')
             plt.savefig(self.file_path('z{}_t{}_combined_log.png'.format(group, self.thresh)))
 
-            fig = plt.figure('poster_combined_expt_z{}_t{}_log'.format(group, self.thresh))
+            fig = plt.figure('poster_combined_expt_z{}_log'.format(group))
             fig.set_size_inches(*cm_to_inch(25, 7))
             plt.legend(loc='upper center', ncol=5)
             plt.tight_layout()
             plt.savefig(self.file_path('poster_z{}_t{}_combined_log.png'.format(group, self.thresh)))
 
-            fig = plt.figure('fig_combined_expt_z{}_t{}_log'.format(group, self.thresh))
+            fig = plt.figure('fig_combined_expt_z{}_log'.format(group))
             fig.set_size_inches(*cm_to_inch(20, 7))
             plt.legend(loc='upper right', ncol=2)
             plt.tight_layout()
