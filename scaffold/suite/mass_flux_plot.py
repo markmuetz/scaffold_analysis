@@ -35,6 +35,8 @@ class PlotDensityMfContrib:
         ax2.set_ylabel('Mass flux contrib. ($\\times 10^8$ kg s$^{-1}$)')
         #ax1.set_xlabel('MF per cloud ($\\times 10^7$ kg s$^{-1}$)')
         ax2.set_xlabel('Mass flux per cloud ($\\times 10^8$ kg s$^{-1}$)')
+        ax1.set_title('a)', loc='left')
+        ax2.set_title('b)', loc='left')
         self.fig, self.ax1, self.ax2 = fig, ax1, ax2
 
     def plot(self, expt_obj, bin_centers, width, y_density, y2, linregress, **kwargs):
@@ -145,7 +147,7 @@ class MassFluxPlotter(Analyser):
             self.xlim = (0, 3)
         self.ylim = None
         self.nbins = 100
-        self.thresh = 0  # 0, 1 or 2 -- 10% lower, actual, 10% higher.
+        self.thresh = 1  # 0, 1 or 2 -- 10% lower, actual, 10% higher.
 
         self._do_group_data()
         self._calc_histograms()
@@ -315,11 +317,11 @@ class MassFluxPlotter(Analyser):
         for height_level_index in self.height_levels:
             # Finish up (save and add legends) for multiple plots.
             filepath = self.file_path('density_mf_contrib_z{}_t{}'.format(height_level_index, self.thresh))
-            combined_plotters[height_level_index]['density_mf_contrib'].finish(filepath)
+            combined_plotters[height_level_index]['density_mf_contrib'].finish(filepath + '.pdf')
             filepath = self.file_path('density_poster_z{}_t{}'.format(height_level_index, self.thresh))
-            combined_plotters[height_level_index]['density_poster'].finish(filepath)
+            combined_plotters[height_level_index]['density_poster'].finish(filepath + '.pdf')
             filepath = self.file_path('UCP_density_poster_z{}_t{}'.format(height_level_index, self.thresh))
-            combined_plotters[height_level_index]['ucp_density_poster'].finish(filepath)
+            combined_plotters[height_level_index]['ucp_density_poster'].finish(filepath + '.pdf')
 
     def _plot_indiv_mass_flux(self, expt_obj, height_level_index, bin_centers, width, y, **kwargs):
         name = '{}.z{}_t{}.mass_flux_hist'.format(expt_obj.name, height_level_index, self.thresh)
@@ -342,7 +344,7 @@ class MassFluxPlotter(Analyser):
                 plt.yscale('linear')
                 if self.ylim:
                     plt.ylim(self.ylim)
-            plt.savefig(self.file_path(name + '.png'))
+            plt.savefig(self.file_path(name + '.pdf'))
 
     def _display_num_clds(self):
         num_cld_snapshots = 10 * 48  # 10 days, every half hour.

@@ -134,7 +134,7 @@ def get_cloud_lifetimes(expt):
 
 
 def savefig(cwd):
-    fig_fn = '{}/summary_info_{}.png'.format(cwd, plt.gcf().get_label())
+    fig_fn = '{}/summary_info_{}.pdf'.format(cwd, plt.gcf().get_label())
     logger.debug('saving fig to: {}'.format(fig_fn))
     plt.savefig(fig_fn)
 
@@ -177,6 +177,7 @@ class SummaryCorrelations(Analyser):
                 self.mass_flux[expt] = get_mass_flux(expt)
 
     def run(self):
+        print('oh hai!!!')
         for expt in SORTED_EXPTS:
             logger.debug(expt)
             df_td = self.df_tds[expt]
@@ -188,10 +189,15 @@ class SummaryCorrelations(Analyser):
             for col in df_dyn.columns[1:]:
                 logger.debug('  {}: {}, {}'.format(col, df_dyn[col].mean(), df_dyn[col].std()))
 
+        # DISABLE LIFETIME!
+        # cols = (list(df_dyn.columns[1:]) + list(df_td.columns[1:]) +
+        #         list(self.df_org.columns[2:]) +
+        #         ['mean_num_clds', 'MF_per_cloud', 'total_MF', 'sigma'] +
+        #         ['all_lifetime', 'simple_lifetime', 'complex_lifetime'])
         cols = (list(df_dyn.columns[1:]) + list(df_td.columns[1:]) +
                 list(self.df_org.columns[2:]) +
-                ['mean_num_clds', 'MF_per_cloud', 'total_MF', 'sigma'] +
-                ['all_lifetime', 'simple_lifetime', 'complex_lifetime'])
+                ['mean_num_clds', 'MF_per_cloud', 'total_MF', 'sigma'])
+        #         ['all_lifetime', 'simple_lifetime', 'complex_lifetime'])
 
         # Copy self.cols
         if 'LLS' in cols:
@@ -341,15 +347,16 @@ class SummaryCorrelations(Analyser):
             plt.tight_layout()
             savefig(self.outputdir)
 
-        title = '{} vs {}'.format('cluster_index', 'lifetimes').replace(' ', '_')
-        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, sharex=True,
-                                            figsize=cm_to_inch(20, 10), num=title)
-        plot_corr(self.df_all_col_values, 'cluster_index', 'all_lifetime', ax1)
-        ax1.set_ylim((0, None))
-        plot_corr(self.df_all_col_values, 'cluster_index', 'simple_lifetime', ax2)
-        ax2.set_ylim((0, 70))
-        plot_corr(self.df_all_col_values, 'cluster_index', 'complex_lifetime', ax3)
-        ax3.set_ylim((0, None))
-        plt.tight_layout()
-        savefig(self.outputdir)
+        # DISABLE LIFETIME!
+        # title = '{} vs {}'.format('cluster_index', 'lifetimes').replace(' ', '_')
+        # fig, (ax1, ax2, ax3) = plt.subplots(1, 3, sharex=True,
+        #                                     figsize=cm_to_inch(20, 10), num=title)
+        # plot_corr(self.df_all_col_values, 'cluster_index', 'all_lifetime', ax1)
+        # ax1.set_ylim((0, None))
+        # plot_corr(self.df_all_col_values, 'cluster_index', 'simple_lifetime', ax2)
+        # ax2.set_ylim((0, 70))
+        # plot_corr(self.df_all_col_values, 'cluster_index', 'complex_lifetime', ax3)
+        # ax3.set_ylim((0, None))
+        # plt.tight_layout()
+        # savefig(self.outputdir)
 

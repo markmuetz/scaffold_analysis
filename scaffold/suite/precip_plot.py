@@ -1,5 +1,6 @@
 import os
 from logging import getLogger
+import string
 
 import numpy as np
 import matplotlib
@@ -39,8 +40,8 @@ class PrecipPlot(Analyser):
         for expt in self.task.expts:
             cached_hov_x_fn = os.path.join(output_dir, '{}_cached_hov_x.nc'.format(expt))
             cached_hov_y_fn = os.path.join(output_dir, '{}_cached_hov_y.nc'.format(expt))
-            if os.path.exists(cached_hov_x_fn) and os.path.exists((cached_hov_y_fn)):
-                self.cached_hov_data[expt] = np.load(cached_hov_x_fn), np.load(cached_hov_y_fn)
+            # if os.path.exists(cached_hov_x_fn) and os.path.exists((cached_hov_y_fn)):
+                # self.cached_hov_data[expt] = np.load(cached_hov_x_fn), np.load(cached_hov_y_fn)
 
 
     def run(self):
@@ -112,12 +113,19 @@ class PrecipPlot(Analyser):
                 # vmax = precip_max * 3600
                 vmax = 200
 
-            for ax, expt in zip(axes, self.expts_to_plot):
+            for j, (ax, expt) in enumerate(zip(axes, self.expts_to_plot)):
                 if expt in EXPT_DETAILS:
                     ucp_kwargs = dict(zip(['label', 'color', 'linestyle'], EXPT_DETAILS[expt]))
-                    ax.set_title(ucp_kwargs['label'])
+                    label = ucp_kwargs['label']
+                    c = string.ascii_lowercase[j]
+                    ax.set_title(f'{c}) {label}', loc='left')
                 else:
-                    ax.set_title(expt)
+                    c = string.ascii_lowercase[j]
+                    ax.set_title(f'{c}) {expt}', loc='left')
+
+                ax.set_xticks([0, 128, 256])
+                ax.set_yticks([0, 128, 256])
+                ax.grid(ls='--', lw=0.5)
 
                 precip = self.precips[expt]
                 # precip in kg m-2 s-1, want mm hr-1:
@@ -155,8 +163,8 @@ class PrecipPlot(Analyser):
 
             if i == 1849:
                 # UCP figure!
-                plt.savefig(self.file_path('UCP_time_index{}.png'.format(i)))
-            plt.savefig(self.file_path('time_index{}.png'.format(i)))
+                plt.savefig(self.file_path('UCP_time_index{}.pdf'.format(i)))
+            plt.savefig(self.file_path('time_index{}.pdf'.format(i)))
             plt.close('all')
         self.save_text('max_precip.csv', '\n'.join(max_precips) + '\n')
 
@@ -239,7 +247,8 @@ class PrecipPlot(Analyser):
             nx = len(x)
             ny = len(y)
 
-            ax1.set_title('{} x-dir'.format(expt_name))
+            c = string.ascii_lowercase[i]
+            ax1.set_title('{}.i) {} x-dir'.format(c, expt_name), loc='left')
             im = ax1.imshow(masked_hov_x * 3600, interpolation='nearest',
                             extent=[0, x_res * nx, timelength_days, timelength_days - timelength_days / divider],
                             aspect='auto',
@@ -248,7 +257,7 @@ class PrecipPlot(Analyser):
                             norm=LogNorm(vmin=precip_min, vmax=precip_max * 3600))
             ax1.set_xlabel('x (km)')
 
-            ax2.set_title('{} y-dir'.format(expt_name))
+            ax2.set_title('{}.ii) {} y-dir'.format(c, expt_name), loc='left')
             ax2.imshow(masked_hov_y * 3600, interpolation='nearest',
                        extent=[0, y_res * ny, timelength_days, timelength_days - timelength_days / divider],
                        aspect='auto',
@@ -291,5 +300,5 @@ class PrecipPlot(Analyser):
 
         plt.tight_layout()
         plt.show()
-        plt.savefig(self.file_path('hovmollers.png'))
+        plt.savefig(self.file_path('hovmollers.pdf'))
 

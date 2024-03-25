@@ -1,5 +1,6 @@
 import os
 from logging import getLogger
+import string
 
 import numpy as np
 import scipy
@@ -92,10 +93,10 @@ class DumpSliceAnalyser(Analyser):
         p = pdata * units('Pa')
         qv = qvdata * units('kg/kg')
         T = Tdata * units('K')
-        Td = mpcalc.dewpoint_from_specific_humidity(qv, T, p)
-        theta_e = mpcalc.equivalent_potential_temperature(p, T, Td)
+        # Td = mpcalc.dewpoint_from_specific_humidity(qv, T, p)
+        # theta_e = mpcalc.equivalent_potential_temperature(p, T, Td)
 
-        self.theta_e = self._create_cube(self.theta, theta_e.magnitude, 'theta_e', 'K')
+        # self.theta_e = self._create_cube(self.theta, theta_e.magnitude, 'theta_e', 'K')
 
     def display_results(self):
         self.vertlevs = VertLev(self.suite.suite_dir)
@@ -180,18 +181,20 @@ class DumpSliceAnalyser(Analyser):
         self._plot_indiv_hor_slice(expt, 'w', None, None, 18, ax=ax1, cax=ax3,
                                    mode='indiv',
                                    use_norm=True, box=extent, cbarlabel='w (m s$^{-1}$)',
+                                   axlabel='a',
                                    savefig=False)
         self._plot_indiv_hor_slice(expt, 'theta', None, None, 1, ax=ax2, cax=ax4,
                                    mode='indiv',
                                    use_norm=True, anomaly=True,
                                    box=extent, cbarlabel='$\\theta - \\bar{\\theta}$ (K)',
+                                   axlabel='b',
                                    savefig=False)
-        ax1.set_title('w at z=2.06 km')
-        ax2.set_title('$\\theta$ at z=0.06 km')
+        ax1.set_title('a) w at z=2.06 km', loc='left')
+        ax2.set_title('b) $\\theta$ at z=0.06 km', loc='left')
         ax2.set_ylabel('')
         ax2.get_yaxis().set_visible(False)
 
-        self._create_dir_savefig('/{1}/figs/{2}/{0}_{1}_{2}_slice_{3}.png'
+        self._create_dir_savefig('/{1}/figs/{2}/{0}_{1}_{2}_slice_{3}.pdf'
                                  .format(expt, self.task.runid, 'w_theta', 18))
 
     def _plot_S0W0Forced_zoom_w(self, expt, extent):
@@ -209,11 +212,11 @@ class DumpSliceAnalyser(Analyser):
         vmin, vmax = -3, 20
 
         self._plot_indiv_hor_slice(expt, 'w', i, j, 18, ax=ax1, mode='zoom', extent=extent,
-                                   use_norm=True, savefig=False, vmin=vmin, vmax=vmax, cbar=False)
+                                   use_norm=True, savefig=False, vmin=vmin, vmax=vmax, cbar=False, axlabel='a')
         self._plot_indiv_hor_slice(expt, 'w', i, j, 50, ax=ax2, mode='zoom', extent=extent,
-                                   use_norm=True, savefig=False, vmin=vmin, vmax=vmax, cbar=False)
-        ax1.set_title('w at z=2.06 km')
-        ax2.set_title('w at z=10.00 km')
+                                   use_norm=True, savefig=False, vmin=vmin, vmax=vmax, cbar=False, axlabel='b')
+        ax1.set_title('a) w at z=2.06 km', loc='left')
+        ax2.set_title('b) w at z=10.00 km', loc='left')
         ax2.set_ylabel('')
         ax2.get_yaxis().set_visible(False)
 
@@ -229,8 +232,8 @@ class DumpSliceAnalyser(Analyser):
                                     vmin=vmin, vmax=vmax, cbar=False, extent=extent_yz,
                                     mode='zoom', use_norm=True)
 
-        ax3.set_title('w at y=217 km')
-        ax4.set_title('w at x=36 km')
+        ax3.set_title('c) w at y=217 km', loc='left')
+        ax4.set_title('d) w at x=36 km', loc='left')
         ax4.set_ylabel('')
         ax4.get_yaxis().set_visible(False)
         plt.tight_layout()
@@ -239,7 +242,7 @@ class DumpSliceAnalyser(Analyser):
         cbar.set_label('w (m s$^{-1}$)')
         plt.gcf().subplots_adjust(bottom=0.08)
 
-        self._create_dir_savefig('/{1}/figs/{2}/{0}_{1}_{2}.png'
+        self._create_dir_savefig('/{1}/figs/{2}/{0}_{1}_{2}.pdf'
                                  .format(expt, self.task.runid, 'zoom_w'))
 
 
@@ -257,11 +260,12 @@ class DumpSliceAnalyser(Analyser):
         vmin, vmax = 1e-5, 0.01
 
         extent_xz = (extent[0], extent[1], 0, 20)
-        for ax, var in zip([ax1, ax2, ax3, ax4, ax5], ['qrain', 'qcl', 'qgraup', 'qcf', 'qcf2']):
+        for i, (ax, var) in enumerate(zip([ax1, ax2, ax3, ax4, ax5], ['qrain', 'qcl', 'qgraup', 'qcf', 'qcf2'])):
+            c = string.ascii_lowercase[i]
             self._plot_indiv_vert_slice(expt, var, 'xz', None, j, [], ax=ax, savefig=False,
                                         vmin=vmin, vmax=vmax, cbar=False, extent=extent_xz,
                                         mode='zoom', cmap='Blues', use_log_norm=True)
-            ax.set_title(var)
+            ax.set_title(f'{c}) {var}', loc='left')
 
         for ax in [ax2, ax3, ax4, ax5]:
             ax.set_ylabel('')
@@ -272,7 +276,7 @@ class DumpSliceAnalyser(Analyser):
         plt.tight_layout()
         plt.gcf().subplots_adjust(bottom=0.17)
 
-        self._create_dir_savefig('/{1}/figs/{2}/{0}_{1}_{2}.png'
+        self._create_dir_savefig('/{1}/figs/{2}/{0}_{1}_{2}.pdf'
                                  .format(expt, self.task.runid, 'zoom_hydrom'))
 
 
@@ -288,18 +292,20 @@ class DumpSliceAnalyser(Analyser):
         self._plot_indiv_hor_slice(expt, 'w', None, None, 18, ax=ax1, cax=ax3,
                                    mode='indiv',
                                    use_norm=True, box=extent, cbarlabel='w (m s$^{-1}$)',
+                                   axlabel='a',
                                    savefig=False)
         self._plot_indiv_hor_slice(expt, 'theta', None, None, 1, ax=ax2, cax=ax4,
                                    mode='indiv',
                                    use_norm=True, anomaly=True,
                                    box=extent, cbarlabel='$\\theta - \\bar{\\theta}$ (K)',
+                                   axlabel='b',
                                    savefig=False)
-        ax1.set_title('w at z=2.06 km')
-        ax2.set_title('$\\theta$ at z=0.06 km')
+        ax1.set_title('a) w at z=2.06 km', loc='left')
+        ax2.set_title('b) $\\theta$ at z=0.06 km', loc='left')
         ax2.set_ylabel('')
         ax2.get_yaxis().set_visible(False)
 
-        self._create_dir_savefig('/{1}/figs/{2}/{0}_{1}_{2}_slice_{3}.png'
+        self._create_dir_savefig('/{1}/figs/{2}/{0}_{1}_{2}_slice_{3}.pdf'
                                  .format(expt, self.task.runid, 'w_theta', 18))
 
     def _plot_S4W5Forced_zoom_w(self, expt, extent):
@@ -317,11 +323,11 @@ class DumpSliceAnalyser(Analyser):
         vmin, vmax = -5, 20
 
         self._plot_indiv_hor_slice(expt, 'w', i, j, 18, ax=ax1, mode='zoom', extent=extent,
-                                   use_norm=True, savefig=False, vmin=vmin, vmax=vmax, cbar=False)
+                                   use_norm=True, savefig=False, vmin=vmin, vmax=vmax, cbar=False, axlabel='a')
         self._plot_indiv_hor_slice(expt, 'w', i, j, 50, ax=ax2, mode='zoom', extent=extent,
-                                   use_norm=True, savefig=False, vmin=vmin, vmax=vmax, cbar=False)
-        ax1.set_title('w at z=2.06 km')
-        ax2.set_title('w at z=10.00 km')
+                                   use_norm=True, savefig=False, vmin=vmin, vmax=vmax, cbar=False, axlabel='b')
+        ax1.set_title('a) w at z=2.06 km', loc='left')
+        ax2.set_title('b) w at z=10.00 km', loc='left')
         ax2.set_ylabel('')
         ax2.get_yaxis().set_visible(False)
 
@@ -337,8 +343,8 @@ class DumpSliceAnalyser(Analyser):
                                     vmin=vmin, vmax=vmax, cbar=False, extent=extent_yz,
                                     mode='zoom', use_norm=True)
 
-        ax3.set_title('w at y=109 km')
-        ax4.set_title('w at x=110 km')
+        ax3.set_title('c) w at y=109 km', loc='left')
+        ax4.set_title('d) w at x=110 km', loc='left')
         ax4.set_ylabel('')
         ax4.get_yaxis().set_visible(False)
         plt.tight_layout()
@@ -347,7 +353,7 @@ class DumpSliceAnalyser(Analyser):
         cbar.set_label('w (m s$^{-1}$)')
         plt.gcf().subplots_adjust(bottom=0.08)
 
-        self._create_dir_savefig('/{1}/figs/{2}/{0}_{1}_{2}.png'
+        self._create_dir_savefig('/{1}/figs/{2}/{0}_{1}_{2}.pdf'
                                  .format(expt, self.task.runid, 'zoom_w'))
 
 
@@ -369,13 +375,13 @@ class DumpSliceAnalyser(Analyser):
             self._plot_indiv_vert_slice(expt, var, 'xz', None, j, [], ax=ax, savefig=False,
                                         vmin=vmin, vmax=vmax, cbar=False, extent=extent_xz,
                                         mode='zoom', cmap='Blues', use_log_norm=True)
-            ax.set_title(var)
+            # ax.set_title(var)
 
-        ax1.set_title('qrain')
-        ax2.set_title('qcl')
-        ax3.set_title('qgraup')
-        ax4.set_title('qcf')
-        ax5.set_title('qcf2')
+        ax1.set_title('a) qrain', loc='left')
+        ax2.set_title('b) qcl', loc='left')
+        ax3.set_title('c) qgraup', loc='left')
+        ax4.set_title('d) qcf', loc='left')
+        ax5.set_title('e) qcf2', loc='left')
 
         for ax in [ax2, ax3, ax4, ax5]:
             ax.set_ylabel('')
@@ -386,7 +392,7 @@ class DumpSliceAnalyser(Analyser):
         plt.tight_layout()
         plt.gcf().subplots_adjust(bottom=0.17)
 
-        self._create_dir_savefig('/{1}/figs/{2}/{0}_{1}_{2}.png'
+        self._create_dir_savefig('/{1}/figs/{2}/{0}_{1}_{2}.pdf'
                                  .format(expt, self.task.runid, 'zoom_hydrom'))
 
 
@@ -430,7 +436,7 @@ class DumpSliceAnalyser(Analyser):
 
         fig, ax = plt.subplots(dpi=100)
         ax.set_ylabel('height (km)')
-        filename = ('/{2}/{0}/zoom_{3}/{1}_{2}_{3}_slice_{4}.png'
+        filename = ('/{2}/{0}/zoom_{3}/{1}_{2}_{3}_slice_{4}.pdf'
                     .format(plane, expt, self.task.runid, var, index))
         if plane == 'xz':
             ax.set_xlabel('x (km)')
@@ -444,7 +450,7 @@ class DumpSliceAnalyser(Analyser):
             extent = (jmin, jmax, 0, 20)
         if anomaly:
             data = data - data.mean(axis=1)[:, None]
-        ax.set_title(title)
+        # ax.set_title(title)
 
         self._plot_vert_slice(ax, data, N, use_norm, cmap, extent=extent, aspect=aspect)
         self._create_dir_savefig(filename)
@@ -453,7 +459,7 @@ class DumpSliceAnalyser(Analyser):
     def _plot_indiv_hor_slice(self, expt, var, i, j, k, use_norm=False, cmap='bwr',
                               anomaly=False, use_mean_wind=False, mode='', extent=None,
                               ax=None, cax=None, savefig=True, vmin=None, vmax=None,
-                              cbar=True, cbarlabel=None,
+                              cbar=True, cbarlabel=None, axlabel=None,
                               **kwargs):
         if 'box' in kwargs:
             box = kwargs.pop('box')
@@ -486,7 +492,9 @@ class DumpSliceAnalyser(Analyser):
             imin, imax, jmin, jmax = extent
             data = data[jmin:jmax, imin:imax]
 
-        ax.set_title(title)
+        if axlabel:
+            title = f'{axlabel}) {title}'
+        # ax.set_title(title)
         # Coords are model_level, y, x or model_level, lat, lon
         kwargs = {}
         if use_norm:
@@ -520,7 +528,7 @@ class DumpSliceAnalyser(Analyser):
             ax.hlines(y=box[3], xmin=box[0], xmax=box[1], color='k', linestyles='-')
 
         if savefig:
-            self._create_dir_savefig('/{1}/xy/{2}/{0}_{1}_{2}_slice_{3}.png'
+            self._create_dir_savefig('/{1}/xy/{2}/{0}_{1}_{2}_slice_{3}.pdf'
                                      .format(expt, self.task.runid, var, k))
             plt.close('all')
 
@@ -553,7 +561,7 @@ class DumpSliceAnalyser(Analyser):
         if not ax:
             fig, ax = plt.subplots(dpi=100)
         ax.set_ylabel('height (km)')
-        filename = ('/{2}/{0}/{3}/{1}_{2}_{3}_slice_{4}.png'
+        filename = ('/{2}/{0}/{3}/{1}_{2}_{3}_slice_{4}.pdf'
                     .format(plane, expt, self.task.runid, var, index))
         if plane == 'xz':
             ax.set_xlabel('x (km)')
@@ -576,7 +584,7 @@ class DumpSliceAnalyser(Analyser):
             data = data[:, imin:imax]
             N = imax - imin
 
-        ax.set_title(title)
+        # ax.set_title(title)
 
         if mode == 'zoom':
             kwargs['aspect'] = (imax - imin ) / 20
@@ -673,7 +681,7 @@ class DumpSliceAnalyser(Analyser):
 
         fig, ax = plt.subplots(dpi=100)
         ax.set_ylabel('height (km)')
-        filename = ('/{2}/{0}/{3}/{1}_{2}_{3}_mean.png'
+        filename = ('/{2}/{0}/{3}/{1}_{2}_{3}_mean.pdf'
                     .format(plane, expt, self.task.runid, var))
         data = cube.data.mean(axis=cube_index)
         if plane == 'xz':
@@ -686,7 +694,7 @@ class DumpSliceAnalyser(Analyser):
             data = data - data.mean(axis=1)[:, None]
         if use_mean_wind:
             data = data - mean_wind
-        ax.set_title(title)
+        # ax.set_title(title)
 
         # Coords are model_level, y, x or model_level, lat, lon
         self._plot_vert_slice(ax, data, N, use_norm, cmap, vlev=vlev)
