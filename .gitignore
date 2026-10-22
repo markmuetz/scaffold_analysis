@@ -6,3 +6,4 @@ docs/_build/
 scaffold.egg-info/
 .idea/
 f90nml*
+.pixi/

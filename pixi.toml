@@ -1,0 +1,36 @@
+[workspace]
+name = "scaffold_analysis"
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+# Two environments:
+# - omnium: faithful re-creation of the old omnium_env (py3.7, iris 2.4), to produce the
+#   reference *_omnium outputs. omnium/cloud_tracking/scaffold are put on PYTHONPATH.
+# - remake: modern env for the remake port (remake needs python >= 3.10).
+
+[feature.omnium.dependencies]
+python = "3.7.6.*"
+iris = "2.4.0.*"
+cartopy = "0.17.0.*"
+cf-units = "2.1.4.*"
+numpy = "1.18.1.*"
+scipy = "1.4.1.*"
+matplotlib = "3.2.1.*"
+metpy = "0.12.0.*"
+pandas = "1.0.3.*"
+pint = "0.11.*"
+pytables = "*"
+netcdf4 = "1.5.3.*"
+libnetcdf = "4.7.3.*"
+f90nml = "1.1.2.*"
+simplejson = "3.17.0.*"
+configparser = "*"
+jinja2 = "2.11.*"
+
+[feature.omnium.activation.env]
+PYTHONPATH = "$PIXI_PROJECT_ROOT:$PIXI_PROJECT_ROOT/../omnium:$PIXI_PROJECT_ROOT/../cloud_tracking"
+OMNIUM_PYTHONPATH = "$PIXI_PROJECT_ROOT/../omnium"
+OMNIUM_ANALYSIS_PKGS = "scaffold"
+
+[environments]
+omnium = { features = ["omnium"], no-default-feature = true }
