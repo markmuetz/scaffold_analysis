@@ -355,11 +355,13 @@ class DumpProfilePlotter(Analyser):
             theta_cube = get_cube(da, 0, 4)
             pi_cube = get_cube(da, 0, 255)
             q_cube = get_cube(da, 0, 10)
-            q = q_cube.data
+            # Plain arrays: pint drops units from masked arrays (see above).
+            q = np.ma.getdata(q_cube.data)
 
-            theta = theta_cube.data
-            p = pi_cube.data**(1 / kappa) * (p_ref / 100)
-            T = theta * pi_cube.data
+            theta = np.ma.getdata(theta_cube.data)
+            pi = np.ma.getdata(pi_cube.data)
+            p = pi**(1 / kappa) * (p_ref / 100)
+            T = theta * pi
 
             z = theta_cube.coord('atmosphere_hybrid_height_coordinate').points
 
