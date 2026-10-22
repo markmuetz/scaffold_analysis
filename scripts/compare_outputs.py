@@ -47,7 +47,7 @@ class Result:
 
 def norm_name(name):
     # iris/netCDF versions differ in sanitising variable names (w1.0 vs w1_0).
-    return re.sub(r'[.\-]', '_', name)
+    return re.sub(r'[^A-Za-z0-9_]', '_', name)
 
 
 def compare_arrays(a, b, rtol, atol_frac):
