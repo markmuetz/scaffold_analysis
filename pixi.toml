@@ -32,5 +32,27 @@ PYTHONPATH = "$PIXI_PROJECT_ROOT:$PIXI_PROJECT_ROOT/../omnium:$PIXI_PROJECT_ROOT
 OMNIUM_PYTHONPATH = "$PIXI_PROJECT_ROOT/../omnium"
 OMNIUM_ANALYSIS_PKGS = "scaffold"
 
+[feature.remake.dependencies]
+python = "3.12.*"
+iris = ">=3.11"
+numpy = "*"
+scipy = "*"
+matplotlib = "*"
+metpy = "*"
+pandas = "*"
+pytables = "*"
+netcdf4 = "*"
+cartopy = "*"
+f90nml = "*"
+loguru = "*"
+networkx = "*"
+
+[feature.remake.pypi-dependencies]
+remake = { path = "../remake", editable = true }
+
+[feature.remake.activation.env]
+PYTHONPATH = "$PIXI_PROJECT_ROOT:$PIXI_PROJECT_ROOT/../cloud_tracking"
+
 [environments]
 omnium = { features = ["omnium"], no-default-feature = true }
+remake = { features = ["remake"], no-default-feature = true }

@@ -187,6 +187,18 @@ omnium's job here is the bookkeeping around ~33 `Analyser` subclasses in `scaffo
         - s5: `energy_balance` + `summary_correlations` (`final_cmds.txt`)
       Logs are in `<workspace>/slurm_output/`, and omnium's per-shard logs are in
       `<workspace>/.omnium/log/`. Next: sanity diff vs the archived outputs.
+      - s1 result: everything ran except `restart_dump_summary_info`, which failed for all 22
+        expts. iris 2.4 returns masked arrays (nothing masked), and `masked * units(...)`
+        drops the pint unit, so metpy raised. Fixed in `46ca3fe` (`np.ma.getdata`) and rerun
+        (job 61562209); s5 waits for it. Compared with the archived 2019 HDFs (14 expts):
+        `dynamic_summary` is bit-identical; in `thermodynamic_summary`, Tsurf is identical and
+        the metpy-derived LCL/LFC/LNB/CAPE/CIN differ by ≤3e-4 relative (LNB ≤3.7 Pa, CAPE
+        ≤0.008 J/kg). That points to a different metpy version in 2019; that env can't be
+        recovered, since the archived `conda_list.txt` was overwritten in 2024. Treat as a
+        known, explained env difference.
+      - Old pickles (2019) reference `cloud_tracking.cloud_tracking`, renamed to
+        `cloud_tracking.tracking` in cloud_tracking `8b240fa` (Mar 2020). Loading them needs
+        `sys.modules['cloud_tracking.cloud_tracking'] = cloud_tracking.tracking`.
 - [ ] Step (a) refactor, bit-identical in omnium env.
 - [ ] `remake` env + remakefile + `output_remake`; `compare_outputs.py` report.
 
