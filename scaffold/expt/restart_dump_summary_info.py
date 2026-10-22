@@ -89,9 +89,11 @@ class RestartDumpSummaryInfo(Analyser):
         Tdata = theta.data * exnerp.data
         pdata = exnerp.data ** (1 / kappa) * p_ref
 
-        p = pdata * units('Pa')
-        qv = qvdata * units('kg/kg')
-        T = Tdata * units('K')
+        # iris can return masked arrays (even with nothing masked), and multiplying a masked
+        # array by a pint unit silently drops the unit. Use the plain data.
+        p = np.ma.getdata(pdata) * units('Pa')
+        qv = np.ma.getdata(qvdata) * units('kg/kg')
+        T = np.ma.getdata(Tdata) * units('K')
         Td = mpcalc.dewpoint_from_specific_humidity(qv, T, p)
 
         p_profile = p.mean(axis=(1, 2))
