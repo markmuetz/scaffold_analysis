@@ -106,7 +106,8 @@ def _empty_corner(x, y):
     return min(corners, key=corners.get)
 
 
-def plot_corr(df, c1, c2, ax=None, legend=True, direct_labels=True, annotate_xy=None):
+def plot_corr(df, c1, c2, ax=None, legend=True, direct_labels=True, annotate_xy=None,
+              legend_loc='best'):
     title = '{} vs {}'.format(c1, c2).replace(' ', '_')
     if not ax:
         plt.figure(title, figsize=cm_to_inch(SINGLE_COL_CM, 6.5))
@@ -152,7 +153,7 @@ def plot_corr(df, c1, c2, ax=None, legend=True, direct_labels=True, annotate_xy=
                           label='simple profiles'),
                    Line2D([], [], marker='x', color='k', linestyle='none', markersize=4,
                           label='RWPs')]
-        ax.legend(handles=handles, loc='best', handletextpad=0.2)
+        ax.legend(handles=handles, loc=legend_loc, handletextpad=0.2)
     ax.set_xlabel(NAME_MAP.get(c1, c1))
     ax.set_ylabel(NAME_MAP.get(c2, c2))
 
@@ -457,11 +458,13 @@ class SummaryCorrelations(Analyser):
         title = '{} vs {}'.format('cluster_index', 'lifetimes').replace(' ', '_')
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3, sharex=True,
                                             figsize=cm_to_inch(FULL_WIDTH_CM, 6.5), num=title)
-        plot_corr(self.df_all_col_values, 'cluster_index', 'all_lifetime', ax1)
+        plot_corr(self.df_all_col_values, 'cluster_index', 'all_lifetime', ax1, legend=False)
         ax1.set_ylim((0, None))
         plot_corr(self.df_all_col_values, 'cluster_index', 'simple_lifetime', ax2, legend=False)
         ax2.set_ylim((0, 70))
-        plot_corr(self.df_all_col_values, 'cluster_index', 'complex_lifetime', ax3, legend=False)
+        # One marker legend for the figure, in the empty lower-right of panel (c).
+        plot_corr(self.df_all_col_values, 'cluster_index', 'complex_lifetime', ax3,
+                  legend_loc='lower right')
         ax3.set_ylim((0, None))
         for ax in (ax1, ax2, ax3):
             # The text discusses the cluster-index threshold of 75 km.

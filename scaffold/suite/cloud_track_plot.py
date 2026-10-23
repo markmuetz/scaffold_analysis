@@ -114,9 +114,13 @@ class CloudTrackPlot(Analyser):
                 ax.legend(loc='upper right')
             if i == 0:
                 # Lifetimes are multiples of the 5-min output interval.
-                ax.annotate('single-snapshot clouds', xy=(5, ax.get_ylim()[1] * 0.97),
-                            xytext=(40, ax.get_ylim()[1] * 0.85), fontsize=6.5,
-                            arrowprops=dict(arrowstyle='-', lw=0.5, color='0.3'))
+                # Point at the top of the spike in the first bin.
+                spike_x, spike_y = max(((x, y) for line in ax.get_lines()
+                                        for x, y in zip(*line.get_data()) if x < 10),
+                                       key=lambda xy: xy[1])
+                ax.annotate('single-snapshot clouds', xy=(spike_x, spike_y),
+                            xytext=(40, spike_y), fontsize=6.5, va='center',
+                            arrowprops=dict(arrowstyle='-', lw=0.5, color='0.3', shrinkB=2))
 
         panel_labels(axes.flatten())
         plt.tight_layout()

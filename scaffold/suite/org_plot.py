@@ -246,9 +246,18 @@ class OrgPlotter(Analyser):
                 colour = cmap(norm(lls[expt]))
                 ax.plot(x, y, color=colour, lw=1.2, label=name)
                 if name in ['C6', 'C9']:
-                    # Label at the first point (RDF is largest at short distances).
-                    ax.annotate(name, (x[0], y[0]), xytext=(4, 0), textcoords='offset points',
-                                fontsize=6.5, color=colour, va='center')
+                    # Label at the peak: C6 has the highest, C9 the lowest (below the bundle).
+                    i = np.argmax(y)
+                    if name == 'C6':
+                        ax.annotate(name, (x[i], y[i]), xytext=(3, 3),
+                                    textcoords='offset points', fontsize=6.5, ha='left',
+                                    va='bottom')
+                    else:
+                        # Below the bundle of lines, with a leader line to the peak.
+                        ax.annotate(name, (x[i], y[i]), xytext=(14, 1.3), textcoords='data',
+                                    fontsize=6.5, ha='left', va='center',
+                                    arrowprops=dict(arrowstyle='-', lw=0.5, color='0.3',
+                                                    shrinkA=1, shrinkB=1))
             else:
                 ax.plot(x, y, color=EXPT_DETAILS[expt][1], lw=1.5, label=name)
         ax.set_yscale('log')
