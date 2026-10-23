@@ -104,13 +104,36 @@ def worst(statuses):
     return max(statuses, key=order.index) if statuses else 'identical'
 
 
+ANON_INDEX_RE = re.compile(r'^values(_\d+)?$')
+
+
+def _nc_var_keys(ds):
+    """Map a comparison key to each variable name.
+
+    Variables with an `omnium_cube_id` are keyed by it, others by their normalised name. iris
+    writes 1-D cubes with anonymous index coords `values`, `values_0`, ... whose numbering
+    depends on save order; they only hold 0..n-1, so they are skipped (the data variable's
+    shape is still compared).
+    """
+    keys = OrderedDict()
+    for n in ds.variables:
+        if ANON_INDEX_RE.match(n) and ds.variables[n].ndim == 1 and n in ds.dimensions:
+            continue
+        var = ds.variables[n]
+        if 'omnium_cube_id' in var.ncattrs():
+            keys['id:' + str(var.getncattr('omnium_cube_id'))] = n
+        else:
+            keys[norm_name(n)] = n
+    return keys
+
+
 def compare_nc(fa, fb, rtol, atol_frac):
     import netCDF4
     details = []
     statuses = []
     with netCDF4.Dataset(fa) as a, netCDF4.Dataset(fb) as b:
-        va = OrderedDict((norm_name(n), n) for n in a.variables)
-        vb = OrderedDict((norm_name(n), n) for n in b.variables)
+        va = _nc_var_keys(a)
+        vb = _nc_var_keys(b)
         only = sorted(set(va) ^ set(vb))
         if only:
             statuses.append('DIFFERENT')
@@ -121,7 +144,7 @@ def compare_nc(fa, fb, rtol, atol_frac):
             xa, xb = a.variables[va[k]], b.variables[vb[k]]
             xa.set_auto_mask(True)
             xb.set_auto_mask(True)
-            if k.startswith('labelled_clouds'):
+            if k.startswith(('labelled_clouds', 'id:labelled_clouds')):
                 st, d = compare_labels(xa[:], xb[:])
             else:
                 st, d = compare_arrays(xa[:], xb[:], rtol, atol_frac)
