@@ -4,7 +4,7 @@ import csv
 
 import pandas as pd
 
-from omnium import Analyser
+from scaffold.analysis_base import Analyser
 
 logger = getLogger('scaf.energy_bal')
 

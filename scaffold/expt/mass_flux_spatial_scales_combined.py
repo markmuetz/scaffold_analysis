@@ -4,8 +4,8 @@ from logging import getLogger
 
 import iris
 
-from omnium import Analyser
-from omnium.utils import is_power_of_two
+from scaffold.analysis_base import Analyser
+from scaffold.cube_utils import is_power_of_two
 
 logger = getLogger('scaf.mfssc')
 

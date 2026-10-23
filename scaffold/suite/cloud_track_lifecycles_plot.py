@@ -9,8 +9,8 @@ import scipy.interpolate as interpolate
 
 from scaffold.expt_settings import EXPT_DETAILS
 
-from omnium import Analyser
-from omnium.utils import cm_to_inch
+from scaffold.analysis_base import Analyser
+from scaffold.cube_utils import cm_to_inch
 
 logger = getLogger('scaf.ctlp')
 

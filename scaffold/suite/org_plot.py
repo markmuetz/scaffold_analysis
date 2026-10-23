@@ -10,7 +10,7 @@ import scipy.integrate as integrate
 matplotlib.use('Agg')
 import pylab as plt
 
-from omnium import Analyser, ExptList
+from scaffold.analysis_base import Analyser, ExptList
 
 from scaffold.utils import cm_to_inch, find_intersections
 from scaffold.expt_settings import EXPT_DETAILS

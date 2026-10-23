@@ -7,8 +7,8 @@ import numpy as np
 from cloud_tracking import Tracker
 from cloud_tracking.cloud_tracking_analysis import generate_stats, output_stats_to_file
 
-from omnium import Analyser, ExptList
-from omnium.utils import get_cube_from_attr
+from scaffold.analysis_base import Analyser, ExptList
+from scaffold.cube_utils import get_cube_from_attr
 
 logger = getLogger('scaf.cta')
 

@@ -7,8 +7,8 @@ import scipy.stats as stats
 import matplotlib.pyplot as plt
 import iris
 
-from omnium import Analyser
-from omnium.utils import cd, get_cube_from_attr, cm_to_inch, latex_sigfig
+from scaffold.analysis_base import Analyser
+from scaffold.cube_utils import cd, get_cube_from_attr, cm_to_inch, latex_sigfig
 from scaffold.expt_settings import cycle
 
 

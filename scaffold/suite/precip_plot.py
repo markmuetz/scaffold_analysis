@@ -9,8 +9,8 @@ matplotlib.use('Agg')
 import pylab as plt
 from matplotlib.colors import LogNorm
 
-from omnium import Analyser
-from omnium.utils import get_cube, cm_to_inch
+from scaffold.analysis_base import Analyser
+from scaffold.cube_utils import get_cube, cm_to_inch
 
 from scaffold.expt_settings import EXPT_DETAILS
 

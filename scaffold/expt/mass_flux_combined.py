@@ -4,7 +4,7 @@ from logging import getLogger
 
 import iris
 
-from omnium import Analyser
+from scaffold.analysis_base import Analyser
 
 logger = getLogger('scaf.mfc')
 

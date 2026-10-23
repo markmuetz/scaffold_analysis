@@ -4,8 +4,8 @@ from logging import getLogger
 import iris
 import numpy as np
 
-from omnium import Analyser
-from omnium.utils import get_cube_from_attr, coarse_grain
+from scaffold.analysis_base import Analyser
+from scaffold.cube_utils import get_cube_from_attr, coarse_grain
 from scaffold.utils import interp_vert_rho2w
 from scaffold.vertlev import VertLev
 

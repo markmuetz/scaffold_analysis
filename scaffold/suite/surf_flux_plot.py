@@ -7,9 +7,9 @@ import numpy as np
 import pylab as plt
 import iris
 
-from omnium import Analyser
-from omnium.utils import get_cube
-from omnium.consts import L
+from scaffold.analysis_base import Analyser
+from scaffold.cube_utils import get_cube
+from scaffold.consts import L
 
 from scaffold.expt_settings import EXPT_DETAILS
 logger = getLogger('scaf.sfp')

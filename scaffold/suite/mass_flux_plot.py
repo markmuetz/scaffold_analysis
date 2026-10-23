@@ -9,7 +9,7 @@ import pylab as plt
 from scipy import stats, optimize
 import pandas as pd
 
-from omnium import Analyser, ExptList
+from scaffold.analysis_base import Analyser, ExptList
 
 from scaffold.utils import cm_to_inch
 from scaffold.expt_settings import EXPT_DETAILS

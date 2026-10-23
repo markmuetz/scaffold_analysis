@@ -6,7 +6,7 @@ import numpy as np
 matplotlib.use('Agg')
 import pylab as plt
 
-from omnium import Analyser
+from scaffold.analysis_base import Analyser
 
 from scaffold.utils import cm_to_inch
 

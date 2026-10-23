@@ -4,8 +4,8 @@ from matplotlib.colors import LogNorm
 import numpy as np
 import pylab as plt
 
-from omnium import Analyser
-from omnium.utils import get_cube
+from scaffold.analysis_base import Analyser
+from scaffold.cube_utils import get_cube
 
 
 class PrecipHovmollerAnalyser(Analyser):

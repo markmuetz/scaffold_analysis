@@ -8,9 +8,9 @@ import iris
 
 from cloud_tracking.utils import label_clds
 
-from omnium import Analyser
-from omnium.utils import get_cube
-from omnium.consts import Re
+from scaffold.analysis_base import Analyser
+from scaffold.cube_utils import get_cube
+from scaffold.consts import Re
 
 logger = getLogger('scaf.ca')
 

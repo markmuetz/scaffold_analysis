@@ -5,8 +5,8 @@ import iris
 import numpy as np
 from cloud_tracking.utils import label_clds
 
-from omnium import Analyser
-from omnium.utils import get_cube_from_attr
+from scaffold.analysis_base import Analyser
+from scaffold.cube_utils import get_cube_from_attr
 
 logger = getLogger('scaf.mfssp')
 

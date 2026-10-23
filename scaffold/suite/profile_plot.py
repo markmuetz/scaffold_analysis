@@ -9,8 +9,8 @@ matplotlib.use('Agg')
 from matplotlib import rcParams
 import pylab as plt
 
-from omnium import Analyser
-from omnium.utils import get_cube_from_attr
+from scaffold.analysis_base import Analyser
+from scaffold.cube_utils import get_cube_from_attr
 
 from scaffold.vertlev import VertLev
 from scaffold.utils import cm_to_inch

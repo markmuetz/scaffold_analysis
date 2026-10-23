@@ -5,9 +5,9 @@ import matplotlib
 matplotlib.use('Agg')
 import pylab as plt
 
-from omnium import Analyser, ExptList
-from omnium.utils import get_cube, cm_to_inch
-from omnium.consts import p_ref, kappa, L, cp, g, Re
+from scaffold.analysis_base import Analyser, ExptList
+from scaffold.cube_utils import get_cube, cm_to_inch
+from scaffold.consts import p_ref, kappa, L, cp, g, Re
 
 from scaffold.expt_settings import EXPT_DETAILS
 

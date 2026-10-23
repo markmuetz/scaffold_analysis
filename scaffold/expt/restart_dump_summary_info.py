@@ -15,9 +15,9 @@ try:
 except ImportError:
     pass
 
-from omnium import Analyser
-from omnium.consts import kappa, p_ref
-from omnium.utils import get_cube
+from scaffold.analysis_base import Analyser
+from scaffold.consts import kappa, p_ref
+from scaffold.cube_utils import get_cube
 
 logger = getLogger('scaf.rdsa')
 if not has_metpy:

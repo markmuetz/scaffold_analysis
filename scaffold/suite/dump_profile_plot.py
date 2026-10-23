@@ -18,9 +18,9 @@ try:
 except ImportError:
     pass
 
-from omnium import Analyser
-from omnium.utils import get_cube
-from omnium.consts import p_ref, kappa, Re
+from scaffold.analysis_base import Analyser
+from scaffold.cube_utils import get_cube
+from scaffold.consts import p_ref, kappa, Re
 
 from scaffold.utils import cm_to_inch, find_intersections
 from scaffold.expt_settings import EXPT_DETAILS

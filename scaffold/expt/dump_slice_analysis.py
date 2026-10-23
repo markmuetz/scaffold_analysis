@@ -16,9 +16,10 @@ try:
 except ImportError:
     pass
 
-from omnium import Analyser, OmniumError
-from omnium.consts import Re, p_ref, kappa
-from omnium.utils import get_cube, cm_to_inch
+from scaffold.analysis_base import Analyser
+from scaffold.cube_utils import ScaffoldError
+from scaffold.consts import Re, p_ref, kappa
+from scaffold.cube_utils import get_cube, cm_to_inch
 
 from scaffold.vertlev import VertLev
 
@@ -83,7 +84,7 @@ class DumpSliceAnalyser(Analyser):
         try:
             qcf2 = get_cube(dump, 0, 271)
             self.qcf2 = qcf2
-        except OmniumError:
+        except ScaffoldError:
             logger.info('dump has no qcf2')
 
         qvdata = get_cube(dump, 0, 10).data

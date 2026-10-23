@@ -87,3 +87,7 @@ def latex_sigfig(v, n=2):
         return '{0}$\\times 10 ^{{{1}}}$'.format(value, int(exponent))
     else:
         return formatted_value
+
+
+# Kept here so analysers can import all plotting/cube helpers from one place.
+from scaffold.utils import cm_to_inch  # noqa: E402,F401

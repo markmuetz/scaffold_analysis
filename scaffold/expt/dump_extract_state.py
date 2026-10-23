@@ -4,8 +4,8 @@ import configparser as cp
 
 import iris
 
-from omnium import Analyser
-from omnium.utils import get_cube
+from scaffold.analysis_base import Analyser
+from scaffold.cube_utils import get_cube
 
 logger = getLogger('scaf.dump_extract')
 

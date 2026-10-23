@@ -7,9 +7,9 @@ import numpy as np
 matplotlib.use('Agg')
 import pylab as plt
 
-from omnium import Analyser
-from omnium.utils import get_cube
-from omnium.consts import L, cp, Lf
+from scaffold.analysis_base import Analyser
+from scaffold.cube_utils import get_cube
+from scaffold.consts import L, cp, Lf
 
 logger = getLogger('scaf.dump_entr')
 

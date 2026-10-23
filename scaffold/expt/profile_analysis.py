@@ -7,9 +7,9 @@ matplotlib.use('Agg')
 import pylab as plt
 import iris
 
-from omnium import Analyser, ExptList
-from omnium.utils import get_cube
-from omnium.consts import Re, cp, g
+from scaffold.analysis_base import Analyser, ExptList
+from scaffold.cube_utils import get_cube
+from scaffold.consts import Re, cp, g
 from cloud_tracking.utils import label_clds
 
 logger = getLogger('scaf.prof_an')
