@@ -7,3 +7,4 @@ scaffold.egg-info/
 .idea/
 f90nml*
 .pixi/
+.remake/
