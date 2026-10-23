@@ -66,7 +66,9 @@ class CloudTrackPlot(Analyser):
                 self.all_stats[expt] = pickle.load(f)
 
     def run(self):
-        self.thresh = 2  # 0, 1 or 2 -- 10% lower, actual, 10% higher.
+        # 0, 1 or 2 -- 10% lower, actual, 10% higher. Only (1, 1) is tracked (see
+        # cloud_track_analysis).
+        self.thresh = 1
         pass
 
     def save(self, state, suite):
