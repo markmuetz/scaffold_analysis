@@ -210,3 +210,39 @@ cd /gws/ssde/j25b/afesp/users/mmuetz/scaffold_omnium_remake/u-be530
 ~/.pixi/bin/pixi run --manifest-path ~/projects/local/scaffold_analysis/pixi.toml -e omnium \
     python ~/projects/local/omnium/bin/omnium run -s production -t expt --all S0W0Forced
 ```
+
+## 7. Port design as built (branch `remake_port`, worktree `../scaffold_analysis_port`)
+
+**Change from §2:** the analysers are not rewritten as plain functions. Instead,
+`scaffold/analysis_base.py` is a ~200-line omnium-free stand-in for the omnium `Analyser`
+framework, with the same interface the analysers use (`self.settings`, `self.task`,
+`self.suite`, `ExptList`, `load_cubes`, `save_results_cubes`, `file_path`, `save_text`). The
+caller passes explicit inputs and outputs to `run_analyser`. The ~6.6k lines of science code
+are unchanged apart from imports, so results stay as close as possible to the reference.
+
+The goals of §2 are kept:
+- **No settings hashing:** `scaffold/config.py` holds a plain `SETTINGS` dict, and each rule
+  declares the settings keys it uses in `uses=` (with the analyser class).
+- **Explicit task lists:** inputs are static lists from `config` (runid ranges per expt), with
+  the subsets each analyser actually reads (`240 <= r < 480` for `*_combined`,
+  `240 < r <= 480` for `restart_dump_summary_info`, `r >= 480` for `cloud_track_analysis`, ...).
+- **Real dependencies:** the hidden ones are declared, including vertlevs, the UM conf, the csv
+  side outputs read by `energy_balance` and the `org_data.csv` read by `summary_correlations`.
+- **Output tree:** omnium's layout minus the version-hash level:
+  `output_remake/<expt>/...` and `output_remake/suite_<expts>/...`.
+
+Removed: FF->nc converters, omnium settings, and the omnium-driven tests. `dump_extract_state`
+now writes `local_conf/` next to its output, not into the suite dir.
+
+Remakefile: `remakefiles/u_be530.py` (13,113 tasks). Run with:
+
+```sh
+cd ~/projects/local/scaffold_analysis_port
+~/.pixi/bin/pixi run --manifest-path ../scaffold_analysis/pixi.toml -e remake \
+    env PYTHONPATH=$PWD:$PWD/../cloud_tracking MPLBACKEND=Agg \
+    remake run remakefiles/u_be530.py -E slurm
+```
+
+Checks so far: `cloud_analysis` (S0W0Forced atmos.240) through `run_analyser` is identical
+to the omnium reference in the omnium env. In the remake env it is close: the only difference
+is the time `calendar` attribute (`standard` vs `gregorian`, iris 3).

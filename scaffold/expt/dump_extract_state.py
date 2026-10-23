@@ -68,7 +68,8 @@ class DumpExtractState(Analyser):
         opt.set('namelist:idealised', 'theta_relax_time', '0')
         opt.set('namelist:idealised', 'theta_relax_timescale', '25600.0')
 
-        dirname = os.path.join(self.suite.suite_dir, 'local_conf')
+        # Written next to the analysis output (omnium wrote it into the suite dir).
+        dirname = os.path.join(os.path.dirname(self.output_filename), 'local_conf')
         if not os.path.exists(dirname):
             os.makedirs(dirname, exist_ok=True)
         filename = os.path.join(dirname, 'rose-app-relax_to_{}.conf'.format(self.task.expt))
