@@ -15,6 +15,8 @@ from omnium.utils import get_cube_from_attr
 from scaffold.vertlev import VertLev
 from scaffold.utils import cm_to_inch
 from scaffold.expt_settings import EXPT_DETAILS
+from scaffold.paper_style import use_paper_style, save_paper_fig, SINGLE_COL_CM
+from matplotlib.lines import Line2D
 
 logger = getLogger('scaf.prof_plot')
 
@@ -94,15 +96,11 @@ class ProfilePlotter(Analyser):
         plt.savefig(self.file_path('poster_shear_profiles.png'))
 
     def _plot_ucp_shear_profiles(self):
-        f, ax1 = plt.subplots(1, 1, sharey=True)
-        f.set_size_inches(*cm_to_inch(16, 12))
-        vertlev = VertLev(self.suite.suite_dir)
-        ax1.plot(vertlev.dz_theta, vertlev.z_rho / 1e3)
-        ax1.set_xlabel('$\\Delta z$ (m)')
-        ax1.set_ylabel('height (km)')
+        """Reference (prescribed) and equilibrium u profiles for the simple experiments."""
+        use_paper_style()
+        f, ax1 = plt.subplots(1, 1, figsize=cm_to_inch(SINGLE_COL_CM, 8))
 
-        ax1.set_ylim((0, 25))
-
+        expt_handles = []
         for expt in self.task.expts:
             ucp_kwargs = {}
             if expt in EXPT_DETAILS:
@@ -129,19 +127,20 @@ class ProfilePlotter(Analyser):
                 shear_u_profile[:, 1] -= shear_u_profile[0, 1] + wind_factor
             # N.B. convert m->km.
             ax1.plot(shear_u_profile[:, 1], shear_u_profile[:, 0] / 1e3,
-                     color=ucp_kwargs['color'], linestyle='-', label=ucp_kwargs['label'][:-1])
-            #import ipdb; ipdb.set_trace()
-            ax1.plot(u_profile.data, height / 1e3, color=ucp_kwargs['color'], linestyle='--',
-                     label=ucp_kwargs['label'])
+                     color=ucp_kwargs['color'], linestyle='-')
+            ax1.plot(u_profile.data, height / 1e3, color=ucp_kwargs['color'], linestyle='--')
+            expt_handles.append(Line2D([], [], color=ucp_kwargs['color'],
+                                       label=ucp_kwargs['label']))
 
+        style_handles = [Line2D([], [], color='k', linestyle='-', label='reference'),
+                         Line2D([], [], color='k', linestyle='--', label='equilibrium')]
         ax1.set_xlim((-10, 20))
         ax1.set_ylim((0, 15))
-        ax1.set_xlabel('u profile (m s$^{-1}$)')
-        ax1.legend(bbox_to_anchor=(1.05, 1.05))
+        ax1.set_xlabel('$u$ (m s$^{-1}$)')
+        ax1.set_ylabel('height (km)')
+        ax1.legend(handles=expt_handles + style_handles, loc='upper left')
 
-        #plt.tight_layout()
-        #plt.subplots_adjust(wspace=0)
-        plt.savefig(self.file_path('UCP_shear_profiles.png'))
+        save_paper_fig(self.file_path('UCP_shear_profiles.pdf'), f)
 
     def _plot_input_profiles(self):
         f, (ax1, ax2) = plt.subplots(1, 2, sharey=True, figsize=cm_to_inch(16, 8))

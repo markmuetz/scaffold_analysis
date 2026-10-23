@@ -14,6 +14,7 @@ from omnium import Analyser, ExptList
 
 from scaffold.utils import cm_to_inch, find_intersections
 from scaffold.expt_settings import EXPT_DETAILS
+from scaffold.paper_style import use_paper_style, save_paper_fig, SINGLE_COL_CM
 
 logger = getLogger('scaf.org_plot')
 
@@ -174,11 +175,7 @@ class OrgPlotter(Analyser):
             plt.tight_layout()
             plt.savefig(self.file_path('poster_z{}_t{}_combined_log.pdf'.format(group, self.thresh)))
 
-            fig = plt.figure('fig_combined_expt_z{}_log'.format(group))
-            fig.set_size_inches(*cm_to_inch(20, 7))
-            plt.legend(loc='upper right', ncol=2)
-            plt.tight_layout()
-            plt.savefig(self.file_path('fig_z{}_t{}_combined_log.pdf'.format(group, self.thresh)))
+            self._plot_paper_rdf(group)
 
         plt.close('all')
 
@@ -220,17 +217,55 @@ class OrgPlotter(Analyser):
         plt.xlim((0, 256))
         plt.ylim((1e-1, 2e1))
 
-        plt.figure('fig_combined_expt_z{}_log'.format(group))
-        plt.plot(xpoints / 1000, org_data, **ucp_kwargs)
-        plt.yscale('log')
-        plt.xlabel('Distance (km)')
-        # plt.ylabel('Normalized cloud\nnumber density')
-        plt.ylabel('RDF')
-        plt.axhline(y=1, ls='--', color='k')
+    def _load_lls(self):
+        """LLS (wind difference, m s-1; the LLWD column) per expt from summary_correlations."""
+        import pandas as pd
+        version_dir = os.path.dirname(os.path.dirname(self.task.output_filenames[0]))
+        fn = os.path.join(version_dir, 'suite_summary_correlations', 'all_col_values.hdf')
+        df = pd.read_hdf(fn, 'all_col_values')
+        return dict(zip(df.expt, df.LLWD))
 
-        plt.xlim((0, 128))
-        if len(self.task.expts) == 10:
-            # RWPs.
-            plt.ylim((2e-1, 2e1))
+    def _plot_paper_rdf(self, group):
+        """Paper RDF figure (Fig. 3: simple profiles; Fig. 6: RWPs coloured by LLS)."""
+        from matplotlib import cm, colors, ticker
+        use_paper_style()
+        is_rwps = all(expt.startswith('RWP') for expt in self.task.expts)
+        fig, ax = plt.subplots(num='paper_rdf_z{}'.format(group),
+                               figsize=cm_to_inch(SINGLE_COL_CM + (1.5 if is_rwps else 0), 6))
+        ax.axhline(y=1, color='0.6', lw=0.8, zorder=1)
+        if is_rwps:
+            lls = self._load_lls()
+            norm = colors.Normalize(vmin=0, vmax=12)
+            cmap = cm.viridis
+        for expt in self.task.expts:
+            org_data_item = self.org_data[(expt, group)]
+            x = org_data_item['xpoints'] / 1000
+            y = org_data_item['org_data']
+            name = EXPT_DETAILS[expt][0] if expt in EXPT_DETAILS else expt
+            if is_rwps:
+                colour = cmap(norm(lls[expt]))
+                ax.plot(x, y, color=colour, lw=1.2, label=name)
+                if name in ['C6', 'C9']:
+                    # Label at the first point (RDF is largest at short distances).
+                    ax.annotate(name, (x[0], y[0]), xytext=(4, 0), textcoords='offset points',
+                                fontsize=6.5, color=colour, va='center')
+            else:
+                ax.plot(x, y, color=EXPT_DETAILS[expt][1], lw=1.5, label=name)
+        ax.set_yscale('log')
+        ax.set_xlim((0, 128))
+        if is_rwps:
+            ax.set_ylim((2e-1, 2e1))
+            sm = cm.ScalarMappable(norm=norm, cmap=cmap)
+            sm.set_array([])
+            fig.colorbar(sm, ax=ax, label='LLS (m s$^{-1}$)')
         else:
-            plt.ylim((6e-1, 1e1))
+            ax.set_ylim((6e-1, 1e1))
+            ax.legend(loc='upper right')
+        # Label the minor ticks on the log axis (0.5, 2, 5).
+        ax.yaxis.set_minor_formatter(ticker.FuncFormatter(
+            lambda v, pos: '{:g}'.format(v) if np.isclose(v, [0.5, 2, 5]).any() else ''))
+        ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda v, pos: '{:g}'.format(v)))
+        ax.set_xlabel('distance (km)')
+        ax.set_ylabel('RDF')
+        save_paper_fig(self.file_path('fig_z{}_t{}_combined_log.pdf'.format(group, self.thresh)),
+                       fig)
