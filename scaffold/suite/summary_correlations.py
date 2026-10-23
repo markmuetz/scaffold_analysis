@@ -95,6 +95,11 @@ def _fmt_num(v):
     return latex_sigfig(v).replace('-', '\u2212')
 
 
+def _fmt_p(p):
+    mantissa, exponent = '{:.1e}'.format(p).split('e')
+    return '{}$\\times 10^{{{}}}$'.format(mantissa, int(exponent)).replace('-', '\u2212')
+
+
 def _empty_corner(x, y):
     """Pick the axes corner with the fewest points, for the regression annotation."""
     xn = (x - x.min()) / (np.ptp(x) or 1)
@@ -107,7 +112,7 @@ def _empty_corner(x, y):
 
 
 def plot_corr(df, c1, c2, ax=None, legend=True, direct_labels=True, annotate_xy=None,
-              legend_loc='best'):
+              legend_loc='best', label_offsets=None):
     title = '{} vs {}'.format(c1, c2).replace(' ', '_')
     if not ax:
         plt.figure(title, figsize=cm_to_inch(SINGLE_COL_CM, 6.5))
@@ -128,8 +133,10 @@ def plot_corr(df, c1, c2, ax=None, legend=True, direct_labels=True, annotate_xy=
         else:
             ax.scatter(v1, v2, color='k', marker='x', s=18, linewidth=0.8, zorder=3)
         if direct_labels and expt in LABELLED_RWPS:
-            ax.annotate(EXPT_DETAILS[expt][0], (v1, v2), xytext=(3, 2),
-                        textcoords='offset points', fontsize=6.5)
+            offset = (label_offsets or {}).get(expt, (3, 2))
+            ax.annotate(EXPT_DETAILS[expt][0], (v1, v2), xytext=offset,
+                        textcoords='offset points', fontsize=6.5,
+                        ha='center' if offset[1] < 0 else ('left' if offset[0] >= 0 else 'right'))
     lr = stats.linregress(d1, d2)
     x = np.array([d1.min(), d1.max()])
     y = lr.slope * x + lr.intercept
@@ -139,7 +146,7 @@ def plot_corr(df, c1, c2, ax=None, legend=True, direct_labels=True, annotate_xy=
     text = 'y = {}x {} {}\nr$^2$ = {}\np = {}'.format(_fmt_num(lr.slope), sign,
                                                      _fmt_num(abs(lr.intercept)),
                                                      _fmt_num(lr.rvalue ** 2),
-                                                     _fmt_num(lr.pvalue))
+                                                     _fmt_p(lr.pvalue))
     corner = annotate_xy or _empty_corner(d1, d2)
     xa = 0.04 if 'left' in corner else 0.96
     # Leave room for a panel label at the top-left.
@@ -403,7 +410,8 @@ class SummaryCorrelations(Analyser):
                     color='white' if abs(corr[i, j]) > 0.6 else 'black',
                     fontweight='bold' if bonf[i, j] else 'normal')
             if bonf[i, j]:
-                ax.add_patch(plt.Rectangle((j - 0.5, i - 0.5), 1, 1, fill=False, ec='k', lw=1.2))
+                ax.add_patch(plt.Rectangle((j - 0.5, i - 0.5), 1, 1, fill=False, ec='#1b7837',
+                                           lw=1.5))
 
         group_edges = np.cumsum([g[1] for g in CORR_GROUPS])
         assert group_edges[-1] == n, 'groups do not match the columns'
@@ -451,20 +459,26 @@ class SummaryCorrelations(Analyser):
             ['mean_surf_wind', 'CAPE'],
         ]
 
+        annotate_corners = {('LLWD', 'cluster_index'): 'lower right'}
         for c1, c2 in corr_pairs:
-            plot_corr(self.df_all_col_values, c1, c2)
+            plot_corr(self.df_all_col_values, c1, c2,
+                      annotate_xy=annotate_corners.get((c1, c2)))
             savefig(self.outputdir)
 
         title = '{} vs {}'.format('cluster_index', 'lifetimes').replace(' ', '_')
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3, sharex=True,
                                             figsize=cm_to_inch(FULL_WIDTH_CM, 6.5), num=title)
-        plot_corr(self.df_all_col_values, 'cluster_index', 'all_lifetime', ax1, legend=False)
+        # In (a) and (c) C1 sits among other crosses: put its label just below the point.
+        offsets = {'RWP_C1': (0, -10)}
+        plot_corr(self.df_all_col_values, 'cluster_index', 'all_lifetime', ax1, legend=False,
+                  label_offsets=offsets)
         ax1.set_ylim((0, None))
-        plot_corr(self.df_all_col_values, 'cluster_index', 'simple_lifetime', ax2, legend=False)
+        # One marker legend for the figure, in the empty lower left of panel (b).
+        plot_corr(self.df_all_col_values, 'cluster_index', 'simple_lifetime', ax2,
+                  legend_loc='lower left')
         ax2.set_ylim((0, 70))
-        # One marker legend for the figure, in the empty lower-right of panel (c).
-        plot_corr(self.df_all_col_values, 'cluster_index', 'complex_lifetime', ax3,
-                  legend_loc='lower right')
+        plot_corr(self.df_all_col_values, 'cluster_index', 'complex_lifetime', ax3, legend=False,
+                  label_offsets=offsets)
         ax3.set_ylim((0, None))
         for ax in (ax1, ax2, ax3):
             # The text discusses the cluster-index threshold of 75 km.

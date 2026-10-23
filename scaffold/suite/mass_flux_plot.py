@@ -50,7 +50,9 @@ class PlotDensityMfContrib:
         # Same line width for every expt (and so in the legend).
         kwargs['linewidth'] = 1.2
 
-        plot = self.ax1.plot(bin_centers, y_density * width, **kwargs)
+        # Break the line at empty bins (log axis) instead of drawing drops to zero.
+        density = np.where(y_density > 0, y_density * width, np.nan)
+        plot = self.ax1.plot(bin_centers, density, **kwargs)
         # colour = plot[0].get_color()
         # ax1.plot(x, np.exp(m * x + c), color=colour, linestyle='--')
         self.ax2.plot(bin_centers, y2, **kwargs)
