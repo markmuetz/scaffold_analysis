@@ -173,7 +173,7 @@ omnium's job here is the bookkeeping around ~33 `Analyser` subclasses in `scaffo
       Caveat: the archived files keep `.`/`-` in netCDF variable names
       (`labelled_clouds_z16_w1.0_qcl5e-06`), while this env writes `_`
       (`..._w1_0_qcl5e_06`), so comparisons match names after `re.sub(r'[.\-]', '_', name)`.
-- [~] Full `output_omnium` for all 22 expts submitted on 2026-10-22 (SLURM jobs
+- [x] Full `output_omnium` for all 22 expts submitted on 2026-10-22 (SLURM jobs
       61547971–75, `--account=afesp --partition=standard --qos=standard`, as in kasbex-essd and
       wescon-tools). Scripts are in `scripts/omnium_reference/`:
       - `omnium_shard_run.py` uses omnium's own RunControl/run_task but runs one shard of an
@@ -199,8 +199,10 @@ omnium's job here is the bookkeeping around ~33 `Analyser` subclasses in `scaffo
       - Old pickles (2019) reference `cloud_tracking.cloud_tracking`, renamed to
         `cloud_tracking.tracking` in cloud_tracking `8b240fa` (Mar 2020). Loading them needs
         `sys.modules['cloud_tracking.cloud_tracking'] = cloud_tracking.tracking`.
-- [ ] Step (a) refactor, bit-identical in omnium env.
-- [ ] `remake` env + remakefile + `output_remake`; `compare_outputs.py` report.
+- [x] Step (a) refactor: done as the omnium-free `analysis_base` (§7) rather than plain
+      functions; checked identical in the omnium env for `cloud_analysis`.
+- [x] `remake` env + remakefile + `output_remake`; `compare_outputs.py` report (§8).
+- [x] Signed off 2026-10-23 (§8).
 
 How to run omnium in the workspace (pixi tasks run from the project root, so call python
 directly):
@@ -246,3 +248,43 @@ cd ~/projects/local/scaffold_analysis_port
 Checks so far: `cloud_analysis` (S0W0Forced atmos.240) through `run_analyser` is identical
 to the omnium reference in the omnium env. In the remake env it is close: the only difference
 is the time `calendar` attribute (`standard` vs `gregorian`, iris 3).
+
+## 8. Validation and sign-off (2026-10-23)
+
+**First full comparison** (`output_remake` vs the omnium reference, 14,907 files,
+`scripts/compare_outputs.py`, rtol 1e-3): 9,651 identical, 3,761 close, 1,443 present-only
+(figures), 30 different, 22 missing by design (`local_conf/` moved, §7). The 30 differences:
+- `restart_dump_summary_info` / `all_col_values` / `ordered_pvals`: metpy 1.7.1 vs 0.12.0
+  (see below).
+- RWP_C6 tracking: 1868 vs 1869 lifecycles, probably cloud-ordering non-determinism in
+  cloud_tracking. Not investigated further.
+- `energy_loss.txt`: one file written by every profile_analysis task (last task wins).
+- `energy_balance.tex`: number formatting only.
+
+**Paper fixes merged** (`8885565`, merge of `rce_org1_mf_thermo_fix`): the rce_org1 figure
+restyle plus three code-review fixes:
+- periodic cloud centroids in `org_analysis`;
+- ρ levels in `utils.interp_vert_rho2w` (mass flux was +2.1% at 2062 m, +4.6% at 2518 m);
+- θ/Exner on the same levels in `restart_dump_summary_info` (Tsurf +0.31 K, CAPE −7 to −14%,
+  |CIN| +23 to +37%).
+
+`uses` now also tracks the code each analyser runs outside its class (`code_digests`), so
+helper changes mark the right rules stale. After that change, the 16 rules whose code digests
+were unchanged since the verified run (`fdb4344`) were stamped with `remake set-state
+--success --no-cascade`, and the other 9,305 tasks reran.
+
+**Checks after the merge:**
+- Smoke test (S4W5Forced runid 300, and its dump summary) against the fixed omnium outputs:
+  org and mass flux identical; Tsurf and all wind variables identical.
+- `all_col_values.hdf` against the fixed omnium run: every column except LCL/LFC/LNB/CAPE/CIN
+  identical to 1e-9 (winds, Tsurf, all organisation variables, MF, σ, lifetimes).
+
+**metpy:** 1.7.1 computes CAPE/CIN using virtual temperature for both the environment and the
+parcel (0.12.0 uses temperature). Max relative differences: LCL 0.2%, LFC 0.5%, LNB 1.6%,
+CAPE 18%, CIN 99% (of small values). Fig 12 Bonferroni cells go from 37 to 41 (four CIN
+cells). Mark's decision (2026-10-23): keep metpy 1.7.1, and the rce_org1 paper uses the remake
+outputs.
+
+**Release copy** for the paper: `/gws/ssde/j25b/afesp/users/mmuetz/phd/rce_org1/remake_output`
+(suite-level outputs plus the per-expt summary files they are built from), from tag
+`rce_org1-v1`.
