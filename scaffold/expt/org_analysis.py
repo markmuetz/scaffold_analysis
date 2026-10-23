@@ -148,12 +148,24 @@ class OrgAnalyser(Analyser):
         x = np.linspace(half_dx, self.LX - half_dx, self.NX)
         y = np.linspace(half_dy, self.LY - half_dy, self.NY)
         X, Y = np.meshgrid(x, y, indexing='xy')
+        # Coords with the lower half of the domain shifted up by LX (LY): used for clouds that
+        # wrap round the periodic boundary, so that their cells are contiguous before averaging.
+        X_shifted = X + self.LX * (X < self.LX / 2)
+        Y_shifted = Y + self.LY * (Y < self.LY / 2)
         cloud_pos = []
         for i in range(1, clouds.max() + 1):
             # Averages the x, y coords of all cells with a given index to get each cloud's
             # "centre of mass", AKA centroid.
-            cloud_x = X[clouds == i].sum() / (clouds == i).sum()
-            cloud_y = Y[clouds == i].sum() / (clouds == i).sum()
+            cloud = clouds == i
+            # Clouds are labelled with wrapping, so a cloud can touch both edges of the domain.
+            if cloud[:, 0].any() and cloud[:, -1].any():
+                cloud_x = (X_shifted[cloud].sum() / cloud.sum()) % self.LX
+            else:
+                cloud_x = X[cloud].sum() / cloud.sum()
+            if cloud[0, :].any() and cloud[-1, :].any():
+                cloud_y = (Y_shifted[cloud].sum() / cloud.sum()) % self.LY
+            else:
+                cloud_y = Y[cloud].sum() / cloud.sum()
             cloud_pos.append((cloud_x, cloud_y))
         return np.array(cloud_pos)
 

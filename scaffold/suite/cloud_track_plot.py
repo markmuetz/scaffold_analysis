@@ -6,6 +6,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from scaffold.expt_settings import EXPT_DETAILS
+from scaffold.paper_style import (use_paper_style, panel_labels, save_paper_fig, FULL_WIDTH_CM,
+                                  LIFETIME_COLOURS)
 
 from scaffold.analysis_base import Analyser
 from scaffold.cube_utils import cm_to_inch
@@ -17,9 +19,9 @@ def plot_pdf_for_expt(ax, expt_name, all_stats):
 
 
     combined_plot_kwargs = {
-        'all_lifetimes': {'label': 'all ', 'color': 'grey'},
-        'linear_lifetimes': {'label': 'simple', 'color': 'g'},
-        'nonlinear_lifetimes': {'label': 'complex', 'color': 'r'},
+        'all_lifetimes': {'label': 'all', 'color': LIFETIME_COLOURS['all']},
+        'linear_lifetimes': {'label': 'simple', 'color': LIFETIME_COLOURS['simple']},
+        'nonlinear_lifetimes': {'label': 'complex', 'color': LIFETIME_COLOURS['complex']},
     }
 
     for stats in all_stats:
@@ -80,7 +82,8 @@ class CloudTrackPlot(Analyser):
             logger.debug('can only run with 4 expts')
             return
 
-        fig, axes = plt.subplots(2, 2, figsize=cm_to_inch(16, 14))
+        use_paper_style()
+        fig, axes = plt.subplots(2, 2, figsize=cm_to_inch(FULL_WIDTH_CM, 12))
 
         height_level_index, thresh_index = (1, self.thresh)
         for i, (expt, ax) in enumerate(zip(self.task.expts, axes.flatten())):
@@ -105,11 +108,21 @@ class CloudTrackPlot(Analyser):
             else:
                 plt.setp(ax.get_xticklabels(), visible=False)
 
-            ax.set_title('{}'.format(expt_name))
+            ax.set_title('{}'.format(expt_name), color=EXPT_DETAILS[expt][1]
+                         if expt in EXPT_DETAILS else 'k')
             if i == 1:
                 ax.legend(loc='upper right')
+            if i == 0:
+                # Lifetimes are multiples of the 5-min output interval.
+                # Point at the top of the spike in the first bin.
+                spike_x, spike_y = max(((x, y) for line in ax.get_lines()
+                                        for x, y in zip(*line.get_data()) if x < 10),
+                                       key=lambda xy: xy[1])
+                ax.annotate('single-snapshot clouds', xy=(spike_x, spike_y),
+                            xytext=(40, spike_y), fontsize=6.5, va='center',
+                            arrowprops=dict(arrowstyle='-', lw=0.5, color='0.3', shrinkB=2))
 
-
+        panel_labels(axes.flatten())
         plt.tight_layout()
-        plt.savefig(self.file_path('cloud_tracking_z{}_t{}'.format(height_level_index,
-                                                                   thresh_index)))
+        save_paper_fig(self.file_path('cloud_tracking_z{}_t{}.pdf'.format(height_level_index,
+                                                                          thresh_index)), fig)

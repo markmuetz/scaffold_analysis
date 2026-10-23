@@ -13,6 +13,7 @@ from scaffold.analysis_base import Analyser, ExptList
 
 from scaffold.utils import cm_to_inch
 from scaffold.expt_settings import EXPT_DETAILS
+from scaffold.paper_style import use_paper_style, panel_labels, save_paper_fig, SINGLE_COL_CM
 
 logger = getLogger('scaf.mfp')
 
@@ -20,8 +21,10 @@ logger = getLogger('scaf.mfp')
 class PlotDensityMfContrib:
     """Plots density (top) and MF contrib (bottom) for all heights/expts."""
     def __init__(self, height_level_index, xlim, ylim, mass_flux_scaling=1e8):
+        use_paper_style()
         fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True,
-                                       num='both_z{}'.format(height_level_index))
+                                       num='both_z{}'.format(height_level_index),
+                                       figsize=cm_to_inch(SINGLE_COL_CM, 11))
 
         if xlim:
             ax1.set_xlim(xlim)
@@ -35,8 +38,7 @@ class PlotDensityMfContrib:
         ax2.set_ylabel('Mass flux contrib. ($\\times 10^8$ kg s$^{-1}$)')
         #ax1.set_xlabel('MF per cloud ($\\times 10^7$ kg s$^{-1}$)')
         ax2.set_xlabel('Mass flux per cloud ($\\times 10^8$ kg s$^{-1}$)')
-        ax1.set_title('a)', loc='left')
-        ax2.set_title('b)', loc='left')
+        panel_labels((ax1, ax2))
         self.fig, self.ax1, self.ax2 = fig, ax1, ax2
 
     def plot(self, expt_obj, bin_centers, width, y_density, y2, linregress, **kwargs):
@@ -45,15 +47,20 @@ class PlotDensityMfContrib:
         if expt_obj.name in EXPT_DETAILS:
             kwargs = dict(zip(['short_name', 'color', 'linestyle'], EXPT_DETAILS[expt_obj.name]))
             kwargs['label'] = '{}'.format(kwargs.pop('short_name'))
+        # Same line width for every expt (and so in the legend).
+        kwargs['linewidth'] = 1.2
 
-        plot = self.ax1.plot(bin_centers, y_density * width, **kwargs)
+        # Break the line at empty bins (log axis) instead of drawing drops to zero.
+        density = np.where(y_density > 0, y_density * width, np.nan)
+        plot = self.ax1.plot(bin_centers, density, **kwargs)
         # colour = plot[0].get_color()
         # ax1.plot(x, np.exp(m * x + c), color=colour, linestyle='--')
         self.ax2.plot(bin_centers, y2, **kwargs)
 
     def finish(self, filename):
-        self.ax1.legend(ncol=2)
-        self.fig.savefig(filename)
+        self.ax1.legend(ncol=2, loc='upper right')
+        self.fig.tight_layout()
+        save_paper_fig(filename, self.fig)
 
 
 class PlotDensityPoster:

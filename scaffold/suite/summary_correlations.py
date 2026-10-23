@@ -5,11 +5,15 @@ import pandas as pd
 import numpy as np
 import scipy.stats as stats
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+from matplotlib.lines import Line2D
+from matplotlib.transforms import blended_transform_factory
 import iris
 
 from scaffold.analysis_base import Analyser
 from scaffold.cube_utils import cd, get_cube_from_attr, cm_to_inch, latex_sigfig
-from scaffold.expt_settings import cycle
+from scaffold.expt_settings import cycle, EXPT_DETAILS
+from scaffold.paper_style import use_paper_style, panel_labels, save_paper_fig, FULL_WIDTH_CM, SINGLE_COL_CM
 
 
 logger = getLogger('scaf.summ_corr')
@@ -34,9 +38,9 @@ SORTED_EXPTS = [
 NAME_MAP = {
     'LLS': 'LLS (s$^{-1}$)',
     'MLS': 'MLS (s$^{-1}$)',
-    'LLWD': 'LLWD (m s$^{-1}$)',
-    'MLWD': 'MLWD (m s$^{-1}$)',
-    'mean_surf_wind': 'mean surf. wind (m s$^{-1}$)',
+    'LLWD': 'LLS (m s$^{-1}$)',
+    'MLWD': 'MLS (m s$^{-1}$)',
+    'mean_surf_wind': 'surf. wind (m s$^{-1}$)',
     'CAPE': 'CAPE (J kg$^{-1}$)',
     'all_lifetime': 'all cloud lifetime (min)',
     'simple_lifetime': 'simple cloud lifetime (min)',
@@ -48,15 +52,15 @@ NAME_MAP = {
     'suppr_radius': 'suppr-radius (km)',
     'cluster_radius': 'cluster-radius (km)',
     'mean_num_clds': 'mean num. clouds',
-    'Tsurf': 'T. surf.',
+    'Tsurf': '$T_\\mathrm{s}$ (K)',
 }
 
 CORR_NAME_MAP = {
     'LLS': 'LLS',
     'MLS': 'MLS',
-    'LLWD': 'LLWD',
-    'MLWD': 'MLWD',
-    'mean_surf_wind': 'mean surf. wind',
+    'LLWD': 'LLS',
+    'MLWD': 'MLS',
+    'mean_surf_wind': 'surf. wind',
     'CAPE': 'CAPE',
     'all_lifetime': 'all lifetime',
     'simple_lifetime': 'simple lifetime',
@@ -69,14 +73,49 @@ CORR_NAME_MAP = {
     'suppr_radius': 'suppr-radius',
     'cluster_radius': 'cluster-radius',
     'mean_num_clds': 'mean num. clouds',
-    'Tsurf': 'T. surf.',
+    'Tsurf': '$T_\\mathrm{s}$',
 }
 
+# Groups of variables in the correlation matrix, in column order.
+CORR_GROUPS = [('Driving', 3), ('Thermodynamic', 6), ('Cloud field', 8), ('Lifetime', 3)]
 
-def plot_corr(df, c1, c2, ax=None):
+# RWPs labelled directly in the scatter plots.
+LABELLED_RWPS = ['RWP_C1', 'RWP_C2', 'RWP_C6', 'RWP_C10']
+
+
+def _fmt_r(r):
+    """Correlation to 2 d.p. without the leading zero, with a true minus sign: -0.94 -> −.94."""
+    text = '{:.2f}'.format(abs(r))
+    if text.startswith('0'):
+        text = text[1:]
+    return ('\u2212' if r < 0 else '') + text
+
+
+def _fmt_num(v):
+    return latex_sigfig(v).replace('-', '\u2212')
+
+
+def _fmt_p(p):
+    mantissa, exponent = '{:.1e}'.format(p).split('e')
+    return '{}$\\times 10^{{{}}}$'.format(mantissa, int(exponent)).replace('-', '\u2212')
+
+
+def _empty_corner(x, y):
+    """Pick the axes corner with the fewest points, for the regression annotation."""
+    xn = (x - x.min()) / (np.ptp(x) or 1)
+    yn = (y - y.min()) / (np.ptp(y) or 1)
+    corners = {'upper left': ((xn < 0.5) & (yn > 0.5)).sum(),
+               'upper right': ((xn > 0.5) & (yn > 0.5)).sum(),
+               'lower right': ((xn > 0.5) & (yn < 0.5)).sum(),
+               'lower left': ((xn < 0.5) & (yn < 0.5)).sum()}
+    return min(corners, key=corners.get)
+
+
+def plot_corr(df, c1, c2, ax=None, legend=True, direct_labels=True, annotate_xy=None,
+              legend_loc='best', label_offsets=None):
     title = '{} vs {}'.format(c1, c2).replace(' ', '_')
     if not ax:
-        plt.figure(title, figsize=cm_to_inch(16, 12))
+        plt.figure(title, figsize=cm_to_inch(SINGLE_COL_CM, 6.5))
         plt.clf()
         ax = plt.gca()
 
@@ -85,24 +124,45 @@ def plot_corr(df, c1, c2, ax=None):
         d1 = d1 / 1000 # Convert from m to km
     if c2 == 'cluster_index':
         d2 = d2 / 1000 # Convert from m to km
-    # plt.title(title)
 
-
-    markers = {'S': 'o', 'R': 'x'}
+    # Circles = simple profiles (experiment colours), crosses = RWPs (black).
     for expt, v1, v2 in zip(df.expt, d1, d2):
-        ax.scatter(v1, v2, color='k', marker=markers[expt[0]])
+        if expt[0] == 'S':
+            ax.scatter(v1, v2, color=EXPT_DETAILS[expt][1], marker='o', s=18, zorder=3,
+                       edgecolor='none')
+        else:
+            ax.scatter(v1, v2, color='k', marker='x', s=18, linewidth=0.8, zorder=3)
+        if direct_labels and expt in LABELLED_RWPS:
+            offset = (label_offsets or {}).get(expt, (3, 2))
+            ax.annotate(EXPT_DETAILS[expt][0], (v1, v2), xytext=offset,
+                        textcoords='offset points', fontsize=6.5,
+                        ha='center' if offset[1] < 0 else ('left' if offset[0] >= 0 else 'right'))
     lr = stats.linregress(d1, d2)
     x = np.array([d1.min(), d1.max()])
     y = lr.slope * x + lr.intercept
+    ax.plot(x, y, color='0.4', linestyle='--', linewidth=1, zorder=2)
 
-    ax.plot(x, y, 'k--', label='m={}\nc={}\nr$^2$={}\np={}'.format(latex_sigfig(lr.slope),
-                                                                   latex_sigfig(lr.intercept),
-                                                                   latex_sigfig(lr.rvalue ** 2),
-                                                                   latex_sigfig(lr.pvalue)))
-    ax.legend()
+    sign = '+' if lr.intercept >= 0 else '\u2212'
+    text = 'y = {}x {} {}\nr$^2$ = {}\np = {}'.format(_fmt_num(lr.slope), sign,
+                                                     _fmt_num(abs(lr.intercept)),
+                                                     _fmt_num(lr.rvalue ** 2),
+                                                     _fmt_p(lr.pvalue))
+    corner = annotate_xy or _empty_corner(d1, d2)
+    xa = 0.04 if 'left' in corner else 0.96
+    # Leave room for a panel label at the top-left.
+    ya = 0.86 if corner == 'upper left' else (0.96 if 'upper' in corner else 0.04)
+    ax.text(xa, ya, text, transform=ax.transAxes, fontsize=7,
+            ha='left' if 'left' in corner else 'right',
+            va='top' if 'upper' in corner else 'bottom')
+
+    if legend:
+        handles = [Line2D([], [], marker='o', color='0.3', linestyle='none', markersize=4,
+                          label='simple profiles'),
+                   Line2D([], [], marker='x', color='k', linestyle='none', markersize=4,
+                          label='RWPs')]
+        ax.legend(handles=handles, loc=legend_loc, handletextpad=0.2)
     ax.set_xlabel(NAME_MAP.get(c1, c1))
     ax.set_ylabel(NAME_MAP.get(c2, c2))
-    # plt.tight_layout()
 
     return lr
 
@@ -136,7 +196,7 @@ def get_cloud_lifetimes(expt):
 def savefig(cwd):
     fig_fn = '{}/summary_info_{}.pdf'.format(cwd, plt.gcf().get_label())
     logger.debug('saving fig to: {}'.format(fig_fn))
-    plt.savefig(fig_fn)
+    save_paper_fig(fig_fn)
 
 
 class SummaryCorrelations(Analyser):
@@ -189,15 +249,10 @@ class SummaryCorrelations(Analyser):
             for col in df_dyn.columns[1:]:
                 logger.debug('  {}: {}, {}'.format(col, df_dyn[col].mean(), df_dyn[col].std()))
 
-        # DISABLE LIFETIME!
-        # cols = (list(df_dyn.columns[1:]) + list(df_td.columns[1:]) +
-        #         list(self.df_org.columns[2:]) +
-        #         ['mean_num_clds', 'MF_per_cloud', 'total_MF', 'sigma'] +
-        #         ['all_lifetime', 'simple_lifetime', 'complex_lifetime'])
         cols = (list(df_dyn.columns[1:]) + list(df_td.columns[1:]) +
                 list(self.df_org.columns[2:]) +
-                ['mean_num_clds', 'MF_per_cloud', 'total_MF', 'sigma'])
-        #         ['all_lifetime', 'simple_lifetime', 'complex_lifetime'])
+                ['mean_num_clds', 'MF_per_cloud', 'total_MF', 'sigma'] +
+                ['all_lifetime', 'simple_lifetime', 'complex_lifetime'])
 
         # Copy self.cols
         if 'LLS' in cols:
@@ -304,6 +359,7 @@ class SummaryCorrelations(Analyser):
         savefig(self.outputdir)
 
     def display_results(self):
+        use_paper_style()
         self._plot_corr_matrices()
         self._plot_indiv_corr()
 
@@ -311,10 +367,7 @@ class SummaryCorrelations(Analyser):
         self._plot_matrix('corr', self.cols, self.corr, cmap='bwr')
         self._plot_matrix('pvals', self.cols, self.pvals, sum_rows=True)
 
-        robust_corr = self.corr.copy()
-        robust_corr[self.pvals > 0.01] = 0
-
-        self._plot_matrix('robust_corr', self.cols, robust_corr, cmap='bwr')
+        self._plot_corr_triangle(self.cols, self.corr, self.pvals)
 
         reorder_index = []
         with open(os.path.join(self.outputdir, 'ordered_pvals.csv'), 'w') as f:
@@ -336,27 +389,100 @@ class SummaryCorrelations(Analyser):
         plt.hist(triu_pvals, bins=20, range=(0, 1))
         savefig(self.outputdir)
 
+    def _plot_corr_triangle(self, cols, corr, pvals):
+        """Paper Fig. 9: lower-triangle correlation matrix of the robust (p < 0.01) correlations.
+
+        Cells passing a Bonferroni correction are outlined and their values are in bold.
+        """
+        n = len(cols)
+        npairs = n * (n - 1) // 2
+        lower = np.tril(np.ones((n, n), dtype=bool), -1)
+        robust = lower & (pvals < 0.01)
+        bonf_thresh = 0.05 / npairs
+        bonf = lower & (pvals < bonf_thresh)
+        logger.info('Bonferroni: {} pairs, {} pass p < {}', npairs, bonf.sum(), bonf_thresh)
+
+        fig, ax = plt.subplots(num='robust_corr', figsize=cm_to_inch(FULL_WIDTH_CM, 15))
+        ax.imshow(np.where(lower, 1., np.nan), cmap=ListedColormap(['#ececec']), vmin=0, vmax=1)
+        im = ax.imshow(np.ma.masked_where(~robust, corr), cmap='RdBu_r', vmin=-1, vmax=1)
+        for i, j in zip(*np.where(robust)):
+            ax.text(j, i, _fmt_r(corr[i, j]), ha='center', va='center', fontsize=6,
+                    color='white' if abs(corr[i, j]) > 0.6 else 'black',
+                    fontweight='bold' if bonf[i, j] else 'normal')
+            if bonf[i, j]:
+                ax.add_patch(plt.Rectangle((j - 0.5, i - 0.5), 1, 1, fill=False, ec='#1b7837',
+                                           lw=1.5))
+
+        group_edges = np.cumsum([g[1] for g in CORR_GROUPS])
+        assert group_edges[-1] == n, 'groups do not match the columns'
+        for e in group_edges[:-1] - 0.5:
+            ax.plot([-0.5, e], [e, e], 'k', lw=0.6)
+            ax.plot([e, e], [e, n - 0.5], 'k', lw=0.6)
+
+        labels = [CORR_NAME_MAP.get(c, c) for c in cols]
+        ax.set_xticks(range(n))
+        ax.set_xticklabels(labels, rotation=90, fontsize=7)
+        ax.set_yticks(range(n))
+        ax.set_yticklabels(labels, fontsize=7)
+        ax.tick_params(length=0)
+        # The first row and last column of the lower triangle are empty.
+        ax.set_xlim(-0.5, n - 1.5)
+        ax.set_ylim(n - 0.5, 0.5)
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+
+        # Group bracket labels on the left and bottom edges.
+        starts = np.concatenate([[0], group_edges[:-1]])
+        trans_y = blended_transform_factory(ax.transAxes, ax.transData)
+        trans_x = blended_transform_factory(ax.transData, ax.transAxes)
+        for (name, _), start, end in zip(CORR_GROUPS, starts, group_edges):
+            # Rows shown are 1..n-1, columns 0..n-2.
+            r0, r1 = max(start, 1) - 0.4, end - 0.6
+            if r1 > r0:
+                ax.plot([-0.30, -0.30], [r0, r1], color='k', lw=0.6, transform=trans_y,
+                        clip_on=False)
+                ax.text(-0.32, (r0 + r1) / 2, name, transform=trans_y, rotation=90,
+                        ha='right', va='center', fontsize=7)
+            c0, c1 = start - 0.4, min(end, n - 1) - 0.6
+            if c1 > c0:
+                ax.plot([c0, c1], [-0.24, -0.24], color='k', lw=0.6, transform=trans_x,
+                        clip_on=False)
+                ax.text((c0 + c1) / 2, -0.26, name, transform=trans_x, ha='center', va='top',
+                        fontsize=7)
+
+        fig.colorbar(im, ax=ax, shrink=0.6, label='$r$')
+        savefig(self.outputdir)
+
     def _plot_indiv_corr(self):
         corr_pairs = [
             ['LLWD', 'cluster_index'],
             ['mean_surf_wind', 'CAPE'],
         ]
 
+        annotate_corners = {('LLWD', 'cluster_index'): 'lower right'}
         for c1, c2 in corr_pairs:
-            plot_corr(self.df_all_col_values, c1, c2)
-            plt.tight_layout()
+            plot_corr(self.df_all_col_values, c1, c2,
+                      annotate_xy=annotate_corners.get((c1, c2)))
             savefig(self.outputdir)
 
-        # DISABLE LIFETIME!
-        # title = '{} vs {}'.format('cluster_index', 'lifetimes').replace(' ', '_')
-        # fig, (ax1, ax2, ax3) = plt.subplots(1, 3, sharex=True,
-        #                                     figsize=cm_to_inch(20, 10), num=title)
-        # plot_corr(self.df_all_col_values, 'cluster_index', 'all_lifetime', ax1)
-        # ax1.set_ylim((0, None))
-        # plot_corr(self.df_all_col_values, 'cluster_index', 'simple_lifetime', ax2)
-        # ax2.set_ylim((0, 70))
-        # plot_corr(self.df_all_col_values, 'cluster_index', 'complex_lifetime', ax3)
-        # ax3.set_ylim((0, None))
-        # plt.tight_layout()
-        # savefig(self.outputdir)
-
+        title = '{} vs {}'.format('cluster_index', 'lifetimes').replace(' ', '_')
+        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, sharex=True,
+                                            figsize=cm_to_inch(FULL_WIDTH_CM, 6.5), num=title)
+        # In (a) and (c) C1 sits among other crosses: put its label just below the point.
+        offsets = {'RWP_C1': (0, -10)}
+        plot_corr(self.df_all_col_values, 'cluster_index', 'all_lifetime', ax1, legend=False,
+                  label_offsets=offsets)
+        ax1.set_ylim((0, None))
+        # One marker legend for the figure, in the empty lower left of panel (b).
+        plot_corr(self.df_all_col_values, 'cluster_index', 'simple_lifetime', ax2,
+                  legend_loc='lower left')
+        ax2.set_ylim((0, 70))
+        plot_corr(self.df_all_col_values, 'cluster_index', 'complex_lifetime', ax3, legend=False,
+                  label_offsets=offsets)
+        ax3.set_ylim((0, None))
+        for ax in (ax1, ax2, ax3):
+            # The text discusses the cluster-index threshold of 75 km.
+            ax.axvline(75, color='0.8', lw=0.6, zorder=1)
+        panel_labels((ax1, ax2, ax3))
+        fig.tight_layout()
+        savefig(self.outputdir)

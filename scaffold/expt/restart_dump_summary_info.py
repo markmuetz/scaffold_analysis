@@ -25,6 +25,20 @@ if not has_metpy:
     logger.warning('metpy not available')
 
 
+def _interp_rho_to_theta_levels(rho_cube, theta_cube):
+    """Linearly interpolate (in height) a field on rho levels onto theta levels.
+
+    Exner is on rho levels but theta and q are on theta levels, so they must be on the same levels
+    before being combined. Extrapolates below the first rho level (for theta level 0, z = 0).
+    """
+    z_rho = np.ma.getdata(rho_cube.coord('atmosphere_hybrid_height_coordinate').points)
+    z_theta = np.ma.getdata(theta_cube.coord('atmosphere_hybrid_height_coordinate').points)
+    data = np.ma.getdata(rho_cube.data)
+    lower = np.clip(np.searchsorted(z_rho, z_theta) - 1, 0, len(z_rho) - 2)
+    alpha = ((z_theta - z_rho[lower]) / (z_rho[lower + 1] - z_rho[lower]))[:, None, None]
+    return (1 - alpha) * data[lower] + alpha * data[lower + 1]
+
+
 def max_wind_diff_between_levels(u_profile, v_profile, start_level, end_level):
     max_wind_diff, max_i, max_j = 0, 0, 0
     # i is lower (higher pressure).
@@ -85,16 +99,18 @@ class RestartDumpSummaryInfo(Analyser):
         exnerp = get_cube(dump, 0, 255)
         qv = get_cube(dump, 0, 10)
 
-        qvdata = qv.data
-
-        Tdata = theta.data * exnerp.data
-        pdata = exnerp.data ** (1 / kappa) * p_ref
-
         # iris can return masked arrays (even with nothing masked), and multiplying a masked
         # array by a pint unit silently drops the unit. Use the plain data.
-        p = np.ma.getdata(pdata) * units('Pa')
-        qv = np.ma.getdata(qvdata) * units('kg/kg')
-        T = np.ma.getdata(Tdata) * units('K')
+        thetadata = np.ma.getdata(theta.data)
+        qvdata = np.ma.getdata(qv.data)
+        exnerpdata = _interp_rho_to_theta_levels(exnerp, theta)
+
+        Tdata = thetadata * exnerpdata
+        pdata = exnerpdata ** (1 / kappa) * p_ref
+
+        p = pdata * units('Pa')
+        qv = qvdata * units('kg/kg')
+        T = Tdata * units('K')
         Td = dewpoint_from_specific_humidity(qv, T, p)
 
         p_profile = p.mean(axis=(1, 2))

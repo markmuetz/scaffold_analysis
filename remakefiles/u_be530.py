@@ -13,6 +13,11 @@ Run (from the scaffold_analysis_port worktree):
     PYTHONPATH=$PWD:$PWD/../cloud_tracking pixi run --manifest-path ../scaffold_analysis/pixi.toml \
         -e remake remake run remakefiles/u_be530.py -E slurm
 """
+import hashlib
+import inspect
+import sys
+import types
+
 from remake import Remake, rule
 
 from scaffold import ANALYSERS
@@ -69,13 +74,74 @@ def settings_subset(keys):
     return {k: SETTINGS[k] for k in keys}
 
 
+def _sha(text):
+    return hashlib.sha1(text.encode()).hexdigest()[:12]
+
+
+def _code_names(code):
+    """Global names used by a code object and the code objects nested in it."""
+    names = set(code.co_names)
+    for const in code.co_consts:
+        if isinstance(const, types.CodeType):
+            names |= _code_names(const)
+    return names
+
+
+def _scaffold_refs(names, namespace, own_module, digests):
+    """Add digests for the scaffold objects (from other modules) that `names` refer to."""
+    for ref_name in sorted(names):
+        if ref_name not in namespace:
+            continue
+        value = namespace[ref_name]
+        if isinstance(value, types.ModuleType):
+            if value.__name__.startswith('scaffold.') and value.__name__ not in digests:
+                with open(value.__file__) as f:
+                    digests[value.__name__] = _sha(f.read())
+            continue
+        module_name = getattr(value, '__module__', None) or ''
+        if callable(value) and module_name.startswith('scaffold.'):
+            if module_name == own_module:
+                continue  # Covered by the whole-module digest.
+            key = '{}.{}'.format(module_name, value.__qualname__)
+            if key in digests:
+                continue
+            digests[key] = _sha(inspect.getsource(value))
+            # Follow what the function (or the class's methods) refer to in their own module.
+            codes = ([value.__code__] if isinstance(value, types.FunctionType) else
+                     [v.__code__ for v in vars(value).values() if isinstance(v, types.FunctionType)])
+            ref_names = set().union(*(_code_names(c) for c in codes)) if codes else set()
+            _scaffold_refs(ref_names, vars(sys.modules[module_name]), module_name, digests)
+        elif not callable(value):
+            # A constant imported from another scaffold module (e.g. expt_settings.EXPT_DETAILS).
+            for module in list(sys.modules.values()):
+                if (module.__name__.startswith('scaffold.') and module.__name__ != own_module and
+                        vars(module).get(ref_name) is value):
+                    digests['{}.{}'.format(module.__name__, ref_name)] = _sha(repr(value))
+                    break
+
+
+def code_digests(name):
+    """Digests of the code an analyser runs: its module's file, plus the source of every
+    scaffold function/class (and value of every scaffold constant) it uses from other modules.
+
+    `uses` tracks the analyser class itself, but not module-level code outside the class or
+    helpers in other modules (e.g. scaffold.utils.interp_vert_rho2w), so track those too.
+    Per object rather than per file, so a change to one helper only reruns the rules using it.
+    """
+    module = sys.modules[ANALYSERS[name].__module__]
+    with open(module.__file__) as f:
+        digests = {module.__name__: _sha(f.read())}
+    _scaffold_refs(set(vars(module)), vars(module), module.__name__, digests)
+    return tuple(sorted(digests.items()))
+
+
 # ---------------------------------------------------------------------------
 # Expt rules: matrix (expt, runid)
 # ---------------------------------------------------------------------------
 
 def _per_runid_rule(name, matrix, inputs, outputs, settings_keys=(), depends_on=None, config=None):
     @rule(inputs=inputs, outputs=outputs, matrix=matrix, depends_on=depends_on,
-          uses={'analyser': ANALYSERS[name], 'settings': settings_subset(settings_keys),
+          uses={'analyser': ANALYSERS[name], 'analyser_code': code_digests(name), 'settings': settings_subset(settings_keys),
                 'suite_root': SUITE_DIR, 'analyser_files': analyser_files,
                 'declared_outputs': declared_outputs},
           config=config, name=name)
@@ -152,7 +218,7 @@ dump_slice_analysis = _per_runid_rule(
 
 def _per_expt_rule(name, expts, inputs, outputs, settings_keys=(), depends_on=None, config=None):
     @rule(inputs=inputs, outputs=outputs, matrix={'expt': list(expts)}, depends_on=depends_on,
-          uses={'analyser': ANALYSERS[name], 'settings': settings_subset(settings_keys),
+          uses={'analyser': ANALYSERS[name], 'analyser_code': code_digests(name), 'settings': settings_subset(settings_keys),
                 'suite_root': SUITE_DIR, 'analyser_files': analyser_files,
                 'declared_outputs': declared_outputs},
           config=config, name=name)
@@ -265,7 +331,7 @@ def _per_group_rule(name, groups, expt_input, side_outputs=(), extra_inputs=None
 
     @rule(inputs=inputs, outputs=outputs, matrix={'group': list(groups)}, depends_on=depends_on,
           # N.B. not `groups`: that is this factory's list of group names.
-          uses={'analyser': ANALYSERS[name], 'suite_root': SUITE_DIR, 'analyser_files': analyser_files,
+          uses={'analyser': ANALYSERS[name], 'analyser_code': code_digests(name), 'suite_root': SUITE_DIR, 'analyser_files': analyser_files,
                 'declared_outputs': declared_outputs, 'group_expts': GROUPS},
           config=config, name=name)
     def run(inputs, outputs, group):
@@ -306,10 +372,20 @@ precip_plot = _per_group_rule(
     'precip_plot', SIMPLE_GROUPS, lambda expt: '{}/{}_atmos/atmos.pp3.nc'.format(WORK, expt),
     config={'slurm': {'mem': '64G'}})
 
+def _org_plot_extra_inputs(group):
+    # The RWP RDF figure (only) is coloured by LLS, read from each expt's restart_dump_summary_info.
+    inputs = _um_confs(group)
+    if group == 'RWPs':
+        inputs.update({'rdsi_{}'.format(e): '{}/{}/atmos.restart_dump_summary_info.hdf'.format(OUT, e)
+                       for e in GROUPS[group]})
+    return inputs
+
+
 org_plot = _per_group_rule(
     'org_plot', SIMPLE_GROUPS + ['FORCED_PLUS_RWPS'],
     lambda expt: '{}/{}/atmos.org_combined.nc'.format(OUT, expt),
-    side_outputs=('org_data.csv',), extra_inputs=_um_confs, depends_on=[org_combined])
+    side_outputs=('org_data.csv',), extra_inputs=_org_plot_extra_inputs,
+    depends_on=[org_combined, restart_dump_summary_info])
 
 surf_flux_plot = _per_group_rule(
     'surf_flux_plot', SIMPLE_GROUPS, lambda expt: '{}/{}_atmos/atmos.pp3.nc'.format(WORK, expt),
@@ -347,7 +423,7 @@ def _energy_balance_inputs(group):
 @rule(inputs=_energy_balance_inputs,
       outputs=lambda group: {'out0': '{}/energy_balance.hdf'.format(suite_dir(group))},
       matrix={'group': DUMP_GROUPS}, depends_on=[surf_flux_plot, relaxation_plot],
-      uses={'analyser': ANALYSERS['energy_balance'], 'suite_root': SUITE_DIR, 'analyser_files': analyser_files,
+      uses={'analyser': ANALYSERS['energy_balance'], 'analyser_code': code_digests('energy_balance'), 'suite_root': SUITE_DIR, 'analyser_files': analyser_files,
                 'declared_outputs': declared_outputs, 'group_expts': GROUPS})
 def energy_balance(inputs, outputs, group):
     from scaffold.analysis_base import run_analyser
@@ -371,7 +447,7 @@ def _summary_correlations_inputs():
       outputs={'out0': OUT + '/suite_summary_correlations/atmos.summary_correlations.dummy',
                'out1': OUT + '/suite_summary_correlations/all_col_values.hdf'},
       depends_on=[org_plot, restart_dump_summary_info, mass_flux_combined, cloud_track_analysis],
-      uses={'analyser': ANALYSERS['summary_correlations'], 'suite_root': SUITE_DIR, 'analyser_files': analyser_files,
+      uses={'analyser': ANALYSERS['summary_correlations'], 'analyser_code': code_digests('summary_correlations'), 'suite_root': SUITE_DIR, 'analyser_files': analyser_files,
                 'declared_outputs': declared_outputs, 'out': OUT})
 def summary_correlations(inputs, outputs):
     from scaffold.analysis_base import run_analyser
