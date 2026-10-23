@@ -204,3 +204,38 @@
 2026-10-23 11:54:27.342 | INFO     | remake.executors.slurm_executor:run_tasks:420 - summary_correlations: submitting 1 task(s)
 2026-10-23 11:54:27.352 | INFO     | remake.executors.slurm_executor:run_tasks:455 - Wrote .remake/submit.sh (13105 task(s) in 29 rule(s))
 2026-10-23 11:54:27.353 | INFO     | remake.executors.slurm_executor:submit:543 - Executing .remake/submit.sh
+2026-10-23 12:35:49.096 | DEBUG    | remake.remake_cmd:remake_cmd:1036 - argv: ['/home/users/mmuetz/projects/local/scaffold_analysis/.pixi/envs/remake/bin/remake', 'info', 'remakefiles/u_be530.py']
+2026-10-23 12:35:57.421 | DEBUG    | remake.metadata.sqlite3_backend:ensure_rules:533 - ensured 29 rule(s): 0 new, 12 with changed code
+2026-10-23 12:37:01.623 | DEBUG    | remake.metadata.sqlite3_backend:ingest_sidecars:646 - Ingested 13085 sidecar result(s) in 64.202s
+2026-10-23 12:37:01.797 | DEBUG    | remake.core.planner:plan:628 - cloud_analysis: 3060 task(s), 0 to rerun
+2026-10-23 12:37:01.881 | DEBUG    | remake.core.planner:plan:628 - profile_analysis: 510 task(s), 0 to rerun
+2026-10-23 12:37:01.905 | DEBUG    | remake.core.planner:plan:628 - restart_dump_analysis: 88 task(s), 0 to rerun
+2026-10-23 12:37:01.938 | DEBUG    | remake.core.planner:plan:628 - dump_slice_analysis: 44 task(s), 44 to rerun
+2026-10-23 12:37:01.952 | DEBUG    | remake.core.planner:plan:628 - surf_flux_analysis: 22 task(s), 0 to rerun
+2026-10-23 12:37:01.972 | DEBUG    | remake.core.planner:plan:628 - precip_hovmoller_analysis: 22 task(s), 22 to rerun
+2026-10-23 12:37:01.988 | DEBUG    | remake.core.planner:plan:628 - dump_extract_state: 22 task(s), 0 to rerun
+2026-10-23 12:37:02.006 | DEBUG    | remake.core.planner:plan:628 - restart_dump_summary_info: 22 task(s), 22 to rerun
+2026-10-23 12:37:02.029 | DEBUG    | remake.core.planner:plan:628 - precip_plot: 4 task(s), 4 to rerun
+2026-10-23 12:37:02.043 | DEBUG    | remake.core.planner:plan:628 - surf_flux_plot: 4 task(s), 4 to rerun
+2026-10-23 12:37:02.070 | DEBUG    | remake.core.planner:plan:628 - dump_profile_plot: 3 task(s), 3 to rerun
+2026-10-23 12:37:02.090 | DEBUG    | remake.core.planner:plan:628 - relaxation_plot: 3 task(s), 3 to rerun
+2026-10-23 12:37:02.270 | DEBUG    | remake.metadata.sqlite3_backend:get_tasks_status:588 - queried status of 3060 task(s) in 4 chunk(s), 3060 found, in 0.172s
+2026-10-23 12:37:02.348 | DEBUG    | remake.core.planner:plan:628 - mass_flux_analysis: 3060 task(s), 0 to rerun
+2026-10-23 12:37:02.481 | DEBUG    | remake.metadata.sqlite3_backend:get_tasks_status:588 - queried status of 3060 task(s) in 4 chunk(s), 3060 found, in 0.126s
+2026-10-23 12:37:02.502 | DEBUG    | remake.core.planner:plan:628 - mass_flux_spatial_scales_analysis: 3060 task(s), 0 to rerun
+2026-10-23 12:37:02.624 | DEBUG    | remake.core.planner:plan:628 - org_analysis: 3060 task(s), 0 to rerun
+2026-10-23 12:37:02.649 | DEBUG    | remake.core.planner:plan:628 - cloud_track_analysis: 14 task(s), 14 to rerun
+2026-10-23 12:37:02.690 | DEBUG    | remake.core.planner:plan:628 - profile_plot: 4 task(s), 0 to rerun
+2026-10-23 12:37:02.704 | DEBUG    | remake.core.planner:plan:628 - mse_combined: 22 task(s), 0 to rerun
+2026-10-23 12:37:02.718 | DEBUG    | remake.core.planner:plan:628 - energy_balance: 3 task(s), 3 to rerun
+2026-10-23 12:37:02.735 | DEBUG    | remake.core.planner:plan:628 - mass_flux_combined: 22 task(s), 0 to rerun
+2026-10-23 12:37:02.772 | DEBUG    | remake.core.planner:plan:628 - mass_flux_spatial_scales_combined: 22 task(s), 0 to rerun
+2026-10-23 12:37:02.797 | DEBUG    | remake.core.planner:plan:628 - org_combined: 22 task(s), 0 to rerun
+2026-10-23 12:37:02.827 | DEBUG    | remake.core.planner:plan:628 - cloud_track_plot: 1 task(s), 1 to rerun
+2026-10-23 12:37:02.842 | DEBUG    | remake.core.planner:plan:628 - cloud_track_lifecycle_plot: 1 task(s), 1 to rerun
+2026-10-23 12:37:02.865 | DEBUG    | remake.core.planner:plan:628 - mse_plot: 4 task(s), 4 to rerun
+2026-10-23 12:37:02.889 | DEBUG    | remake.core.planner:plan:628 - mass_flux_plot: 4 task(s), 4 to rerun
+2026-10-23 12:37:02.963 | DEBUG    | remake.core.planner:plan:628 - mass_flux_spatial_scales_plot: 4 task(s), 0 to rerun
+2026-10-23 12:37:03.027 | DEBUG    | remake.core.planner:plan:628 - org_plot: 5 task(s), 5 to rerun
+2026-10-23 12:37:03.047 | DEBUG    | remake.core.planner:plan:628 - summary_correlations: 1 task(s), 1 to rerun
+2026-10-23 12:37:03.047 | DEBUG    | remake.core.planner:plan:637 - plan: 135 runnable, 0 deferred in 1.353s

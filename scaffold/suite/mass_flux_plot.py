@@ -364,7 +364,7 @@ class MassFluxPlotter(Analyser):
                     mean_num_clds.append(cube.shape[0] / num_cld_snapshots)
 
         df_mean_num_clds = pd.DataFrame({'expt': nice_expt_names, 'mean_num_clds': mean_num_clds})
-        df_mean_num_clds.to_hdf(self.file_path('mean_num_clds.hdf'), 'mean_num_clds')
+        df_mean_num_clds.to_hdf(self.file_path('mean_num_clds.hdf'), key='mean_num_clds')
         print(mean_num_clds)
 
 

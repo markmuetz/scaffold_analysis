@@ -263,7 +263,7 @@ class SummaryCorrelations(Analyser):
     def save(self, state, suite):
         with open(self.task.output_filenames[0], 'w') as f:
             f.write('done')
-        self.df_all_col_values.to_hdf(self.task.output_filenames[1], 'all_col_values')
+        self.df_all_col_values.to_hdf(self.task.output_filenames[1], key='all_col_values')
 
     def _plot_matrix(self, name, cols, data, cmap=None, sum_rows=False):
         plt.figure(name, figsize=cm_to_inch(21, 21.0))

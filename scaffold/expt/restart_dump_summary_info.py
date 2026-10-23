@@ -133,5 +133,5 @@ class RestartDumpSummaryInfo(Analyser):
                                            mlwd, mlwd / (z[mlj] - z[mli])])
 
     def save(self, state, suite):
-        self.df_summary_info.to_hdf(self.task.output_filenames[0], 'thermodynamic_summary')
-        self.df_dyn_summary_info.to_hdf(self.task.output_filenames[0], 'dynamic_summary')
+        self.df_summary_info.to_hdf(self.task.output_filenames[0], key='thermodynamic_summary')
+        self.df_dyn_summary_info.to_hdf(self.task.output_filenames[0], key='dynamic_summary')

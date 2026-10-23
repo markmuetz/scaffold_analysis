@@ -7,6 +7,9 @@ import numpy as np
 import scipy.interpolate as interpolate
 import scipy.integrate as integrate
 
+# scipy >= 1.14 removed trapz; trapezoid is the same function (added in 1.6).
+trapezoid = getattr(integrate, 'trapezoid', None) or integrate.trapz
+
 matplotlib.use('Agg')
 import pylab as plt
 
@@ -118,14 +121,14 @@ class OrgPlotter(Analyser):
 
                 x1 = list(xpoints[:indices[0] + 1]) + [crosses[0]]
                 y1 = org_data_fn(x1)
-                cluster_index = integrate.trapz(y1, x1)
+                cluster_index = trapezoid(y1, x1)
                 logger.debug('cluster_index: {}', cluster_index)
 
                 x2 = list(xpoints[indices[0] + 1:indices[1] + 1]) + [crosses[1]]
                 y2 = org_data_fn(x2)
 
                 # Make +ve.
-                suppr_index = np.abs(integrate.trapz(y2, x2))
+                suppr_index = np.abs(trapezoid(y2, x2))
                 logger.debug('suppr_index: {}', suppr_index)
 
                 self.org_data[(expt, group)]['crosses'] = crosses

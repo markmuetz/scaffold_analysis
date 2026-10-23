@@ -47,7 +47,7 @@ class EnergyBalance(Analyser):
         self.rel_file.close()
 
     def save(self, state, suite):
-        self.df_energy_balance.to_hdf(self.task.output_filenames[0], 'energy_balance')
+        self.df_energy_balance.to_hdf(self.task.output_filenames[0], key='energy_balance')
 
     def display_results(self):
         cols = ['expt',
