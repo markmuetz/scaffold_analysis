@@ -38,8 +38,9 @@ def interp_vert_rho2w(vertlevs, w_slice, rho_slice, time_index, height_level_ind
     assert 0 <= alpha <= 1
 
     # Interp rho onto w grid.
-    rho_ss_lower = rho_slice[time_index, height_level_index].data
-    rho_ss_upper = rho_slice[time_index, height_level_index + 1].data
+    # N.B. rho_slice has 2 levels for every height level (lower, upper), as for the heights above.
+    rho_ss_lower = rho_slice[time_index, 2 * height_level_index].data
+    rho_ss_upper = rho_slice[time_index, 2 * height_level_index + 1].data
 
     rho_ss_interp = (1 - alpha) * rho_ss_lower + alpha * rho_ss_upper
     return rho_ss_interp
