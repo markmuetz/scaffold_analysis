@@ -9,6 +9,7 @@ has_metpy = False
 try:
     import metpy
     import metpy.calc as mpcalc
+    from scaffold.metpy_compat import dewpoint_from_specific_humidity
     from metpy.plots import SkewT
     from metpy.units import units
     has_metpy = True
@@ -94,7 +95,7 @@ class RestartDumpSummaryInfo(Analyser):
         p = np.ma.getdata(pdata) * units('Pa')
         qv = np.ma.getdata(qvdata) * units('kg/kg')
         T = np.ma.getdata(Tdata) * units('K')
-        Td = mpcalc.dewpoint_from_specific_humidity(qv, T, p)
+        Td = dewpoint_from_specific_humidity(qv, T, p)
 
         p_profile = p.mean(axis=(1, 2))
         T_profile = T.mean(axis=(1, 2))

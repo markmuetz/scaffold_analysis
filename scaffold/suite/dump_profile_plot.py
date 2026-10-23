@@ -12,6 +12,7 @@ has_metpy = False
 try:
     import metpy
     import metpy.calc as mpcalc
+    from scaffold.metpy_compat import dewpoint_from_specific_humidity
     from metpy.plots import SkewT
     from metpy.units import units
     has_metpy = True
@@ -321,7 +322,7 @@ class DumpProfilePlotter(Analyser):
             p = np.ma.getdata(pdata) * units('Pa')
             qv = np.ma.getdata(qvdata) * units('kg/kg')
             T = np.ma.getdata(Tdata) * units('K')
-            Td = mpcalc.dewpoint_from_specific_humidity(qv, T, p)
+            Td = dewpoint_from_specific_humidity(qv, T, p)
 
             if expt in EXPT_DETAILS:
                 expt_name = EXPT_DETAILS[expt][0]
@@ -365,7 +366,7 @@ class DumpProfilePlotter(Analyser):
 
             z = theta_cube.coord('atmosphere_hybrid_height_coordinate').points
 
-            Td = mpcalc.dewpoint_from_specific_humidity(q * units('kg/kg'), T * units.degK, p * units('hPa'))
+            Td = dewpoint_from_specific_humidity(q * units('kg/kg'), T * units.degK, p * units('hPa'))
             theta_e = mpcalc.equivalent_potential_temperature(p * units('hPa'), T * units.degK, Td)
             theta_es = mpcalc.saturation_equivalent_potential_temperature(p * units('hPa'), T * units.degK)
 

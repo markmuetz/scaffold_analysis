@@ -264,13 +264,14 @@ def _per_group_rule(name, groups, expt_input, side_outputs=(), extra_inputs=None
         return outs
 
     @rule(inputs=inputs, outputs=outputs, matrix={'group': list(groups)}, depends_on=depends_on,
+          # N.B. not `groups`: that is this factory's list of group names.
           uses={'analyser': ANALYSERS[name], 'suite_root': SUITE_DIR, 'analyser_files': analyser_files,
-                'declared_outputs': declared_outputs, 'groups': GROUPS},
+                'declared_outputs': declared_outputs, 'group_expts': GROUPS},
           config=config, name=name)
     def run(inputs, outputs, group):
         from scaffold.analysis_base import run_analyser
         run_analyser(analyser, suite_root, analyser_files(inputs), declared_outputs(outputs),
-                     {}, expts=groups[group])
+                     {}, expts=group_expts[group])
     return run
 
 
@@ -347,11 +348,11 @@ def _energy_balance_inputs(group):
       outputs=lambda group: {'out0': '{}/energy_balance.hdf'.format(suite_dir(group))},
       matrix={'group': DUMP_GROUPS}, depends_on=[surf_flux_plot, relaxation_plot],
       uses={'analyser': ANALYSERS['energy_balance'], 'suite_root': SUITE_DIR, 'analyser_files': analyser_files,
-                'declared_outputs': declared_outputs, 'groups': GROUPS})
+                'declared_outputs': declared_outputs, 'group_expts': GROUPS})
 def energy_balance(inputs, outputs, group):
     from scaffold.analysis_base import run_analyser
     run_analyser(analyser, suite_root, analyser_files(inputs), declared_outputs(outputs), {},
-                 expts=groups[group])
+                 expts=group_expts[group])
 
 
 SC_EXPTS = FORCED + RWPS

@@ -57,7 +57,7 @@ class PrecipHovmollerAnalyser(Analyser):
         mask = hov_x < 0.00001
         plt.imshow(np.ma.masked_array(hov_x, mask), interpolation='nearest',
                    extent=[0, x_res * nx, timelength_days, 0], aspect=100, cmap=plt.get_cmap('Blues'),
-                   norm=LogNorm(), vmax=2e-3)
+                   norm=LogNorm(vmax=2e-3))
         cb = plt.colorbar()
         cb.set_label('precip. (mm hr$^{-1}$)')
         plt.xlabel('x (km)')
@@ -70,7 +70,7 @@ class PrecipHovmollerAnalyser(Analyser):
         mask = hov_y < 0.00001
         plt.imshow(np.ma.masked_array(hov_y, mask), interpolation='nearest',
                    extent=[0, y_res * ny, timelength_days, 0], aspect=100, cmap=plt.get_cmap('Blues'),
-                   norm=LogNorm(), vmax=2e-3)
+                   norm=LogNorm(vmax=2e-3))
         cb = plt.colorbar()
         cb.set_label('precip. (mm hr$^{-1}$)')
         plt.xlabel('y (km)')

@@ -141,3 +141,66 @@
 2026-10-23 11:48:20.628 | DEBUG    | remake.core.planner:plan:628 - summary_correlations: 0 task(s), 0 to rerun
 2026-10-23 11:48:20.629 | DEBUG    | remake.core.planner:plan:637 - plan: 0 runnable, 0 deferred in 0.525s
 2026-10-23 11:48:20.630 | INFO     | remake.core.remake:_run:834 - ran 8 task(s), 0 failed in 932.7s
+2026-10-23 11:54:15.050 | DEBUG    | remake.remake_cmd:remake_cmd:1036 - argv: ['/home/users/mmuetz/projects/local/scaffold_analysis/.pixi/envs/remake/bin/remake', 'run', 'u_be530.py', '-E', 'slurm']
+2026-10-23 11:54:25.106 | DEBUG    | remake.metadata.sqlite3_backend:ensure_rules:533 - ensured 29 rule(s): 0 new, 0 with changed code
+2026-10-23 11:54:25.388 | DEBUG    | remake.core.planner:plan:628 - cloud_analysis: 3060 task(s), 3058 to rerun
+2026-10-23 11:54:25.448 | DEBUG    | remake.core.planner:plan:628 - profile_analysis: 510 task(s), 510 to rerun
+2026-10-23 11:54:25.495 | DEBUG    | remake.core.planner:plan:628 - restart_dump_analysis: 88 task(s), 88 to rerun
+2026-10-23 11:54:25.596 | DEBUG    | remake.core.planner:plan:628 - dump_slice_analysis: 44 task(s), 44 to rerun
+2026-10-23 11:54:25.608 | DEBUG    | remake.core.planner:plan:628 - surf_flux_analysis: 22 task(s), 22 to rerun
+2026-10-23 11:54:25.620 | DEBUG    | remake.core.planner:plan:628 - precip_hovmoller_analysis: 22 task(s), 22 to rerun
+2026-10-23 11:54:25.629 | DEBUG    | remake.core.planner:plan:628 - dump_extract_state: 22 task(s), 22 to rerun
+2026-10-23 11:54:25.648 | DEBUG    | remake.core.planner:plan:628 - restart_dump_summary_info: 22 task(s), 22 to rerun
+2026-10-23 11:54:25.673 | DEBUG    | remake.core.planner:plan:628 - precip_plot: 4 task(s), 4 to rerun
+2026-10-23 11:54:25.704 | DEBUG    | remake.core.planner:plan:628 - surf_flux_plot: 4 task(s), 4 to rerun
+2026-10-23 11:54:25.732 | DEBUG    | remake.core.planner:plan:628 - dump_profile_plot: 3 task(s), 3 to rerun
+2026-10-23 11:54:25.751 | DEBUG    | remake.core.planner:plan:628 - relaxation_plot: 3 task(s), 3 to rerun
+2026-10-23 11:54:26.071 | DEBUG    | remake.core.planner:plan:628 - mass_flux_analysis: 3060 task(s), 3058 to rerun
+2026-10-23 11:54:26.147 | DEBUG    | remake.core.planner:plan:628 - mass_flux_spatial_scales_analysis: 3060 task(s), 3058 to rerun
+2026-10-23 11:54:26.224 | DEBUG    | remake.core.planner:plan:628 - org_analysis: 3060 task(s), 3058 to rerun
+2026-10-23 11:54:26.317 | DEBUG    | remake.core.planner:plan:628 - cloud_track_analysis: 14 task(s), 14 to rerun
+2026-10-23 11:54:26.342 | DEBUG    | remake.core.planner:plan:628 - profile_plot: 4 task(s), 4 to rerun
+2026-10-23 11:54:26.373 | DEBUG    | remake.core.planner:plan:628 - mse_combined: 22 task(s), 22 to rerun
+2026-10-23 11:54:26.386 | DEBUG    | remake.core.planner:plan:628 - energy_balance: 3 task(s), 3 to rerun
+2026-10-23 11:54:26.394 | DEBUG    | remake.core.planner:plan:628 - mass_flux_combined: 22 task(s), 22 to rerun
+2026-10-23 11:54:26.399 | DEBUG    | remake.core.planner:plan:628 - mass_flux_spatial_scales_combined: 22 task(s), 22 to rerun
+2026-10-23 11:54:26.406 | DEBUG    | remake.core.planner:plan:628 - org_combined: 22 task(s), 22 to rerun
+2026-10-23 11:54:26.413 | DEBUG    | remake.core.planner:plan:628 - cloud_track_plot: 1 task(s), 1 to rerun
+2026-10-23 11:54:26.421 | DEBUG    | remake.core.planner:plan:628 - cloud_track_lifecycle_plot: 1 task(s), 1 to rerun
+2026-10-23 11:54:26.428 | DEBUG    | remake.core.planner:plan:628 - mse_plot: 4 task(s), 4 to rerun
+2026-10-23 11:54:26.475 | DEBUG    | remake.core.planner:plan:628 - mass_flux_plot: 4 task(s), 4 to rerun
+2026-10-23 11:54:26.516 | DEBUG    | remake.core.planner:plan:628 - mass_flux_spatial_scales_plot: 4 task(s), 4 to rerun
+2026-10-23 11:54:26.540 | DEBUG    | remake.core.planner:plan:628 - org_plot: 5 task(s), 5 to rerun
+2026-10-23 11:54:26.562 | DEBUG    | remake.core.planner:plan:628 - summary_correlations: 1 task(s), 1 to rerun
+2026-10-23 11:54:26.562 | DEBUG    | remake.core.planner:plan:637 - plan: 13105 runnable, 0 deferred in 1.306s
+2026-10-23 11:54:26.753 | INFO     | remake.executors.slurm_executor:run_tasks:420 - cloud_analysis: submitting 3058 task(s)
+2026-10-23 11:54:26.796 | INFO     | remake.executors.slurm_executor:run_tasks:420 - profile_analysis: submitting 510 task(s)
+2026-10-23 11:54:26.808 | INFO     | remake.executors.slurm_executor:run_tasks:420 - restart_dump_analysis: submitting 88 task(s)
+2026-10-23 11:54:26.817 | INFO     | remake.executors.slurm_executor:run_tasks:420 - dump_slice_analysis: submitting 44 task(s)
+2026-10-23 11:54:26.831 | INFO     | remake.executors.slurm_executor:run_tasks:420 - surf_flux_analysis: submitting 22 task(s)
+2026-10-23 11:54:26.842 | INFO     | remake.executors.slurm_executor:run_tasks:420 - precip_hovmoller_analysis: submitting 22 task(s)
+2026-10-23 11:54:26.855 | INFO     | remake.executors.slurm_executor:run_tasks:420 - dump_extract_state: submitting 22 task(s)
+2026-10-23 11:54:26.888 | INFO     | remake.executors.slurm_executor:run_tasks:420 - restart_dump_summary_info: submitting 22 task(s)
+2026-10-23 11:54:26.916 | INFO     | remake.executors.slurm_executor:run_tasks:420 - precip_plot: submitting 4 task(s)
+2026-10-23 11:54:26.923 | INFO     | remake.executors.slurm_executor:run_tasks:420 - surf_flux_plot: submitting 4 task(s)
+2026-10-23 11:54:26.931 | INFO     | remake.executors.slurm_executor:run_tasks:420 - dump_profile_plot: submitting 3 task(s)
+2026-10-23 11:54:26.939 | INFO     | remake.executors.slurm_executor:run_tasks:420 - relaxation_plot: submitting 3 task(s)
+2026-10-23 11:54:26.970 | INFO     | remake.executors.slurm_executor:run_tasks:420 - mass_flux_analysis: submitting 3058 task(s)
+2026-10-23 11:54:27.053 | INFO     | remake.executors.slurm_executor:run_tasks:420 - mass_flux_spatial_scales_analysis: submitting 3058 task(s)
+2026-10-23 11:54:27.141 | INFO     | remake.executors.slurm_executor:run_tasks:420 - org_analysis: submitting 3058 task(s)
+2026-10-23 11:54:27.200 | INFO     | remake.executors.slurm_executor:run_tasks:420 - cloud_track_analysis: submitting 14 task(s)
+2026-10-23 11:54:27.210 | INFO     | remake.executors.slurm_executor:run_tasks:420 - profile_plot: submitting 4 task(s)
+2026-10-23 11:54:27.227 | INFO     | remake.executors.slurm_executor:run_tasks:420 - mse_combined: submitting 22 task(s)
+2026-10-23 11:54:27.241 | INFO     | remake.executors.slurm_executor:run_tasks:420 - energy_balance: submitting 3 task(s)
+2026-10-23 11:54:27.249 | INFO     | remake.executors.slurm_executor:run_tasks:420 - mass_flux_combined: submitting 22 task(s)
+2026-10-23 11:54:27.258 | INFO     | remake.executors.slurm_executor:run_tasks:420 - mass_flux_spatial_scales_combined: submitting 22 task(s)
+2026-10-23 11:54:27.273 | INFO     | remake.executors.slurm_executor:run_tasks:420 - org_combined: submitting 22 task(s)
+2026-10-23 11:54:27.279 | INFO     | remake.executors.slurm_executor:run_tasks:420 - cloud_track_plot: submitting 1 task(s)
+2026-10-23 11:54:27.286 | INFO     | remake.executors.slurm_executor:run_tasks:420 - cloud_track_lifecycle_plot: submitting 1 task(s)
+2026-10-23 11:54:27.294 | INFO     | remake.executors.slurm_executor:run_tasks:420 - mse_plot: submitting 4 task(s)
+2026-10-23 11:54:27.301 | INFO     | remake.executors.slurm_executor:run_tasks:420 - mass_flux_plot: submitting 4 task(s)
+2026-10-23 11:54:27.308 | INFO     | remake.executors.slurm_executor:run_tasks:420 - mass_flux_spatial_scales_plot: submitting 4 task(s)
+2026-10-23 11:54:27.329 | INFO     | remake.executors.slurm_executor:run_tasks:420 - org_plot: submitting 5 task(s)
+2026-10-23 11:54:27.342 | INFO     | remake.executors.slurm_executor:run_tasks:420 - summary_correlations: submitting 1 task(s)
+2026-10-23 11:54:27.352 | INFO     | remake.executors.slurm_executor:run_tasks:455 - Wrote .remake/submit.sh (13105 task(s) in 29 rule(s))
+2026-10-23 11:54:27.353 | INFO     | remake.executors.slurm_executor:submit:543 - Executing .remake/submit.sh

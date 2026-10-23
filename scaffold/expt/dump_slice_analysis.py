@@ -647,9 +647,11 @@ class DumpSliceAnalyser(Analyser):
                                                    vmin=data_interp[:200].min(),
                                                    vmax=data_interp[:200].max())
         elif use_log_norm:
-            kwargs['norm'] = colors.LogNorm()
+            # vmin/vmax go in the norm: matplotlib >= 3.9 rejects them alongside norm=.
             if vmin is not None and vmax is not None:
-                kwargs['vmin'], kwargs['vmax'] = vmin, vmax
+                kwargs['norm'] = colors.LogNorm(vmin=vmin, vmax=vmax)
+            else:
+                kwargs['norm'] = colors.LogNorm()
         else:
             if vmin is not None and vmax is not None:
                 kwargs['vmin'], kwargs['vmax'] = vmin, vmax
